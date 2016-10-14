@@ -2,7 +2,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "be_vib_imagej_DenoisingIJ2.h"
+#include "be_vib_imagej_QuasarInterface.h"
 
 #include "quasar_dsl.h"
 
@@ -98,7 +98,7 @@ namespace
 	}
 } // close anonymous namespace
 
-jboolean Java_be_vib_imagej_DenoisingIJ2_quasarInit(JNIEnv* env, jclass, jstring deviceName)
+jboolean Java_be_vib_imagej_QuasarInterface_quasarInit(JNIEnv* env, jclass, jstring deviceName)
 {
 	std::cout << "Java_be_vib_imagej_DenoisingIJ2_quasarInit" << std::endl;
 
@@ -112,7 +112,7 @@ jboolean Java_be_vib_imagej_DenoisingIJ2_quasarInit(JNIEnv* env, jclass, jstring
  	return host ? JNI_TRUE : JNI_FALSE;
 }
 
-void Java_be_vib_imagej_DenoisingIJ2_quasarRelease(JNIEnv* env, jclass)
+void Java_be_vib_imagej_QuasarInterface_quasarRelease(JNIEnv* env, jclass)
 {
 	std::cout << "Java_be_vib_imagej_DenoisingIJ2_quasarRelease" << std::endl;
 	assert(host);
@@ -120,7 +120,7 @@ void Java_be_vib_imagej_DenoisingIJ2_quasarRelease(JNIEnv* env, jclass)
 	host = nullptr;
 }
 
-jboolean Java_be_vib_imagej_DenoisingIJ2_quasarLoadSource(JNIEnv* env, jclass, jstring source)
+jboolean Java_be_vib_imagej_QuasarInterface_quasarLoadSource(JNIEnv* env, jclass, jstring source)
 {
 	std::cout << "Java_be_vib_imagej_DenoisingIJ2_quasarLoadSource" << std::endl;
 	assert(host);
@@ -144,7 +144,7 @@ jboolean Java_be_vib_imagej_DenoisingIJ2_quasarLoadSource(JNIEnv* env, jclass, j
  	return loaded ? JNI_TRUE : JNI_FALSE;
 }
 
-jbyteArray Java_be_vib_imagej_DenoisingIJ2_quasarNlmeans(JNIEnv *env, jclass, jint width, jint height, jbyteArray inputPixels, jfloat sigma, jint searchWindow, jint halfBlockSize,  jint vectorBasedFilter, jint kltPostProcessing)
+jbyteArray Java_be_vib_imagej_QuasarInterface_quasarNlmeans(JNIEnv *env, jclass, jint width, jint height, jbyteArray inputPixels, jfloat sigma, jint searchWindow, jint halfBlockSize,  jint vectorBasedFilter, jint kltPostProcessing)
 {
 	std::cout << "Java_be_vib_imagej_DenoisingIJ2_quasarNlmeans" << std::endl;
 
