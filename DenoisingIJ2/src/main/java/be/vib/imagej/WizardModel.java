@@ -45,7 +45,7 @@ public class WizardModel
 		//       (some values probably depend on one another though, like sigma and block size...)
 		
 		public static final float sigmaMin = 0.01f;
-		public static final float sigmaMax = 50.0f;
+		public static final float sigmaMax = 100.0f;
 		
 		public static final int searchWindowMin = 1;
 		public static final int searchWindowMax = 20;

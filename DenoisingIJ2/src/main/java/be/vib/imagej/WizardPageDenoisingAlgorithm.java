@@ -1,5 +1,6 @@
 package be.vib.imagej;
-
+import java.util.Arrays;
+import java.util.function.*;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -120,6 +121,9 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			
 			final float sigmaMin = WizardModel.NonLocalMeansParams.sigmaMin;
 			final float sigmaMax = WizardModel.NonLocalMeansParams.sigmaMax;
+			
+			Function<Float, Integer> toSlider = sigma -> (int)(100 * (sigma - sigmaMin) / (sigmaMax - sigmaMin));
+			Function<Integer, Float> fromSlider = s -> sigmaMin + (sigmaMax - sigmaMin) * s / 100.0f;
 
 			JLabel sigmaLabel = new JLabel("Sigma:");
 			JFormattedTextField sigmaField = new JFormattedTextField(floatFormat);
@@ -130,14 +134,14 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				if (newValue == model.nonLocalMeansParams.sigma) return;
 				model.nonLocalMeansParams.sigma = newValue;
 				System.out.println("textfield updated model, sigma now:" + model.nonLocalMeansParams.sigma);
-				sigmaSlider.setValue((int)(100 * (model.nonLocalMeansParams.sigma - sigmaMin) / (sigmaMax - sigmaMin)));
+				sigmaSlider.setValue(toSlider.apply(model.nonLocalMeansParams.sigma));
 				recalculateDenoisedPreview();
 			});
 			
-			sigmaSlider = new JSlider(0, 100, (int)(100 * (model.nonLocalMeansParams.sigma - sigmaMin) / (sigmaMax - sigmaMin))); // TODO: DRY
+			sigmaSlider = new JSlider(0, 100, toSlider.apply(model.nonLocalMeansParams.sigma));
 			sigmaSlider.addChangeListener(e -> {
 		    	int newValue = ((Number)sigmaSlider.getValue()).intValue();
-		    	float newSigma = sigmaMin + (sigmaMax - sigmaMin) * newValue / 100.0f;
+		    	float newSigma = fromSlider.apply(newValue);
 		    	if (newSigma == model.nonLocalMeansParams.sigma) return;
 		    	model.nonLocalMeansParams.sigma = newSigma;
 				System.out.println("slider updated model, sigma now:" + model.nonLocalMeansParams.sigma);
@@ -196,9 +200,6 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				halfBlockSizeSpinner.setValue(newValue);
 				recalculateDenoisedPreview();
 		    });
-			
-			// TODO (important): call Quasar to calculate filtered result on ROI, and display it - (important) this may be slow so probably needs to be done outside the gui thread
-			// TODO: is it possible to get feedback from quasar and update a progress bar meanwhile?
 			
 			GroupLayout layout = new GroupLayout(this);
 			layout.setAutoCreateGaps(true);
@@ -335,7 +336,17 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		Object pixelsObject = model.previewOrigROI.getPixels();
 		assert(pixelsObject instanceof byte[]);
 		byte[] inputPixels = (byte[])pixelsObject; 
-		byte[] outputPixels = QuasarInterface.quasarNlmeans(width, height, inputPixels, (float)model.nonLocalMeansParams.sigma, model.nonLocalMeansParams.searchWindow, model.nonLocalMeansParams.halfBlockSize, 0, 0);
+		
+		byte[] outputPixels = null;
+		switch (model.denoisingAlgorithm)
+		{
+			case NLMS:
+				outputPixels = QuasarInterface.quasarNlmeans(width, height, inputPixels, (float)model.nonLocalMeansParams.sigma, model.nonLocalMeansParams.searchWindow, model.nonLocalMeansParams.halfBlockSize, 0, 0);
+				break;
+			default:
+				outputPixels = Arrays.copyOf(inputPixels, inputPixels.length);
+				break;
+		}
 		
 		model.previewDenoisedROI = new ByteProcessor(width, height, outputPixels);
 		
