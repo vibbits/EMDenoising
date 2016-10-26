@@ -9,10 +9,12 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 
+import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.RoiListener;
 
 public class WizardPageROI extends WizardPage
-                           implements PropertyChangeListener
+                           implements PropertyChangeListener, RoiListener
 {		
 	private ROISelector roiSelector;
 	
@@ -21,7 +23,7 @@ public class WizardPageROI extends WizardPage
 	public WizardPageROI(WizardModel model, String name)
 	{
 		super(model, name);
-		buildUI();		
+		buildUI();
 	}
 	
 	private BufferedImage getOriginalImage()
@@ -61,8 +63,8 @@ public class WizardPageROI extends WizardPage
 	@Override
 	public void propertyChange(PropertyChangeEvent event)
 	{
-		System.out.println("Event source: " + event.getSource() + " Changed property: " + event.getPropertyName() + " [old -> "
-		        + event.getOldValue() + "] | [new -> " + event.getNewValue() +"]");
+//		System.out.println("Event source: " + event.getSource() + " Changed property: " + event.getPropertyName() + " [old -> "
+//		        + event.getOldValue() + "] | [new -> " + event.getNewValue() +"]");
 		
 		if (event.getSource() == roiSelector && event.getPropertyName() == "roi")
 		{
@@ -70,5 +72,16 @@ public class WizardPageROI extends WizardPage
 			updateToolTip();
 		}
     }
+
+	@Override
+	public void roiModified(ImagePlus imp, int id)
+	{
+		// TODO Auto-generated method stub
+		System.out.println(">>> roiModified imp=" + imp + " id=" + id);
+		if (imp != null)
+		{
+			System.out.println("  ROI=" + imp.getRoi());
+		}
+	}
 	
 }

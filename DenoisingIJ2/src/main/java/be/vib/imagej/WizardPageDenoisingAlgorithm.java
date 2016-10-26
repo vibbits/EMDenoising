@@ -82,7 +82,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				
 		JPanel algoChoicePanel = new JPanel();
 		algoChoicePanel.setLayout(new BoxLayout(algoChoicePanel, BoxLayout.Y_AXIS));
-		algoChoicePanel.setBorder(BorderFactory.createTitledBorder("Algorithm"));
+		algoChoicePanel.setBorder(BorderFactory.createTitledBorder("Denoising Algorithm"));
 		algoChoicePanel.add(nlmeansButton);
 		algoChoicePanel.add(bm3dButton);
 		algoChoicePanel.add(Box.createVerticalGlue());
@@ -117,7 +117,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		public NonlocalMeansParamsPanel()
 		{
-			setBorder(BorderFactory.createTitledBorder("Non-local means"));
+			setBorder(BorderFactory.createTitledBorder("Non-Local Means Denoising Parameters"));
 			
 			final float sigmaMin = WizardModel.NonLocalMeansParams.sigmaMin;
 			final float sigmaMax = WizardModel.NonLocalMeansParams.sigmaMax;
@@ -248,7 +248,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{
 		public BM3DParamsPanel()
 		{
-			setBorder(BorderFactory.createTitledBorder("BM3D"));
+			setBorder(BorderFactory.createTitledBorder("BM3D Denoising Parameters"));
 			
 			JLabel magicValueLabel = new JLabel("Magic Value:");
 			JFormattedTextField magicValueField = new JFormattedTextField(integerFormat);

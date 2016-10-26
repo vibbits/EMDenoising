@@ -144,6 +144,30 @@ jboolean Java_be_vib_imagej_QuasarInterface_quasarLoadSource(JNIEnv* env, jclass
  	return loaded ? JNI_TRUE : JNI_FALSE;
 }
 
+jboolean Java_be_vib_imagej_QuasarInterface_quasarLoadBinary(JNIEnv* env, jclass, jstring binary)
+{
+	std::cout << "Java_be_vib_imagej_DenoisingIJ2_quasarLoadBinary" << std::endl;
+	assert(host);
+
+	const jchar* binaryStr = env->GetStringChars(binary, nullptr);   // Note: jchar is an unsigned 16 bits data type
+ 	LPCWSTR binaryWide = (wchar_t const*)binaryStr;
+
+	LPCWSTR errorMsg;
+	bool loaded = host->LoadBinaryModule(binaryWide, &errorMsg);
+	if (!loaded)
+	{
+		wprintf(L"LoadBinaryModule error: %s\n", errorMsg);
+	}
+	else
+	{
+		wprintf(L"Quasar binary module %s loaded.\n", binaryWide);
+	}
+
+ 	env->ReleaseStringChars(binary, binaryStr);
+
+ 	return loaded ? JNI_TRUE : JNI_FALSE;
+}
+
 jbyteArray Java_be_vib_imagej_QuasarInterface_quasarNlmeans(JNIEnv *env, jclass, jint width, jint height, jbyteArray inputPixels, jfloat sigma, jint searchWindow, jint halfBlockSize,  jint vectorBasedFilter, jint kltPostProcessing)
 {
 	std::cout << "Java_be_vib_imagej_DenoisingIJ2_quasarNlmeans" << std::endl;

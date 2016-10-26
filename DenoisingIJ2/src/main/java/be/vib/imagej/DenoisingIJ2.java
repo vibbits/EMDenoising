@@ -11,6 +11,8 @@ import org.scijava.plugin.Plugin;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.RoiListener;
+import ij.plugin.frame.Recorder;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
@@ -39,6 +41,9 @@ import ij.process.ImageProcessor;
 // Times including moving data from Java over JNI to C++ and Quasar (and to GPU) and all the way back.
 //   cpu: Denoising time: 320383 ms (47.377 kpix/s)
 //   cuda: Denoising time: 13860 ms (1095.153 kpix/s) = 23x faster than Quasar utilising the cpu
+//
+// Compile .q to .qlib
+// E:\git\DenoisingIJ2Repository\DenoisingIJ2\src\main\resources\quasar>"e:\Program Files\Quasar\Quasar.exe" --make_lib --optimize --gpu nlmeans_denoising_stillimages.q
 
 
 @Plugin(type = Command.class, menuPath = "Plugins>EM Denoising")
@@ -79,10 +84,19 @@ public class DenoisingIJ2 implements Command
 	@Override
 	public void run() 
 	{
+		// A little experiment with the macro recorder 
+		// TODO: read http://imagej.net/PlugIn_Design_Guidelines
+		if (Recorder.record)
+		{
+			String command = "// This is the EM Denoising plugin trying out the macro recorder...\n";
+			Recorder.recordString(command);
+		}
+		
 		log.info("DenoisingIJ2.run() called.");		
         log.info("Image: " + imp.getTitle());
         log.info("Height:" + imp.getHeight() + " width:" + imp.getWidth() + " channels:" + imp.getNChannels() + " slices:" + imp.getNSlices() + " frames:" + imp.getNFrames());
         log.info("Bytes per pixel:" + imp.getBytesPerPixel());
+        log.info("ROI: " + imp.getRoi());
 
 		if (imp.getBytesPerPixel() != 1)
 		{
@@ -93,10 +107,13 @@ public class DenoisingIJ2 implements Command
 		
 		model = new WizardModel();
 		model.imagePlus = imp;
+		model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
+		// TODO: we have to be careful here: the user may close the image window after the wizard was opened. It looks like that means the ImagePlus becomes invalid. Correct??
 		
 		wizard = createWizard(model);
 		wizard.setVisible(true);
 	}
+
 	
 }
 	

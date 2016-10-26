@@ -28,6 +28,7 @@ public class WizardModel
 	
 	ImagePlus imagePlus; // original image or image stack (a reference not a copy)
 	Rectangle roi;  // null if the full image should be used; the ROI bounds are with respect to the original image (not the possibly rescaled on-screen version in the dialog)
+	ImageRange range; // the range of slices that need to be denoised
 
 	ImageProcessor previewOrigROI;
 	ImageProcessor previewDenoisedROI;

@@ -55,10 +55,14 @@ public class Wizard extends JDialog
 				boolean success = QuasarInterface.quasarInit("cuda");
 				assert(success);
 				
-				// FIXME: support loading from JAR or so
+				// TODO: important: support loading from JAR or so
+				
 				boolean sourceLoaded = QuasarInterface.quasarLoadSource("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_denoising_stillimages.q");
 				assert(sourceLoaded);
 				
+//				boolean binaryLoaded = QuasarInterface.quasarLoadBinary("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_denoising_stillimages.qlib");
+//				assert(binaryLoaded);
+
 				System.out.println("Wizard window opened - quasar host initialized");
 			}
 
@@ -215,9 +219,9 @@ public class Wizard extends JDialog
 			WizardPage page = (WizardPage)pagesPanel.getComponent(i);
 			String color = (i == idxToHighlight) ? "black" : "gray";
 			
-			crumbs = crumbs + "<font color='" + color + "'>" + page.getName() + "</font>";
+			crumbs = crumbs + "<font color=" + color + ">" + page.getName() + "</font>";
 			if (i < numPages - 1)
-				crumbs = crumbs + "<font color='gray'> > </font>";
+				crumbs = crumbs + "<font color=gray> > </font>";
 		}
 		
 		crumbs = crumbs + "</html>";
