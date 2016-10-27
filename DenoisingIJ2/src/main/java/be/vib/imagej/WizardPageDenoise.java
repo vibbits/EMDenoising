@@ -60,7 +60,6 @@ public class WizardPageDenoise extends WizardPage
 	private void buildImageStackUI()
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		setAlignmentX(LEFT_ALIGNMENT);
 
 		JButton startButton = new JButton("Start Denoising");
 		JLabel statusLabel = new JLabel("Denoising...");
@@ -169,7 +168,7 @@ public class WizardPageDenoise extends WizardPage
 			JLabel denoisingAlgorithmLabel = new JLabel("Denoising algorithm:");
 			
 			JLabel inputImage = new JLabel(html(italic(model.imagePlus.getTitle())));
-			JLabel denoisedImage = new JLabel(html(italic("New image, original image is not modified.")));
+			JLabel denoisedImage = new JLabel(html(italic("New image, original image will not be modified.")));
 			JLabel denoisingAlgorithm = new JLabel(html(italic("Foo algorithm, param value, param value"))); // TODO
 			
 			GroupLayout layout = new GroupLayout(this);
@@ -229,7 +228,6 @@ public class WizardPageDenoise extends WizardPage
 	    		model.range = ImageRange.makeAllSlicesRange(model.imagePlus);
 	    	});
 
-
 		    rangeOfSlicesRadioButton.addActionListener(e -> {
 		    	// TODO: get first and last from range input field
 		    	int first = 1;
@@ -256,6 +254,8 @@ public class WizardPageDenoise extends WizardPage
 	{
 		// After denoising was complete, we may have gone back and returned to the denoising panel.
 		// So some status messages or buttons may need to be updated.
-		// TODO.
+		
+		// FIXME - model.imagePlus may be different from when this page was initially build - 
+		// we may have to update it (e.g. it could have been a single image initially, and an image stack now.)
 	}
 }

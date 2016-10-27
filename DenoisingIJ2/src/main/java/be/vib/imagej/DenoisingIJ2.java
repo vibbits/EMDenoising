@@ -1,20 +1,12 @@
 package be.vib.imagej;
 
-import java.time.Duration;
-import java.time.Instant;
-
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.RoiListener;
 import ij.plugin.frame.Recorder;
-import ij.process.ByteProcessor;
-import ij.process.ImageProcessor;
 
 // Starting Fiji:
 // e:\Fiji.app\ImageJ-win64.exe --console --class-path e:\Fiji.app\plugins\vib_denoising_ij2-1.0.0-amd64-Windows-msvc-jni.nar
@@ -98,22 +90,22 @@ public class DenoisingIJ2 implements Command
         log.info("Bytes per pixel:" + imp.getBytesPerPixel());
         log.info("ROI: " + imp.getRoi());
 
-		if (imp.getBytesPerPixel() != 1)
-		{
-			IJ.showMessage("For now only 8-bit images are supported. This image has " + imp.getBytesPerPixel() + " bytes per pixel. Please change the bit depth to 8 bits per pixel. In Fiji: Image > Type > 8-bit.");
-			// TODO: support 16-bit images, they are common for EM
-			return;
-		}
+//		if (imp.getBytesPerPixel() != 1)
+//		{
+//			IJ.showMessage("For now only 8-bit images are supported. This image has " + imp.getBytesPerPixel() + " bytes per pixel. Please change the bit depth to 8 bits per pixel. In Fiji: Image > Type > 8-bit.");
+//			// TODO: support 16-bit images, they are common for EM
+//			return;
+//		}
 		
 		model = new WizardModel();
 		model.imagePlus = imp;
+		//imp.c
 		model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
 		// TODO: we have to be careful here: the user may close the image window after the wizard was opened. It looks like that means the ImagePlus becomes invalid. Correct??
 		
 		wizard = createWizard(model);
 		wizard.setVisible(true);
 	}
-
 	
 }
 	
