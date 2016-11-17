@@ -92,7 +92,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	
 	private void updateImageInfo()
 	{
-		System.out.println("updateImageInfo EDT? " + SwingUtilities.isEventDispatchThread());
+//		System.out.println("updateImageInfo EDT? " + SwingUtilities.isEventDispatchThread());
 		if (model.imagePlus == null)
 		{
 			image.setText(htmlAttention("not available"));
@@ -107,7 +107,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 
 	private void updateRoiInfo()
 	{
-		System.out.println("updateRoiInfo EDT? " + SwingUtilities.isEventDispatchThread());
+//		System.out.println("updateRoiInfo EDT? " + SwingUtilities.isEventDispatchThread());
 		if (model.imagePlus != null && model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty())
 		{
 			roi.setText(model.imagePlus.getRoi().getBounds().toString());
@@ -143,9 +143,10 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		// This is not called from the Java EDT, so direct calls to Swing widgets will *not* happen
 		// immediately.
-		System.out.println("EDT? " + SwingUtilities.isEventDispatchThread());
-		System.out.println("imageUpdated " + (imp != null ? imp.getTitle() : "null"));
-		// TODO Auto-generated method stub
+
+//		System.out.println("EDT? " + SwingUtilities.isEventDispatchThread());
+//		System.out.println("imageUpdated " + (imp != null ? imp.getTitle() : "null"));
+
 		// Does this get called when the user changes the bit-depth of the image?
 		
 		if (model.imagePlus != imp)
@@ -160,9 +161,11 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	@Override
 	public void roiModified(ImagePlus imp, int id)
 	{
-		// This gets called from the Java EDT (Event Dispatching Thread), probably because it is sent from a swing UI element.
-		System.out.println("EDT? " + SwingUtilities.isEventDispatchThread());
-		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null" + " id:" + id));
+		// This gets called from the Java EDT (Event Dispatching Thread),
+		// I presume because it is sent from a Swing UI element.
+		
+//		System.out.println("EDT? " + SwingUtilities.isEventDispatchThread());
+//		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null" + " id:" + id));
 		if (imp == null)
 			return;
 

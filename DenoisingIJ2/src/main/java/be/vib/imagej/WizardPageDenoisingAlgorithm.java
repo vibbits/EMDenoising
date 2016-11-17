@@ -1,10 +1,11 @@
 package be.vib.imagej;
-import java.util.Arrays;
-import java.util.function.*;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -20,9 +21,11 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
+import be.vib.bits.QExecutor;
+import be.vib.bits.QFunction;
+import be.vib.bits.QHost;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
 public class WizardPageDenoisingAlgorithm extends WizardPage 
@@ -36,13 +39,13 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	private ImagePanel origImagePanel;
 	private ImagePanel denoisedImagePanel;
 	
-    private static final int maxPreviewSize = 256;
-	
+    static final int maxPreviewSize = 256;
+    
 	public WizardPageDenoisingAlgorithm(WizardModel model, String name)
 	{
 		super(model, name);
 		setupFormatters();			
-		buildUI();
+		buildUI();		
 	}
 
 	private void setupFormatters()
@@ -55,12 +58,18 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private void buildUI()
 	{
+	    JRadioButton gaussianButton = new JRadioButton("Gaussian");
+	    gaussianButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.GAUSSIAN);
+	    	    
+	    JRadioButton diffusionButton = new JRadioButton("Anisotropic Diffusion");
+	    diffusionButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION);
+	    
 		JRadioButton nlmeansButton = new JRadioButton("Non-local means");
 		nlmeansButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.NLMS);
 
-	    JRadioButton bm3dButton = new JRadioButton("BM3D");
-	    bm3dButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.BM3D);
-	    
+	    JRadioButton waveletButton = new JRadioButton("Wavelet Thresholding");
+	    waveletButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING);
+	    	    
 	    nlmeansButton.addActionListener(e -> {
     		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.NLMS;
     		algoParamsCardLayout.show(algoParamsPanel, algorithm.name());
@@ -68,29 +77,49 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			recalculateDenoisedPreview();
 	    });
 
-	    bm3dButton.addActionListener(e -> {
-    		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.BM3D;
+	    diffusionButton.addActionListener(e -> {
+    		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION;
     		algoParamsCardLayout.show(algoParamsPanel, algorithm.name());
 			model.denoisingAlgorithm = algorithm;
 			recalculateDenoisedPreview();
     	});
 
+	    gaussianButton.addActionListener(e -> {
+    		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.GAUSSIAN;
+    		algoParamsCardLayout.show(algoParamsPanel, algorithm.name());
+			model.denoisingAlgorithm = algorithm;
+			recalculateDenoisedPreview();
+    	});
+	    
+	    waveletButton.addActionListener(e -> {
+    		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING;
+    		algoParamsCardLayout.show(algoParamsPanel, algorithm.name());
+			model.denoisingAlgorithm = algorithm;
+			recalculateDenoisedPreview();
+    	});
+	    
 	    // Add radio buttons to group so they are mutually exclusive
 	    ButtonGroup group = new ButtonGroup();
 	    group.add(nlmeansButton);
-	    group.add(bm3dButton);
+	    group.add(diffusionButton);
+	    group.add(gaussianButton);
+	    group.add(waveletButton);
 				
 		JPanel algoChoicePanel = new JPanel();
 		algoChoicePanel.setLayout(new BoxLayout(algoChoicePanel, BoxLayout.Y_AXIS));
 		algoChoicePanel.setBorder(BorderFactory.createTitledBorder("Denoising Algorithm"));
+		algoChoicePanel.add(gaussianButton);
+		algoChoicePanel.add(diffusionButton);
 		algoChoicePanel.add(nlmeansButton);
-		algoChoicePanel.add(bm3dButton);
+		algoChoicePanel.add(waveletButton);
 		algoChoicePanel.add(Box.createVerticalGlue());
 		
 		algoParamsCardLayout = new CardLayout();
 		algoParamsPanel = new JPanel(algoParamsCardLayout);
 		algoParamsPanel.add(new NonlocalMeansParamsPanel(), WizardModel.DenoisingAlgorithm.NLMS.name());
-		algoParamsPanel.add(new BM3DParamsPanel(), WizardModel.DenoisingAlgorithm.BM3D.name());
+		algoParamsPanel.add(new AnisotropicDiffusionParamsPanel(), WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION.name());
+		algoParamsPanel.add(new GaussianParamsPanel(), WizardModel.DenoisingAlgorithm.GAUSSIAN.name());
+		algoParamsPanel.add(new WaveletThresholdingParamsPanel(), WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING.name());
 		algoParamsCardLayout.show(algoParamsPanel, model.denoisingAlgorithm.name());
 		
 		JPanel algorithmPanel = new JPanel();
@@ -105,7 +134,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		add(algorithmPanel);
 	}
 	
-	class NonlocalMeansParamsPanel extends JPanel
+	private class NonlocalMeansParamsPanel extends JPanel  // FIXME: extract this class (and similar ones) - needs a little refactoring though because it depends on enclosing class
 	{
 		private JSpinner searchWindowSpinner;
 		private JSlider searchWindowSlider;
@@ -119,8 +148,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		{
 			setBorder(BorderFactory.createTitledBorder("Non-Local Means Denoising Parameters"));
 			
-			final float sigmaMin = WizardModel.NonLocalMeansParams.sigmaMin;
-			final float sigmaMax = WizardModel.NonLocalMeansParams.sigmaMax;
+			final float sigmaMin = NonLocalMeansParams.sigmaMin;
+			final float sigmaMax = NonLocalMeansParams.sigmaMax;
 			
 			Function<Float, Integer> toSlider = sigma -> (int)(100 * (sigma - sigmaMin) / (sigmaMax - sigmaMin));
 			Function<Integer, Float> fromSlider = s -> sigmaMin + (sigmaMax - sigmaMin) * s / 100.0f;
@@ -149,8 +178,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				recalculateDenoisedPreview();
 		    });
 
-			final int searchWindowMin = WizardModel.NonLocalMeansParams.searchWindowMin;
-			final int searchWindowMax = WizardModel.NonLocalMeansParams.searchWindowMax;
+			final int searchWindowMin = NonLocalMeansParams.searchWindowMin;
+			final int searchWindowMax = NonLocalMeansParams.searchWindowMax;
 			
 			JLabel searchWindowLabel = new JLabel("Search window:");
 			
@@ -177,8 +206,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			
 			JLabel halfBlockSizeLabel = new JLabel("Half block size:");
 	
-			final int halfBlockSizeMin = WizardModel.NonLocalMeansParams.halfBlockSizeMin;
-			final int halfBlockSizeMax = WizardModel.NonLocalMeansParams.halfBlockSizeMax;
+			final int halfBlockSizeMin = NonLocalMeansParams.halfBlockSizeMin;
+			final int halfBlockSizeMax = NonLocalMeansParams.halfBlockSizeMax;
 	
 			SpinnerModel halfBlockSizeSpinnerModel = new SpinnerNumberModel(model.nonLocalMeansParams.halfBlockSize, halfBlockSizeMin, halfBlockSizeMax, 1);
 			halfBlockSizeSpinner = new JSpinner(halfBlockSizeSpinnerModel);
@@ -244,30 +273,19 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		}
 	}
 	
-	class BM3DParamsPanel extends JPanel
+	private class AnisotropicDiffusionParamsPanel extends JPanel
 	{
-		public BM3DParamsPanel()
+		public AnisotropicDiffusionParamsPanel()
 		{
-			setBorder(BorderFactory.createTitledBorder("BM3D Denoising Parameters"));
+			setBorder(BorderFactory.createTitledBorder("Anisotropic Diffusion Denoising Parameters"));
 			
-			JLabel magicValueLabel = new JLabel("Magic Value:");
-			JFormattedTextField magicValueField = new JFormattedTextField(integerFormat);
-			magicValueField.setValue(new Integer(model.bm3dParams.magicValue));
-			magicValueField.setColumns(5);
-			magicValueField.addPropertyChangeListener("value", e -> { model.bm3dParams.magicValue = ((Number)magicValueField.getValue()).intValue();
-			                                                          System.out.println("model updated, magic value now:" + model.bm3dParams.magicValue);
-			                                                          recalculateDenoisedPreview(); });
-			
-			// TODO: the user can still enter a real value in the magicValueField. It then remains a real value in the UI,
-			//       even though the model contains an integer number. This is not ideal.
-			
-			JLabel luckyNumberLabel = new JLabel("Lucky Number:");
-			JFormattedTextField luckyNumberField = new JFormattedTextField(floatFormat);
-			luckyNumberField.setColumns(5);
-			luckyNumberField.setValue(new Float(model.bm3dParams.luckyNumber));
-			luckyNumberField.addPropertyChangeListener("value", e -> { model.bm3dParams.luckyNumber = ((Number)luckyNumberField.getValue()).floatValue();
-	                                                                  System.out.println("model updated, lucky number now:" + model.bm3dParams.luckyNumber);
-	                                                                  recalculateDenoisedPreview(); });
+			JLabel diffusionFactorLabel = new JLabel("Diffusion factor:");
+			JFormattedTextField diffusionFactorField = new JFormattedTextField(floatFormat);
+			diffusionFactorField.setColumns(5);
+			diffusionFactorField.setValue(new Float(model.anisotropicDiffusionParams.diffusionFactor));
+			diffusionFactorField.addPropertyChangeListener("value", e -> { model.anisotropicDiffusionParams.diffusionFactor = ((Number)diffusionFactorField.getValue()).floatValue();
+	                                                                       System.out.println("model updated, diffusion factor now:" + model.anisotropicDiffusionParams.diffusionFactor);
+	                                                                       recalculateDenoisedPreview(); });
 			
 			GroupLayout layout = new GroupLayout(this);
 			layout.setAutoCreateGaps(true);
@@ -276,28 +294,97 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			layout.setHorizontalGroup(
 			   layout.createSequentialGroup()
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-				           .addComponent(magicValueLabel)
-			      		   .addComponent(luckyNumberLabel))
+				           .addComponent(diffusionFactorLabel))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-				           .addComponent(magicValueField)
-			      		   .addComponent(luckyNumberField))
+				           .addComponent(diffusionFactorField))
 			);
 			
 			layout.setVerticalGroup(
 			   layout.createSequentialGroup()
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-				           .addComponent(magicValueLabel)
-				           .addComponent(magicValueField))
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-				           .addComponent(luckyNumberLabel)
-				           .addComponent(luckyNumberField))
+				           .addComponent(diffusionFactorLabel)
+				           .addComponent(diffusionFactorField))
 			);		
 			
 			setLayout(layout);
 		}
 	}
 	
-	class PreviewPanel extends JPanel
+	private class GaussianParamsPanel extends JPanel
+	{
+		public GaussianParamsPanel()
+		{
+			setBorder(BorderFactory.createTitledBorder("Gaussian Denoising Parameters"));
+						
+			JLabel sigmaLabel = new JLabel("Sigma:");
+			JFormattedTextField sigmaField = new JFormattedTextField(floatFormat);
+			sigmaField.setColumns(5);
+			sigmaField.setValue(new Float(model.gaussianParams.sigma));
+			sigmaField.addPropertyChangeListener("value", e -> { model.gaussianParams.sigma = ((Number)sigmaField.getValue()).floatValue();
+	                                                             System.out.println("model updated, sigma now:" + model.gaussianParams.sigma);
+	                                                             recalculateDenoisedPreview(); });
+			
+			GroupLayout layout = new GroupLayout(this);
+			layout.setAutoCreateGaps(true);
+			layout.setAutoCreateContainerGaps(true);
+					
+			layout.setHorizontalGroup(
+			   layout.createSequentialGroup()
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+				           .addComponent(sigmaLabel))
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+				           .addComponent(sigmaField))
+			);
+			
+			layout.setVerticalGroup(
+			   layout.createSequentialGroup()
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				           .addComponent(sigmaLabel)
+				           .addComponent(sigmaField))
+			);		
+			
+			setLayout(layout);
+		}
+	}
+	
+	private class WaveletThresholdingParamsPanel extends JPanel
+	{		
+		public WaveletThresholdingParamsPanel()
+		{			
+			setBorder(BorderFactory.createTitledBorder("Wavelet Thresholding Parameters"));
+						
+			JLabel alphaLabel = new JLabel("Alpha:");
+			JFormattedTextField alphaField = new JFormattedTextField(floatFormat);
+			alphaField.setColumns(5);
+			alphaField.setValue(new Float(model.gaussianParams.sigma));
+			alphaField.addPropertyChangeListener("value", e -> { model.waveletThresholdingParams.alpha = ((Number)alphaField.getValue()).floatValue();
+	                                                             System.out.println("model updated, alpha now:" + model.waveletThresholdingParams.alpha);
+	                                                             recalculateDenoisedPreview(); });
+			
+			GroupLayout layout = new GroupLayout(this);
+			layout.setAutoCreateGaps(true);
+			layout.setAutoCreateContainerGaps(true);
+					
+			layout.setHorizontalGroup(
+			   layout.createSequentialGroup()
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+				           .addComponent(alphaLabel))
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+				           .addComponent(alphaField))
+			);
+			
+			layout.setVerticalGroup(
+			   layout.createSequentialGroup()
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				           .addComponent(alphaLabel)
+				           .addComponent(alphaField))
+			);		
+			
+			setLayout(layout);
+		}
+	}
+	
+	private class PreviewPanel extends JPanel
 	{
 		public PreviewPanel()
 		{
@@ -323,34 +410,44 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		model.previewOrigROI = cropImage(model.imagePlus, model.roi);
 		origImagePanel.setImage(model.previewOrigROI.getBufferedImage(), maxPreviewSize);
 	}
+	
+	private byte[] getPixelsCopy(ImageProcessor image)
+	{
+		Object pixelsObject = image.duplicate().getPixels();
+		assert(pixelsObject instanceof byte[]);
+		return (byte[])pixelsObject; 		
+	}
+	
+	private Denoiser newDenoiser()
+	{
+		LinearImage image = new LinearImage(model.previewOrigROI.getWidth(), model.previewOrigROI.getHeight(), getPixelsCopy(model.previewOrigROI));
+		
+		switch (model.denoisingAlgorithm)
+		{
+			case NLMS:
+				return new NonLocalMeansDenoiser(image, model.nonLocalMeansParams);
+			case GAUSSIAN:
+				return new GaussianDenoiser(image, model.gaussianParams);
+			case WAVELET_THRESHOLDING:
+				return new WaveletThresholdingDenoiser(image, model.waveletThresholdingParams);
+			case ANISOTROPIC_DIFFUSION:
+				return new AnisotropicDiffusionDenoiser(image, model.anisotropicDiffusionParams);
+			default:
+				return new NoOpDenoiser(image);
+		}
+	}
 
 	private void recalculateDenoisedPreview()
 	{		
 		System.out.println("recalculateDenoisedPreview (Java thread: " + Thread.currentThread().getId() + ")");
 		
-		model.previewDenoisedROI = model.previewOrigROI.duplicate();
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(newDenoiser(), model, denoisedImagePanel);
+		
+		// Run the denoising preview on a separate worker thread and return here immediately.
+		// Once denoising has completed, the worker will automatically update the denoising
+		// preview image in the Java Event Dispatch Thread (EDT).
+		worker.execute();
 
-		final int width = model.previewOrigROI.getWidth();
-		final int height = model.previewOrigROI.getHeight();
-		
-		Object pixelsObject = model.previewOrigROI.getPixels();
-		assert(pixelsObject instanceof byte[]);
-		byte[] inputPixels = (byte[])pixelsObject; 
-		
-		byte[] outputPixels = null;
-		switch (model.denoisingAlgorithm)
-		{
-			case NLMS:
-				outputPixels = QuasarInterface.quasarNlmeans(width, height, inputPixels, (float)model.nonLocalMeansParams.sigma, model.nonLocalMeansParams.searchWindow, model.nonLocalMeansParams.halfBlockSize, 0, 0);
-				break;
-			default:
-				outputPixels = Arrays.copyOf(inputPixels, inputPixels.length);
-				break;
-		}
-		
-		model.previewDenoisedROI = new ByteProcessor(width, height, outputPixels);
-		
-		denoisedImagePanel.setImage(model.previewDenoisedROI.getBufferedImage(), maxPreviewSize);
 	}
 	
 	private static JPanel addTitle(JPanel p, String title)
