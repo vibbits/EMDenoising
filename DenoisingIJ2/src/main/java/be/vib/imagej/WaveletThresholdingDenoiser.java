@@ -1,8 +1,6 @@
 package be.vib.imagej;
 
 import be.vib.bits.QFunction;
-import be.vib.bits.QHost;
-import be.vib.bits.QRange;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 
@@ -19,19 +17,11 @@ class WaveletThresholdingDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{		
-		if (!QHost.functionExists("wav_denoise"))
-		{
-			// Lazy loading of the source module for this denoising function.
-			// Once it is loaded it will persist in the Quasar host
-			// even beyond the lifetime of this WaveletThresholdingDenoiser object.
-			QHost.loadSourceModule("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\wavelet_thresholding.q");
-		}
+		QFunction waveletThresholding = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\wavelet_thresholding.q",
+                                                            "wav_denoise(mat,scalar,int,mat,mat,string,scalar)",
+                                                            "wav_denoise");
 		
-		assert(QHost.functionExists("wav_denoise"));
-		
-		QFunction waveletThresholding = new QFunction("wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
-		
-		QFunction print = new QFunction("print(...)");
+//		QFunction print = new QFunction("print(...)");
 		
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
 		

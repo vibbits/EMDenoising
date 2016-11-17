@@ -2,6 +2,11 @@ package be.vib.imagej;
 
 import java.util.concurrent.Callable;
 
+import be.vib.bits.QFunction;
+import be.vib.bits.QHost;
+import be.vib.bits.QUtils;
+import be.vib.bits.QValue;
+
 class Denoiser implements Callable<byte[]>
 {
 	public final LinearImage image; // original, noisy source image
@@ -18,5 +23,20 @@ class Denoiser implements Callable<byte[]>
 	public byte[] call() throws Exception
 	{
 		return null;
+	}
+	
+	protected QFunction loadDenoiseFunction(String sourceFile, String function, String signature)
+	{
+		if (!QHost.functionExists(function))
+		{
+			// Lazy loading of the source module for this denoising function.
+			// Once it is loaded it will persist in the Quasar host
+			// even beyond the lifetime of this GaussianDenoiser object.
+			QHost.loadSourceModule(sourceFile);
+		}
+		
+		assert(QHost.functionExists(function));
+		
+		return new QFunction(signature);
 	}
 }

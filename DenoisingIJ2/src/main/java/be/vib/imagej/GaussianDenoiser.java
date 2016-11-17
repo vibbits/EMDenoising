@@ -1,7 +1,6 @@
 package be.vib.imagej;
 
 import be.vib.bits.QFunction;
-import be.vib.bits.QHost;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 
@@ -18,17 +17,9 @@ class GaussianDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{
-		if (!QHost.functionExists("gaussian_filter"))
-		{
-			// Lazy loading of the source module for this denoising function.
-			// Once it is loaded it will persist in the Quasar host
-			// even beyond the lifetime of this GaussianDenoiser object.
-			QHost.loadSourceModule("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\gaussian_filter.q");
-		}
-		
-		assert(QHost.functionExists("gaussian_filter"));
-		
-		QFunction gaussian = new QFunction("gaussian_filter(mat,scalar,int,string)");
+		QFunction gaussian = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\gaussian_filter.q",
+				                                 "gaussian_filter(mat,scalar,int,string)",
+				                                 "gaussian_filter");
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
 		

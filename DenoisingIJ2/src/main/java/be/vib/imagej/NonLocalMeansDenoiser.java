@@ -1,7 +1,6 @@
 package be.vib.imagej;
 
 import be.vib.bits.QFunction;
-import be.vib.bits.QHost;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 
@@ -18,18 +17,10 @@ class NonLocalMeansDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{		
-		if (!QHost.functionExists("denoise_nlmeans"))
-		{
-			// Lazy loading of the source module for this denoising function.
-			// Once it is loaded it will persist in the Quasar host
-			// even beyond the lifetime of this NonLocalMeansDenoiser object.
-			QHost.loadSourceModule("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_denoising_stillimages.q");
-		}
+		QFunction nlmeans = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_denoising_stillimages.q",
+                                                "denoise_nlmeans(cube,scalar,int,ivec2,int,int)",
+                                                "denoise_nlmeans");
 		
-		assert(QHost.functionExists("denoise_nlmeans"));
-		
-		QFunction nlmeans = new QFunction("denoise_nlmeans(cube,scalar,int,ivec2,int,int)");
-
 		int[] halfBlockSize = { params.halfBlockSize, params.halfBlockSize };
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
 		QValue result = nlmeans.apply(imageCube,
