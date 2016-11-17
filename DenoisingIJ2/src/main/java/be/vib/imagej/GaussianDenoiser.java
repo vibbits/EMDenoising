@@ -18,8 +18,7 @@ class GaussianDenoiser extends Denoiser
 	public byte[] call()
 	{
 		QFunction gaussian = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\gaussian_filter.q",
-				                                 "gaussian_filter(mat,scalar,int,string)",
-				                                 "gaussian_filter");
+				                                 "gaussian_filter(mat,scalar,int,string)");
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
 		

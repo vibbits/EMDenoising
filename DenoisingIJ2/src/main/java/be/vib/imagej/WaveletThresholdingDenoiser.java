@@ -18,8 +18,7 @@ class WaveletThresholdingDenoiser extends Denoiser
 	public byte[] call()
 	{		
 		QFunction waveletThresholding = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\wavelet_thresholding.q",
-                                                            "wav_denoise(mat,scalar,int,mat,mat,string,scalar)",
-                                                            "wav_denoise");
+                                                            "wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
 		
 //		QFunction print = new QFunction("print(...)");
 		

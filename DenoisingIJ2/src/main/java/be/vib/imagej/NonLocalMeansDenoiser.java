@@ -18,8 +18,7 @@ class NonLocalMeansDenoiser extends Denoiser
 	public byte[] call()
 	{		
 		QFunction nlmeans = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_denoising_stillimages.q",
-                                                "denoise_nlmeans(cube,scalar,int,ivec2,int,int)",
-                                                "denoise_nlmeans");
+                                                "denoise_nlmeans(cube,scalar,int,ivec2,int,int)");
 		
 		int[] halfBlockSize = { params.halfBlockSize, params.halfBlockSize };
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
