@@ -63,7 +63,7 @@
 			<location>E:/git/ImageJRepository/scijava-common/src/main/java</location>
 		</link>
 		<link>
-			<name>scijava-nativelibloader</name>
+			<name>imagej/scijava-nativelibloader</name>
 			<type>2</type>
 			<location>E:/git/ImageJRepository/scijava-nativelibloader/src/main/java</location>
 		</link>

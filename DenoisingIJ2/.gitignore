@@ -1,4 +1,6 @@
 /target/
 /bin/
+/output/
 /Debug/
+/archive/
 /src/main/cpp/.vscode
