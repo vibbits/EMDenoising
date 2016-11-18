@@ -29,6 +29,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\ImageRange.java ^
 %SRC_JAVA%\LinearImage.java ^
 %SRC_JAVA%\SliderFieldPair.java ^
+%SRC_JAVA%\SliderSpinnerPair.java ^
 %SRC_JAVA%\WaveletThresholdingDenoiser.java ^
 %SRC_JAVA%\WaveletThresholdingParams.java ^
 %SRC_JAVA%\WaveletThresholdingParamsPanel.java ^

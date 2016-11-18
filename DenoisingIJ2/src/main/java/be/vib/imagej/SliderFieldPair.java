@@ -29,7 +29,7 @@ class SliderFieldPair implements ChangeListener, PropertyChangeListener
 	private final Function<Integer, Float> fromSlider;  // maps an integer slider position to the corresponding floating point value
 	
 	private float value; // the shared value that is controlled by both the slider and the text field
-
+	
 	public SliderFieldPair(int sliderMin, int sliderMax, Format formatter, float fieldMin, float fieldMax)
 	{
 		// Linear interpolation to map a float range to/from an integer range
@@ -125,8 +125,8 @@ class SliderFieldPair implements ChangeListener, PropertyChangeListener
 		if (ignoreSlider)
 			return;
 		
-		if (slider.getValueIsAdjusting())
-			return;
+//		if (slider.getValueIsAdjusting())
+//			return;
 			    	
     	float newValue = fromSlider.apply(((Number)slider.getValue()).intValue());
     	
