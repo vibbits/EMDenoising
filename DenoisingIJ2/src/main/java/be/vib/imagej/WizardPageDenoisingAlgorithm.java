@@ -3,14 +3,13 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoundedRangeModel;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.GroupLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -20,10 +19,8 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.EventListenerList;
 
-import be.vib.bits.QExecutor;
-import be.vib.bits.QFunction;
-import be.vib.bits.QHost;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
@@ -133,7 +130,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		add(previewPanel);
 		add(algorithmPanel);
 	}
-	
+
+
 	private class NonlocalMeansParamsPanel extends JPanel  // FIXME: extract this class (and similar ones) - needs a little refactoring though because it depends on enclosing class
 	{
 		private JSpinner searchWindowSpinner;
@@ -141,8 +139,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		private JSpinner halfBlockSizeSpinner;
 		private JSlider halfBlockSizeSlider;
-		
-		private JSlider sigmaSlider;
+
+		private SliderFieldPair sigmaPair;
 		
 		public NonlocalMeansParamsPanel()
 		{
@@ -151,32 +149,16 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			final float sigmaMin = NonLocalMeansParams.sigmaMin;
 			final float sigmaMax = NonLocalMeansParams.sigmaMax;
 			
-			Function<Float, Integer> toSlider = sigma -> (int)(100 * (sigma - sigmaMin) / (sigmaMax - sigmaMin));
-			Function<Integer, Float> fromSlider = s -> sigmaMin + (sigmaMax - sigmaMin) * s / 100.0f;
-
 			JLabel sigmaLabel = new JLabel("Sigma:");
-			JFormattedTextField sigmaField = new JFormattedTextField(floatFormat);
-			sigmaField.setValue(new Float(model.nonLocalMeansParams.sigma));
-			sigmaField.setColumns(5);
-			sigmaField.addPropertyChangeListener("value", e -> {
-				float newValue = ((Number)sigmaField.getValue()).floatValue();
-				if (newValue == model.nonLocalMeansParams.sigma) return;
-				model.nonLocalMeansParams.sigma = newValue;
-				System.out.println("textfield updated model, sigma now:" + model.nonLocalMeansParams.sigma);
-				sigmaSlider.setValue(toSlider.apply(model.nonLocalMeansParams.sigma));
-				recalculateDenoisedPreview();
-			});
 			
-			sigmaSlider = new JSlider(0, 100, toSlider.apply(model.nonLocalMeansParams.sigma));
-			sigmaSlider.addChangeListener(e -> {
-		    	int newValue = ((Number)sigmaSlider.getValue()).intValue();
-		    	float newSigma = fromSlider.apply(newValue);
-		    	if (newSigma == model.nonLocalMeansParams.sigma) return;
-		    	model.nonLocalMeansParams.sigma = newSigma;
-				System.out.println("slider updated model, sigma now:" + model.nonLocalMeansParams.sigma);
-				sigmaField.setValue(new Float(model.nonLocalMeansParams.sigma));
-				recalculateDenoisedPreview();
-		    });
+			sigmaPair = new SliderFieldPair(0, 100, floatFormat, sigmaMin, sigmaMax);
+			sigmaPair.setValue(model.nonLocalMeansParams.sigma);
+			
+			JSlider sigmaSlider = sigmaPair.getSlider();
+			JFormattedTextField sigmaField = sigmaPair.getFloatField();
+			sigmaField.setColumns(5);
+			sigmaPair.addPropertyChangeListener(e -> { model.nonLocalMeansParams.sigma = sigmaPair.getValue(); recalculateDenoisedPreview(); });  // TODO: when multiple recalculate tasks get queued, they don't copy the model, so in the end they typically recalculate several times for the same model value: the latest value of the model
+			
 
 			final int searchWindowMin = NonLocalMeansParams.searchWindowMin;
 			final int searchWindowMax = NonLocalMeansParams.searchWindowMax;
@@ -420,18 +402,21 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private Denoiser newDenoiser()
 	{
+		// Make an image denoiser. Since it will be used as a task that will be executed asynchronously,
+		// we take a snapshot (deep copy) of the input image as well as the denoising
+		// parameters as they are at this point in time.
 		LinearImage image = new LinearImage(model.previewOrigROI.getWidth(), model.previewOrigROI.getHeight(), getPixelsCopy(model.previewOrigROI));
 		
 		switch (model.denoisingAlgorithm)
 		{
 			case NLMS:
-				return new NonLocalMeansDenoiser(image, model.nonLocalMeansParams);
+				return new NonLocalMeansDenoiser(image, new NonLocalMeansParams(model.nonLocalMeansParams));
 			case GAUSSIAN:
-				return new GaussianDenoiser(image, model.gaussianParams);
+				return new GaussianDenoiser(image, new GaussianParams(model.gaussianParams));
 			case WAVELET_THRESHOLDING:
-				return new WaveletThresholdingDenoiser(image, model.waveletThresholdingParams);
+				return new WaveletThresholdingDenoiser(image, new WaveletThresholdingParams(model.waveletThresholdingParams));
 			case ANISOTROPIC_DIFFUSION:
-				return new AnisotropicDiffusionDenoiser(image, model.anisotropicDiffusionParams);
+				return new AnisotropicDiffusionDenoiser(image, new AnisotropicDiffusionParams(model.anisotropicDiffusionParams));
 			default:
 				return new NoOpDenoiser(image);
 		}
@@ -441,7 +426,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{		
 		System.out.println("recalculateDenoisedPreview (Java thread: " + Thread.currentThread().getId() + ")");
 		
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(newDenoiser(), model, denoisedImagePanel);
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(newDenoiser(), model.previewDenoisedROI, denoisedImagePanel);
 		
 		// Run the denoising preview on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the denoising

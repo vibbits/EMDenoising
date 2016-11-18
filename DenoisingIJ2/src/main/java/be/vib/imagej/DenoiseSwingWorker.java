@@ -6,17 +6,18 @@ import javax.swing.SwingWorker;
 
 import be.vib.bits.QExecutor;
 import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 class DenoiseSwingWorker extends SwingWorker<byte[], Void>
 {
 	Denoiser denoiser;
-	WizardModel model;
 	ImagePanel imagePanel;
+	ImageProcessor preview;
 	
-	public DenoiseSwingWorker(Denoiser denoiser, WizardModel model, ImagePanel imagePanel)
+	public DenoiseSwingWorker(Denoiser denoiser, ImageProcessor preview, ImagePanel imagePanel)
 	{
 		this.denoiser = denoiser;
-		this.model = model;
+		this.preview = preview;
 		this.imagePanel = imagePanel;
 	}
 	
@@ -36,9 +37,9 @@ class DenoiseSwingWorker extends SwingWorker<byte[], Void>
 			
 			final byte[] outputPixels = get();
 			
-			model.previewDenoisedROI = new ByteProcessor(denoiser.image.width, denoiser.image.height, outputPixels);
+			preview = new ByteProcessor(denoiser.image.width, denoiser.image.height, outputPixels);
 			
-			imagePanel.setImage(model.previewDenoisedROI.getBufferedImage(), WizardPageDenoisingAlgorithm.maxPreviewSize);
+			imagePanel.setImage(preview.getBufferedImage(), WizardPageDenoisingAlgorithm.maxPreviewSize);
 		}
 		catch (InterruptedException e) {
 			// TODO Auto-generated catch block
