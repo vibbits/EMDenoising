@@ -131,7 +131,6 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		add(algorithmPanel);
 	}
 
-
 	private class NonlocalMeansParamsPanel extends JPanel  // FIXME: extract this class (and similar ones) - needs a little refactoring though because it depends on enclosing class
 	{
 		private JSpinner searchWindowSpinner;
@@ -146,20 +145,17 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		{
 			setBorder(BorderFactory.createTitledBorder("Non-Local Means Denoising Parameters"));
 			
-			final float sigmaMin = NonLocalMeansParams.sigmaMin;
-			final float sigmaMax = NonLocalMeansParams.sigmaMax;
-			
 			JLabel sigmaLabel = new JLabel("Sigma:");
 			
-			sigmaPair = new SliderFieldPair(0, 100, floatFormat, sigmaMin, sigmaMax);
+			sigmaPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansParams.sigmaMin, NonLocalMeansParams.sigmaMax);
 			sigmaPair.setValue(model.nonLocalMeansParams.sigma);
+			sigmaPair.addPropertyChangeListener(e -> { model.nonLocalMeansParams.sigma = sigmaPair.getValue(); recalculateDenoisedPreview(); });
 			
 			JSlider sigmaSlider = sigmaPair.getSlider();
+			
 			JFormattedTextField sigmaField = sigmaPair.getFloatField();
 			sigmaField.setColumns(5);
-			sigmaPair.addPropertyChangeListener(e -> { model.nonLocalMeansParams.sigma = sigmaPair.getValue(); recalculateDenoisedPreview(); });  // TODO: when multiple recalculate tasks get queued, they don't copy the model, so in the end they typically recalculate several times for the same model value: the latest value of the model
 			
-
 			final int searchWindowMin = NonLocalMeansParams.searchWindowMin;
 			final int searchWindowMax = NonLocalMeansParams.searchWindowMax;
 			
@@ -257,17 +253,22 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private class AnisotropicDiffusionParamsPanel extends JPanel
 	{
+		private SliderFieldPair diffusionFactorPair;
+
 		public AnisotropicDiffusionParamsPanel()
 		{
 			setBorder(BorderFactory.createTitledBorder("Anisotropic Diffusion Denoising Parameters"));
 			
 			JLabel diffusionFactorLabel = new JLabel("Diffusion factor:");
-			JFormattedTextField diffusionFactorField = new JFormattedTextField(floatFormat);
+			
+			diffusionFactorPair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.diffusionFactorMin, AnisotropicDiffusionParams.diffusionFactorMax);
+			diffusionFactorPair.setValue(model.nonLocalMeansParams.sigma);
+			diffusionFactorPair.addPropertyChangeListener(e -> { model.anisotropicDiffusionParams.diffusionFactor = diffusionFactorPair.getValue(); recalculateDenoisedPreview(); });
+			
+			JSlider diffusionFactorSlider = diffusionFactorPair.getSlider();
+			
+			JFormattedTextField diffusionFactorField = diffusionFactorPair.getFloatField();
 			diffusionFactorField.setColumns(5);
-			diffusionFactorField.setValue(new Float(model.anisotropicDiffusionParams.diffusionFactor));
-			diffusionFactorField.addPropertyChangeListener("value", e -> { model.anisotropicDiffusionParams.diffusionFactor = ((Number)diffusionFactorField.getValue()).floatValue();
-	                                                                       System.out.println("model updated, diffusion factor now:" + model.anisotropicDiffusionParams.diffusionFactor);
-	                                                                       recalculateDenoisedPreview(); });
 			
 			GroupLayout layout = new GroupLayout(this);
 			layout.setAutoCreateGaps(true);
@@ -279,14 +280,18 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				           .addComponent(diffusionFactorLabel))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 				           .addComponent(diffusionFactorField))
-			);
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+				           .addComponent(diffusionFactorSlider))
+			      );
 			
 			layout.setVerticalGroup(
 			   layout.createSequentialGroup()
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-				           .addComponent(diffusionFactorLabel)
-				           .addComponent(diffusionFactorField))
-			);		
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+			    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			    				  .addComponent(diffusionFactorLabel)
+			    				  .addComponent(diffusionFactorField))
+				           .addComponent(diffusionFactorSlider))
+			      );  
 			
 			setLayout(layout);
 		}
@@ -294,18 +299,23 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private class GaussianParamsPanel extends JPanel
 	{
+		private SliderFieldPair sigmaPair;
+		
 		public GaussianParamsPanel()
 		{
 			setBorder(BorderFactory.createTitledBorder("Gaussian Denoising Parameters"));
-						
-			JLabel sigmaLabel = new JLabel("Sigma:");
-			JFormattedTextField sigmaField = new JFormattedTextField(floatFormat);
-			sigmaField.setColumns(5);
-			sigmaField.setValue(new Float(model.gaussianParams.sigma));
-			sigmaField.addPropertyChangeListener("value", e -> { model.gaussianParams.sigma = ((Number)sigmaField.getValue()).floatValue();
-	                                                             System.out.println("model updated, sigma now:" + model.gaussianParams.sigma);
-	                                                             recalculateDenoisedPreview(); });
 			
+			sigmaPair = new SliderFieldPair(0, 100, floatFormat, GaussianParams.sigmaMin, GaussianParams.sigmaMax);
+			sigmaPair.setValue(model.gaussianParams.sigma);
+			sigmaPair.addPropertyChangeListener(e -> { model.gaussianParams.sigma = sigmaPair.getValue(); recalculateDenoisedPreview(); });
+			
+			JSlider sigmaSlider = sigmaPair.getSlider();
+			
+			JFormattedTextField sigmaField = sigmaPair.getFloatField();
+			sigmaField.setColumns(5);
+			
+			JLabel sigmaLabel = new JLabel("Sigma:");
+
 			GroupLayout layout = new GroupLayout(this);
 			layout.setAutoCreateGaps(true);
 			layout.setAutoCreateContainerGaps(true);
@@ -316,14 +326,18 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				           .addComponent(sigmaLabel))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 				           .addComponent(sigmaField))
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+				           .addComponent(sigmaSlider))
 			);
 			
 			layout.setVerticalGroup(
 			   layout.createSequentialGroup()
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-				           .addComponent(sigmaLabel)
-				           .addComponent(sigmaField))
-			);		
+			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+			    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			    				  .addComponent(sigmaLabel)
+			    				  .addComponent(sigmaField))
+				           .addComponent(sigmaSlider))
+			);    	
 			
 			setLayout(layout);
 		}
