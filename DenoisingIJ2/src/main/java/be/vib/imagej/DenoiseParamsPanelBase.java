@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import javax.swing.JPanel;
 
-public class DenoiseParamsPanelBase extends JPanel
+public abstract class DenoiseParamsPanelBase extends JPanel
 {
 	  private ArrayList<DenoiseParamsChangeEventListener> listeners = new ArrayList<DenoiseParamsChangeEventListener>();
 	  
