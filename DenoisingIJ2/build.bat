@@ -1,5 +1,6 @@
-rmdir /s /q output\class
+rmdir /s /q output
 mkdir output\class
+mkdir output\jar
 
 set SRC_JAVA=src\main\java\be\vib\imagej
 
@@ -40,5 +41,5 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\WizardPage.java ^
 %SRC_JAVA%\WizardModel.java 
 
-jar cvfm VIBDenoising-0.0.1.jar Manifest.txt -C output\class\ .
+jar cvfm output\jar\VIBDenoising-0.0.1.jar src\main\Manifest.txt -C output\class\ .
 
