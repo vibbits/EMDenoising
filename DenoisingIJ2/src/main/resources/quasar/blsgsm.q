@@ -1,6 +1,7 @@
 import "system.q"
 import "multirestransforms.q"
 import "linalg.q"
+import "power_of_two_extension.q"
 
 {!author name="Bart Goossens"}
 {!doc category="Image Processing/Restoration/Wavelets"}
@@ -520,7 +521,12 @@ end
 % K - the number of analysis orientations for the transform (shearlet and steerable
 %     pyramids only)
 function y = denoise_image_blsgsm(img_noisy, sigma, sparsity_tf="dtcwt", J=5, K=8)
+    % Do power-of-two extension of the image
+    % (wavelet trf code assumes power-of-two image dimensions)
+    orig_size = size(img_noisy)
+    [img_noisy, topleft] = power_of_two_extension(img_noisy)
 
+    % Denoise    
     sz = size(img_noisy)
     match sparsity_tf with
     | "shearlet" -> 
@@ -539,7 +545,7 @@ function y = denoise_image_blsgsm(img_noisy, sigma, sparsity_tf="dtcwt", J=5, K=
     w2 = S(randn(size(img_noisy)))
 
     wnd = [3,3]
-    nc = size(img_noisy, 2)
+    % nc = size(img_noisy, 2)
 
     bands = lincell(w)
     bands2 = lincell(w2)
@@ -549,7 +555,11 @@ function y = denoise_image_blsgsm(img_noisy, sigma, sparsity_tf="dtcwt", J=5, K=
         denoise_band_blsgsm(bands[j], wnd, C_n, sigma)
     end
     y = S_H(w)
-    
+
+    % Remove power-of-two extension border again
+    if (any(size(y) != orig_size))
+    	y = y[topleft[0]..topleft[0]+orig_size[0]-1, topleft[1]..topleft[1]+orig_size[1]-1]
+    endif    
 end
 
 %
@@ -565,22 +575,26 @@ function [] = main()
     J = 4 % number of scales
     K = 8 % number of orientations
 
+%    tic()
+%    [S, S_H] = build_dtcwt(filtercoeff_farras, filtercoeff_dualfilt, J)
+%    
+%    w = S(img_noisy)
+%    w2 = S(randn(size(img_noisy)))
+%
+%    wnd = [3,3]
+%
+%    bands = lincell(w)
+%    bands2 = lincell(w2)
+%    
+%    for j=0..numel(bands)-5
+%        C_n = compute_covmtx_spat_stationary(bands2[j], wnd) 
+%        denoise_band_blsgsm(bands[j], wnd, C_n, sigma)
+%    end
+%    img_den = S_H(w)
+%    toc()
+    
     tic()
-    [S, S_H] = build_dtcwt(filtercoeff_farras, filtercoeff_dualfilt, J)
-    
-    w = S(img_noisy)
-    w2 = S(randn(size(img_noisy)))
-
-    wnd = [3,3]
-
-    bands = lincell(w)
-    bands2 = lincell(w2)
-    
-    for j=0..numel(bands)-5
-        C_n = compute_covmtx_spat_stationary(bands2[j], wnd) 
-        denoise_band_blsgsm(bands[j], wnd, C_n, sigma)
-    end
-    img_den = S_H(w)
+    img_den=denoise_image_blsgsm(img_noisy, sigma, "dtcwt", J, K)
     toc()
     
     % computation of the PSNR

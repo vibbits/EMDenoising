@@ -1,6 +1,7 @@
 
 import "dtcwt.q"
 import "system.q"
+import "power_of_two_extension.q"
 
 function w_thr = hard_thresh(w,T)
     w_thr = w.*(abs(w)>T)
@@ -11,6 +12,12 @@ function w_thr = soft_thresh(w,T)
 end
 
 function img_den = wav_denoise(img,sigma,J,w1,w2,thr_type,alpha)
+    % Do power-of-two extension of the image
+    % (wavelet trf code assumes power-of-two image dimensions)
+    orig_size = size(img)
+    [img, topleft] = power_of_two_extension(img)
+
+    % Denoise
     w = dtcwt2d(img, w1, w2, J)
     for j=0..J-1
         for r=0..1
@@ -30,11 +37,17 @@ function img_den = wav_denoise(img,sigma,J,w1,w2,thr_type,alpha)
         end
     end
     img_den = idtcwt2d(w, w1, w2, J)
+
+    % Remove power-of-two extension border again
+    if (any(size(img_den) != orig_size))
+        img_den = img_den[topleft[0]..topleft[0]+orig_size[0]-1, topleft[1]..topleft[1]+orig_size[1]-1]
+    endif
 end
 
 function [] = main()
 
     img = imread("lena_big.tif")[:,:,0]
+    img = img[0..400, 0..280]
 
     sigma = 20
     img_noisy = img + sigma .* randn(size(img))
