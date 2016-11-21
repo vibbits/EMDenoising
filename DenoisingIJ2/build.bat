@@ -31,6 +31,9 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\NonLocalMeansSCDenoiser.java ^
 %SRC_JAVA%\NonLocalMeansSCParams.java ^
 %SRC_JAVA%\NonLocalMeansSCParamsPanel.java ^
+%SRC_JAVA%\NonLocalMeansSCDDenoiser.java ^
+%SRC_JAVA%\NonLocalMeansSCDParams.java ^
+%SRC_JAVA%\NonLocalMeansSCDParamsPanel.java ^
 %SRC_JAVA%\NoOpDenoiser.java ^
 %SRC_JAVA%\ImagePanel.java ^
 %SRC_JAVA%\ImageRange.java ^

@@ -40,11 +40,13 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	    JRadioButton waveletButton = createAlgorithmRadioButton("Wavelet Thresholding", WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING);    	    
 		JRadioButton nlmeansButton = createAlgorithmRadioButton("Non-local means", WizardModel.DenoisingAlgorithm.NLMS);
 		JRadioButton nlmeansSCButton = createAlgorithmRadioButton("Non-local means SC", WizardModel.DenoisingAlgorithm.NLMS_SC);
+		JRadioButton nlmeansSCDButton = createAlgorithmRadioButton("Non-local means SCD", WizardModel.DenoisingAlgorithm.NLMS_SCD);
 	    
 	    // Add radio buttons to group so they are mutually exclusive
 	    ButtonGroup group = new ButtonGroup();
 	    group.add(nlmeansButton);
 	    group.add(nlmeansSCButton);
+	    group.add(nlmeansSCDButton);
 	    group.add(diffusionButton);
 	    group.add(gaussianButton);
 	    group.add(blsgsmButton);
@@ -59,6 +61,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		algoChoicePanel.add(waveletButton);
 		algoChoicePanel.add(nlmeansButton);
 		algoChoicePanel.add(nlmeansSCButton);
+		algoChoicePanel.add(nlmeansSCDButton);
 		algoChoicePanel.add(Box.createVerticalGlue());
 		
 		return algoChoicePanel;
@@ -86,6 +89,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{
 		NonLocalMeansParamsPanel nonLocalMeansParamsPanel = new NonLocalMeansParamsPanel(model.nonLocalMeansParams);
 		NonLocalMeansSCParamsPanel nonLocalMeansSCParamsPanel = new NonLocalMeansSCParamsPanel(model.nonLocalMeansSCParams);
+		NonLocalMeansSCDParamsPanel nonLocalMeansSCDParamsPanel = new NonLocalMeansSCDParamsPanel(model.nonLocalMeansSCDParams);
 		AnisotropicDiffusionParamsPanel anisotropicDiffusionParamsPanel = new AnisotropicDiffusionParamsPanel(model.anisotropicDiffusionParams);
 		GaussianParamsPanel gaussianParamsPanel = new GaussianParamsPanel(model.gaussianParams);
 		BLSGSMParamsPanel blsgsmParamsPanel = new BLSGSMParamsPanel(model.blsgsmParams);
@@ -93,6 +97,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		nonLocalMeansParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });		
 		nonLocalMeansSCParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });		
+		nonLocalMeansSCDParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });		
 		anisotropicDiffusionParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
 		gaussianParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
 		blsgsmParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
@@ -102,6 +107,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		JPanel panel = new JPanel(cardLayout);
 		panel.add(nonLocalMeansParamsPanel, WizardModel.DenoisingAlgorithm.NLMS.name());
 		panel.add(nonLocalMeansSCParamsPanel, WizardModel.DenoisingAlgorithm.NLMS_SC.name());
+		panel.add(nonLocalMeansSCDParamsPanel, WizardModel.DenoisingAlgorithm.NLMS_SCD.name());
 		panel.add(anisotropicDiffusionParamsPanel, WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION.name());
 		panel.add(gaussianParamsPanel, WizardModel.DenoisingAlgorithm.GAUSSIAN.name());
 		panel.add(blsgsmParamsPanel, WizardModel.DenoisingAlgorithm.BLSGSM.name());
@@ -157,6 +163,14 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	private void recalculateDenoisedPreview()
 	{		
 		System.out.println("recalculateDenoisedPreview: will set model.previewDenoisedROI and denoisedImagePanel (via SwingWorker); current denoisedpreview=" + (model.previewDenoisedROI == null ? "null" : model.previewDenoisedROI));
+
+//		// If there is not denoised preview image yet (not even an old one),
+//		// then show the original image as a placeholder. Otherwise the layout of the preview image will look ugly.
+//		if (model.previewDenoisedROI == null)
+//		{
+//			denoisedImagePanel.setImage(model.previewOrigROI.getBufferedImage(), maxPreviewSize);
+//		}
+		
 //		denoisedImagePanel.setText("Calculating...");
 		DenoiseSwingWorker worker = new DenoiseSwingWorker(newDenoiser(), model.previewDenoisedROI, denoisedImagePanel);
 		
@@ -186,6 +200,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				return new NonLocalMeansDenoiser(image, new NonLocalMeansParams(model.nonLocalMeansParams));
 			case NLMS_SC:
 				return new NonLocalMeansSCDenoiser(image, new NonLocalMeansSCParams(model.nonLocalMeansSCParams));
+			case NLMS_SCD:
+				return new NonLocalMeansSCDDenoiser(image, new NonLocalMeansSCDParams(model.nonLocalMeansSCDParams));
 			case GAUSSIAN:
 				return new GaussianDenoiser(image, new GaussianParams(model.gaussianParams));
 			case WAVELET_THRESHOLDING:
