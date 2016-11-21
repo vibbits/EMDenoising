@@ -6,9 +6,6 @@ public class NonLocalMeansParams
 	public int searchWindow;
 	public int halfBlockSize;
 	
-	// TODO: pick sensible parameter ranges
-	//       (some values probably depend on one another though, like sigma and block size...)
-	
 	public static final float sigmaMin = 0.01f;
 	public static final float sigmaMax = 100.0f;
 	
