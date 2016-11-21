@@ -31,6 +31,7 @@ public class WizardModel
 	public GaussianParams gaussianParams;
 	public WaveletThresholdingParams waveletThresholdingParams;
 	public AnisotropicDiffusionParams anisotropicDiffusionParams;
+	public BLSGSMParams blsgsmParams;
 	
 	ImagePlus imagePlus; // original image or image stack (a reference not a copy)
 	Rectangle roi;  // null if the full image should be used; the ROI bounds are with respect to the original image (not the possibly rescaled on-screen version in the dialog)
@@ -49,5 +50,6 @@ public class WizardModel
 		gaussianParams = new GaussianParams();
 		waveletThresholdingParams = new WaveletThresholdingParams();
 		anisotropicDiffusionParams = new AnisotropicDiffusionParams();
+		blsgsmParams = new BLSGSMParams();
 	}
 }

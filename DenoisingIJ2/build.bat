@@ -12,6 +12,9 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\AnisotropicDiffusionDenoiser.java ^
 %SRC_JAVA%\AnisotropicDiffusionParams.java ^
 %SRC_JAVA%\AnisotropicDiffusionParamsPanel.java ^
+%SRC_JAVA%\BLSGSMDenoiser.java ^
+%SRC_JAVA%\BLSGSMParams.java ^
+%SRC_JAVA%\BLSGSMParamsPanel.java ^
 %SRC_JAVA%\BM3DParams.java ^
 %SRC_JAVA%\DenoisingIJ2.java ^
 %SRC_JAVA%\Denoiser.java ^
