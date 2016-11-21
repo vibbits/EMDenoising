@@ -9,7 +9,7 @@ public class WaveletThresholdingParams
 	
 	public WaveletThresholdingParams()
 	{
-		alpha = 1.5f;
+		alpha = 5.0f;
 	}
 	
 	public WaveletThresholdingParams(WaveletThresholdingParams other)

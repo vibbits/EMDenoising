@@ -13,7 +13,7 @@ public class AnisotropicDiffusionParams
 	
 	public AnisotropicDiffusionParams()
 	{
-		diffusionFactor = 40.0f;
+		diffusionFactor = 80.0f;
 	}
 	
 	public AnisotropicDiffusionParams(AnisotropicDiffusionParams other)

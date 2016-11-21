@@ -17,7 +17,7 @@ public class NonLocalMeansParams
 
 	public NonLocalMeansParams()
 	{
-		sigma = 25.0f;
+		sigma = 50.0f;
 		searchWindow = 11;
 		halfBlockSize = 3;
 	}
