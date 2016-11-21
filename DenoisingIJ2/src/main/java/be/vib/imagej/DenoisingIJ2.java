@@ -8,34 +8,18 @@ import org.scijava.plugin.Plugin;
 import ij.ImagePlus;
 import ij.plugin.frame.Recorder;
 
-// Starting Fiji:
-// e:\Fiji.app\ImageJ-win64.exe --console --class-path e:\Fiji.app\plugins\vib_denoising_ij2-1.0.0-amd64-Windows-msvc-jni.nar
-// (the --console triggers and error but is needed anyway to be able to see the stderr output from the C++ side)
-//
-// Building:
-//    mvn
-// This will compile and copy the .jar and .nar into the Fiji installation. It will *not* copy any other dependencies alone (which is intentional).
-//
-// We do not set the "imagej.app.directory" property in our pom.xml because otherwise when running "mvn" the "copy-jars" phase
-// of the "imagej-maven-plugin" will copy our dependencies (such as scijava-common.jar) into the Fiji distribution.
-// This may break the installation if the versions we are copying into the installation are incompatible with some other jars.
-// (See also http://imagej.1557.x6.nabble.com/Eclipse-Maven-workflow-depencies-copied-to-Fiji-app-directory-td5005804.html)
-//
-// Be careful: after updating Quasar, we probably have to copy the corresponding .h and .cpp files into our source folders
-// to avoid that compile time and runtime versions of Quasar are different. (Or is that irrelevant?)
-//
-// TODO:
-// - Let Maven pick up the Quasar include files from the Quasar installation instead of the copies we placed in src\main\include. Also let it pick up quasar_host.cpp
-//   from the Quasar installation instead of our copy.
-//
-// Preliminary timings on my VIB laptop:
-// 2013_11_28_arabidopsis_root_0086.tiff (3896x3896 pixels, 8 bit/pixel), NLMS(sigma 25, searchwin=11, halfblocksize=3, novect, noklt)
-// Times including moving data from Java over JNI to C++ and Quasar (and to GPU) and all the way back.
-//   cpu: Denoising time: 320383 ms (47.377 kpix/s)
-//   cuda: Denoising time: 13860 ms (1095.153 kpix/s) = 23x faster than Quasar utilising the cpu
-//
-// Compile .q to .qlib
-// E:\git\DenoisingIJ2Repository\DenoisingIJ2\src\main\resources\quasar>"e:\Program Files\Quasar\Quasar.exe" --make_lib --optimize --gpu nlmeans_denoising_stillimages.q
+// Windows 10
+// ----------
+// Installation:
+//    copy JavaQuasarBridge.jar   to e:\Fiji.app\plugins
+//    copy JavaQuasarBridge.dll   to e:\Fiji.app\lib\win64
+//    copy VIBDenoising-0.0.1.jar to e:\Fiji.app\plugins
+// Running:
+//    e:\Fiji.app\ImageJ-win64.exe
+// (or "e:\Fiji.app\ImageJ-win64.exe --console" to see output in a text console)
+
+// Aside: to compile .q to .qlib
+//    "e:\Program Files\Quasar\Quasar.exe" --make_lib --optimize --gpu nlmeans_denoising_stillimages.q
 
 
 @Plugin(type = Command.class, menuPath = "Plugins>EM Denoising")
@@ -45,7 +29,7 @@ public class DenoisingIJ2 implements Command
 	private LogService log;
 
 	// If no image is active, the Fiji plugin framework will automatically
-	// issue an error message.
+	// issue a terse error message.
     @Parameter
     private ImagePlus imp;
     
@@ -54,18 +38,20 @@ public class DenoisingIJ2 implements Command
     private Wizard wizard;
 	
 	static
-	{
-        NarSystem.loadLibrary();
-		System.out.println("Native library loaded");
+	{		
+		System.out.println("About to load JavaQuasarBridge dynamic library");
+		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
+		System.out.println("JavaQuasarBridge loaded.");
 	}
 	
 	private Wizard createWizard(WizardModel model)
 	{
-		WizardPage pageROI = new WizardPageROI(model, "Select ROI");
-		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(model, "Select Denoising Algorithm");
-		WizardPage pageDenoise = new WizardPageDenoise(model, "Denoise");
-		
 		Wizard wizard = new Wizard("EM Denoising wizard");
+		
+		WizardPage pageROI = new WizardPageROI(wizard, model, "Select ROI");
+		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Select Denoising Algorithm");
+		WizardPage pageDenoise = new WizardPageDenoise(wizard, model, "Denoise");
+		
 		wizard.addPage(pageROI);
 		wizard.addPage(pageAlgorithm);
 		wizard.addPage(pageDenoise);
@@ -76,6 +62,8 @@ public class DenoisingIJ2 implements Command
 	@Override
 	public void run() 
 	{
+		System.out.println("plugin run() begin");
+
 		// A little experiment with the macro recorder 
 		// TODO: read http://imagej.net/PlugIn_Design_Guidelines
 		if (Recorder.record)
@@ -99,12 +87,14 @@ public class DenoisingIJ2 implements Command
 		
 		model = new WizardModel();
 		model.imagePlus = imp;
-		//imp.c
 		model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
 		// TODO: we have to be careful here: the user may close the image window after the wizard was opened. It looks like that means the ImagePlus becomes invalid. Correct??
 		
 		wizard = createWizard(model);
-		wizard.setVisible(true);
+		wizard.pack();
+		wizard.setVisible(true); // triggers creation of QHost, so need to go before *anything* else that uses the JavaQuasarBridge,
+		
+		System.out.println("plugin run() end");
 	}
 	
 }
