@@ -1,23 +1,25 @@
 package be.vib.imagej;
 
 import java.awt.BorderLayout;
-import java.awt.event.*;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.concurrent.ExecutionException;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
+
+import be.vib.bits.QHost;
+import be.vib.bits.QExecutor;
 
 /**
  * 
@@ -42,27 +44,33 @@ public class Wizard extends JDialog
 	private JButton finishButton;
 	// No cancel button
 	
-	public Wizard(String title)
+	public Wizard(String title) //throws InterruptedException, ExecutionException
 	{				
 		currentPageIdx = 0;
 		
-		
+		System.out.println("Wizard constructor (Java thread=" + Thread.currentThread().getId() + ")");
+
+
 		addWindowListener(new WindowAdapter(){
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
 				System.out.println("Wizard window opened - about to init quasar host (Java thread=" + Thread.currentThread().getId() + ")");
-				boolean success = QuasarInterface.quasarInit("cuda");
-				assert(success);
-				
-				// TODO: important: support loading from JAR or so
-				
-				boolean sourceLoaded = QuasarInterface.quasarLoadSource("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_denoising_stillimages.q");
-				assert(sourceLoaded);
-				
-//				boolean binaryLoaded = QuasarInterface.quasarLoadBinary("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_denoising_stillimages.qlib");
-//				assert(binaryLoaded);
 
+				try {
+						QExecutor.getInstance().submit(() -> {
+						boolean loadCompiler = true;
+						QHost.init("cuda", loadCompiler);
+						System.out.println("QHost.init done");
+					}).get();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ExecutionException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				System.out.println("Wizard window opened - quasar host initialized");
 			}
 
@@ -70,8 +78,17 @@ public class Wizard extends JDialog
 			public void windowClosing(WindowEvent e) // TODO: or windowClosed ?
 			{
 				System.out.println("Wizard window closing - about to release quasar host (Java thread=" + Thread.currentThread().getId() + ")");
-				QuasarInterface.quasarRelease();
-				System.out.println("Wizard window closing - quasar host released");
+
+					try {
+						QExecutor.getInstance().submit(() -> {
+							QHost.release();
+							System.out.println("Wizard window closing - quasar host released");
+						}).get();
+					} catch (InterruptedException | ExecutionException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				
 			}
 
 			@Override
@@ -86,12 +103,12 @@ public class Wizard extends JDialog
 	
 	public void addPage(WizardPage page)
 	{
+		System.out.println("Wizard addPage (Java thread=" + Thread.currentThread().getId() + ")");
+
 		pagesPanel.add(page);
 
 		updateButtons();
 		updateCrumbs();
-		
-		pack();
 	}
 	
 	private void buildUI(String title)
