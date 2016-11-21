@@ -18,60 +18,26 @@ import ij.process.ImageProcessor;
 public class WizardPageDenoisingAlgorithm extends WizardPage 
 {
 	private JPanel algoParamsPanel;
-	private CardLayout algoParamsCardLayout;
 		
 	private ImagePanel origImagePanel;
 	private ImagePanel denoisedImagePanel;
 	
+	private PreviewPanel previewPanel;
+	
     static final int maxPreviewSize = 256;
     
-	public WizardPageDenoisingAlgorithm(WizardModel model, String name)
+	public WizardPageDenoisingAlgorithm(Wizard wizard, WizardModel model, String name)
 	{
-		super(model, name);
+		super(wizard, model, name);
 		buildUI();		
 	}
 	
-	private void buildUI()
+	private JPanel createAlgorithmChoicePanel()
 	{
-	    JRadioButton gaussianButton = new JRadioButton("Gaussian");
-	    gaussianButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.GAUSSIAN);
-	    	    
-	    JRadioButton diffusionButton = new JRadioButton("Anisotropic Diffusion");
-	    diffusionButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION);
-	    
-		JRadioButton nlmeansButton = new JRadioButton("Non-local means");
-		nlmeansButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.NLMS);
-
-	    JRadioButton waveletButton = new JRadioButton("Wavelet Thresholding");
-	    waveletButton.setSelected(model.denoisingAlgorithm == WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING);
-	    	    
-	    nlmeansButton.addActionListener(e -> {
-    		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.NLMS;
-    		algoParamsCardLayout.show(algoParamsPanel, algorithm.name());
-			model.denoisingAlgorithm = algorithm;
-			recalculateDenoisedPreview();
-	    });
-
-	    diffusionButton.addActionListener(e -> {
-    		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION;
-    		algoParamsCardLayout.show(algoParamsPanel, algorithm.name());
-			model.denoisingAlgorithm = algorithm;
-			recalculateDenoisedPreview();
-    	});
-
-	    gaussianButton.addActionListener(e -> {
-    		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.GAUSSIAN;
-    		algoParamsCardLayout.show(algoParamsPanel, algorithm.name());
-			model.denoisingAlgorithm = algorithm;
-			recalculateDenoisedPreview();
-    	});
-	    
-	    waveletButton.addActionListener(e -> {
-    		WizardModel.DenoisingAlgorithm algorithm = WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING;
-    		algoParamsCardLayout.show(algoParamsPanel, algorithm.name());
-			model.denoisingAlgorithm = algorithm;
-			recalculateDenoisedPreview();
-    	});
+	    JRadioButton gaussianButton = createAlgorithmRadioButton("Gaussian", WizardModel.DenoisingAlgorithm.GAUSSIAN);   	    
+	    JRadioButton diffusionButton = createAlgorithmRadioButton("Anisotropic Diffusion", WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION); 
+		JRadioButton nlmeansButton = createAlgorithmRadioButton("Non-local means", WizardModel.DenoisingAlgorithm.NLMS);
+	    JRadioButton waveletButton = createAlgorithmRadioButton("Wavelet Thresholding", WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING);    	    
 	    
 	    // Add radio buttons to group so they are mutually exclusive
 	    ButtonGroup group = new ButtonGroup();
@@ -89,6 +55,29 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		algoChoicePanel.add(waveletButton);
 		algoChoicePanel.add(Box.createVerticalGlue());
 		
+		return algoChoicePanel;
+	}
+	
+	private void buildUI()
+	{
+		JPanel algoChoicePanel = createAlgorithmChoicePanel();
+
+		algoParamsPanel = createAlgorithmParametersPanel();
+		
+		JPanel algorithmPanel = new JPanel();
+		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
+		algorithmPanel.add(algoChoicePanel);
+		algorithmPanel.add(algoParamsPanel);
+		
+		previewPanel = new PreviewPanel();
+		
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));		
+		add(previewPanel);
+		add(algorithmPanel);
+	}
+
+	private JPanel createAlgorithmParametersPanel()
+	{
 		NonLocalMeansParamsPanel nonLocalMeansParamsPanel = new NonLocalMeansParamsPanel(model.nonLocalMeansParams);
 		AnisotropicDiffusionParamsPanel anisotropicDiffusionParamsPanel = new AnisotropicDiffusionParamsPanel(model.anisotropicDiffusionParams);
 		GaussianParamsPanel gaussianParamsPanel = new GaussianParamsPanel(model.gaussianParams);
@@ -98,28 +87,33 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		anisotropicDiffusionParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
 		gaussianParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
 		waveletThresholdingParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
-
-		algoParamsCardLayout = new CardLayout();
-		algoParamsPanel = new JPanel(algoParamsCardLayout);
-		algoParamsPanel.add(nonLocalMeansParamsPanel, WizardModel.DenoisingAlgorithm.NLMS.name());
-		algoParamsPanel.add(anisotropicDiffusionParamsPanel, WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION.name());
-		algoParamsPanel.add(gaussianParamsPanel, WizardModel.DenoisingAlgorithm.GAUSSIAN.name());
-		algoParamsPanel.add(waveletThresholdingParamsPanel, WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING.name());
 		
-		algoParamsCardLayout.show(algoParamsPanel, model.denoisingAlgorithm.name());
+		CardLayout cardLayout = new CardLayout();
+		JPanel panel = new JPanel(cardLayout);
+		panel.add(nonLocalMeansParamsPanel, WizardModel.DenoisingAlgorithm.NLMS.name());
+		panel.add(anisotropicDiffusionParamsPanel, WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION.name());
+		panel.add(gaussianParamsPanel, WizardModel.DenoisingAlgorithm.GAUSSIAN.name());
+		panel.add(waveletThresholdingParamsPanel, WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING.name());
 		
-		JPanel algorithmPanel = new JPanel();
-		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
-		algorithmPanel.add(algoChoicePanel);
-		algorithmPanel.add(algoParamsPanel);
-		
-		JPanel previewPanel = new PreviewPanel();
-		
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));		
-		add(previewPanel);
-		add(algorithmPanel);
+		cardLayout.show(panel, model.denoisingAlgorithm.name());
+		return panel;
 	}
-
+	
+	private JRadioButton createAlgorithmRadioButton(String text, WizardModel.DenoisingAlgorithm algorithm)
+	{
+	    JRadioButton button = new JRadioButton(text);
+	    button.setSelected(model.denoisingAlgorithm == algorithm);
+		
+	    button.addActionListener(e -> {
+	    	if (model.denoisingAlgorithm == algorithm) return;
+    		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.name());
+			model.denoisingAlgorithm = algorithm;
+			recalculateDenoisedPreview();
+	    });
+	    
+	    return button;
+	}
+	
 	private class PreviewPanel extends JPanel
 	{
 		public PreviewPanel()
@@ -127,8 +121,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			setBorder(BorderFactory.createTitledBorder("Denoising Preview"));
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 			
-			origImagePanel = new ImagePanel();
-			denoisedImagePanel = new ImagePanel();
+			origImagePanel = new ImagePanel(WizardPageDenoisingAlgorithm.this);
+			denoisedImagePanel = new ImagePanel(WizardPageDenoisingAlgorithm.this);
 			
 			JPanel origImagePane = addTitle(origImagePanel, "Original ROI");
 			JPanel denoisedImagePane = addTitle(denoisedImagePanel, "Denoised ROI");
@@ -143,8 +137,21 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private void recalculateOrigPreview()
 	{
+		System.out.println("recalculateOrigPreview: setting model.previewOrigROI and its panels");
 		model.previewOrigROI = cropImage(model.imagePlus, model.roi);
 		origImagePanel.setImage(model.previewOrigROI.getBufferedImage(), maxPreviewSize);
+	}
+	
+	private void recalculateDenoisedPreview()
+	{		
+		System.out.println("recalculateDenoisedPreview: will set model.previewDenoisedROI and denoisedImagePanel (via SwingWorker); current denoisedpreview=" + (model.previewDenoisedROI == null ? "null" : model.previewDenoisedROI));
+//		denoisedImagePanel.setText("Calculating...");
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(newDenoiser(), model.previewDenoisedROI, denoisedImagePanel);
+		
+		// Run the denoising preview on a separate worker thread and return here immediately.
+		// Once denoising has completed, the worker will automatically update the denoising
+		// preview image in the Java Event Dispatch Thread (EDT).
+		worker.execute();
 	}
 	
 	private byte[] getPixelsCopy(ImageProcessor image)
@@ -176,19 +183,6 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		}
 	}
 
-	private void recalculateDenoisedPreview()
-	{		
-		System.out.println("recalculateDenoisedPreview (Java thread: " + Thread.currentThread().getId() + ")");
-		
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(newDenoiser(), model.previewDenoisedROI, denoisedImagePanel);
-		
-		// Run the denoising preview on a separate worker thread and return here immediately.
-		// Once denoising has completed, the worker will automatically update the denoising
-		// preview image in the Java Event Dispatch Thread (EDT).
-		worker.execute();
-
-	}
-	
 	private static JPanel addTitle(JPanel p, String title)
 	{
 		JPanel panel = new JPanel();
@@ -213,6 +207,9 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		// ROI may have changed, update the previews
 		recalculateOrigPreview();
 		recalculateDenoisedPreview();
+		
+		// Ask layout manager to resize the dialog so it looks nice
+		wizard.pack();
 	}
 	
 	private ImageProcessor cropImage(ImagePlus image, Rectangle roi)

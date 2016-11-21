@@ -12,11 +12,12 @@ public class WizardDemo
 		model.imagePlus = new ImagePlus("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\2013_11_28_arabidopsis_root_0086_crop.png");
 //		model.imagePlus.show();
 		
-		WizardPage pageROI = new WizardPageROI(model, "Select ROI");
-		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(model, "Select Denoising Algorithm");
-		WizardPage pageDenoise = new WizardPageDenoise(model, "Denoise");
-		
 		Wizard wizard = new Wizard("EM Denoising wizard");
+
+		WizardPage pageROI = new WizardPageROI(wizard, model, "Select ROI");
+		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Select Denoising Algorithm");
+		WizardPage pageDenoise = new WizardPageDenoise(wizard, model, "Denoise");
+		
 		wizard.addPage(pageROI);
 		wizard.addPage(pageAlgorithm);
 		wizard.addPage(pageDenoise);;

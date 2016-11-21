@@ -1,6 +1,5 @@
 package be.vib.imagej;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.time.Duration;
 import java.time.Instant;
@@ -26,9 +25,9 @@ public class WizardPageDenoise extends WizardPage
 {
 	private JProgressBar progressBar;
 	
-	public WizardPageDenoise(WizardModel model, String name)
+	public WizardPageDenoise(Wizard wizard, WizardModel model, String name)
 	{
-		super(model, name);
+		super(wizard, model, name);
 		if (model.imagePlus.getNSlices() > 1)
 			buildImageStackUI();
 		else
@@ -117,7 +116,8 @@ public class WizardPageDenoise extends WizardPage
 		switch (model.denoisingAlgorithm)
 		{
 			case NLMS:
-				outputPixels = QuasarInterface.quasarNlmeans(width, height, inputPixels, (float)model.nonLocalMeansParams.sigma, model.nonLocalMeansParams.searchWindow, model.nonLocalMeansParams.halfBlockSize, 0, 0);
+				// TODO
+				// outputPixels = QuasarInterface.quasarNlmeans(width, height, inputPixels, (float)model.nonLocalMeansParams.sigma, model.nonLocalMeansParams.searchWindow, model.nonLocalMeansParams.halfBlockSize, 0, 0);
 				break;
 			default:
 				outputPixels = Arrays.copyOf(inputPixels, inputPixels.length);
@@ -169,7 +169,7 @@ public class WizardPageDenoise extends WizardPage
 			
 			JLabel inputImage = new JLabel(html(italic(model.imagePlus.getTitle())));
 			JLabel denoisedImage = new JLabel(html(italic("New image, original image will not be modified.")));
-			JLabel denoisingAlgorithm = new JLabel(html(italic("Foo algorithm, param value, param value"))); // TODO
+			JLabel denoisingAlgorithm = new JLabel(html(italic("Foo algorithm, param value, param value"))); // TODO - is there a Printable interface or so? to stringify the algorithm params
 			
 			GroupLayout layout = new GroupLayout(this);
 			layout.setAutoCreateGaps(true);

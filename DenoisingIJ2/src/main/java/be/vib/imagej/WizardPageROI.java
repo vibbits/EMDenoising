@@ -20,9 +20,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	private JLabel bitDepth;
 	private JLabel roi;
 	
-	public WizardPageROI(WizardModel model, String name)
+	public WizardPageROI(Wizard wizard, WizardModel model, String name)
 	{
-		super(model, name);
+		super(wizard, model, name);
 		buildUI();
 		
 		ImagePlus.addImageListener(this);
@@ -92,7 +92,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	
 	private void updateImageInfo()
 	{
-//		System.out.println("updateImageInfo EDT? " + SwingUtilities.isEventDispatchThread());
+		System.out.println("updateImageInfo EDT? " + SwingUtilities.isEventDispatchThread());
 		if (model.imagePlus == null)
 		{
 			image.setText(htmlAttention("not available"));
@@ -107,7 +107,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 
 	private void updateRoiInfo()
 	{
-//		System.out.println("updateRoiInfo EDT? " + SwingUtilities.isEventDispatchThread());
+		System.out.println("updateRoiInfo EDT? " + SwingUtilities.isEventDispatchThread());
 		if (model.imagePlus != null && model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty())
 		{
 			roi.setText(model.imagePlus.getRoi().getBounds().toString());
@@ -142,10 +142,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	public void imageUpdated(ImagePlus imp)
 	{
 		// This is not called from the Java EDT, so direct calls to Swing widgets will *not* happen
-		// immediately.
+		// immediately. That's why we use invokeLater() to do the imageInfo and RoiInfo updates on the EDT.
 
-//		System.out.println("EDT? " + SwingUtilities.isEventDispatchThread());
-//		System.out.println("imageUpdated " + (imp != null ? imp.getTitle() : "null"));
+		System.out.println("imageUpdated " + (imp != null ? imp.getTitle() : "null" + " EDT? " + SwingUtilities.isEventDispatchThread() + " -> updateImageInfo and updateRoiInfo"));
 
 		// Does this get called when the user changes the bit-depth of the image?
 		
@@ -161,11 +160,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	@Override
 	public void roiModified(ImagePlus imp, int id)
 	{
-		// This gets called from the Java EDT (Event Dispatching Thread),
-		// I presume because it is sent from a Swing UI element.
+		assert(SwingUtilities.isEventDispatchThread());
 		
-//		System.out.println("EDT? " + SwingUtilities.isEventDispatchThread());
-//		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null" + " id:" + id));
+		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null" + " id:" + id + " EDT? " + SwingUtilities.isEventDispatchThread() + " -> updateRoiInfo()"));
 		if (imp == null)
 			return;
 
