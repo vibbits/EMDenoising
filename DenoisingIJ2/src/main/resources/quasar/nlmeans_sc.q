@@ -375,9 +375,9 @@ end
 %   half_search_size: half the size of the search space where patches should be compared
 %   half_block_size: half the size of the patches to compare
 %   h: parameter to control the weighting function
-%   sigma_0: base standard deviation of the noise (standard deviation in absence of signal)
-%   alpha: signal dependency parameter
-%   corr_filter_inv: inverse impulse response of noise correlation kernel
+% %   sigma_0: base standard deviation of the noise (standard deviation in absence of signal)
+% %   alpha: signal dependency parameter
+% %   corr_filter_inv: inverse impulse response of noise correlation kernel
 function [accum_mtx, accum_weight] = denoise_nlmeans_cumsum( _
     img_noisy, _
     img_orig, _
@@ -516,9 +516,9 @@ end
 %   half_search_size: half the size of the search space where patches should be compared
 %   half_block_size: half the size of the patches to compare
 %   h: parameter to control the weighting function
-%   sigma_0: base standard deviation of the noise (standard deviation in absence of signal)
-%   alpha: signal dependency parameter
-%   corr_filter_inv: inverse impulse response of noise correlation kernel
+% %   sigma_0: base standard deviation of the noise (standard deviation in absence of signal)
+% %   alpha: signal dependency parameter
+% %   corr_filter_inv: inverse impulse response of noise correlation kernel
 function img_est = denoise_nlmeans( _
     img_noisy, _
     half_search_size : int, _

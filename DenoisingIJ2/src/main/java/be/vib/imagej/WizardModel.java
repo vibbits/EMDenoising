@@ -28,6 +28,7 @@ public class WizardModel
 
 	public DenoisingAlgorithm denoisingAlgorithm;
 	public NonLocalMeansParams nonLocalMeansParams;	
+	public NonLocalMeansSCParams nonLocalMeansSCParams;	
 	public GaussianParams gaussianParams;
 	public WaveletThresholdingParams waveletThresholdingParams;
 	public AnisotropicDiffusionParams anisotropicDiffusionParams;
@@ -47,6 +48,7 @@ public class WizardModel
 	{
 		denoisingAlgorithm = DenoisingAlgorithm.GAUSSIAN;
 		nonLocalMeansParams = new NonLocalMeansParams();
+		nonLocalMeansSCParams = new NonLocalMeansSCParams();
 		gaussianParams = new GaussianParams();
 		waveletThresholdingParams = new WaveletThresholdingParams();
 		anisotropicDiffusionParams = new AnisotropicDiffusionParams();
