@@ -6,9 +6,12 @@ import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
+import javax.swing.JSlider;
 
 class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 {		
+	private SliderFieldPair alphaPair;
+	
 	public WaveletThresholdingParamsPanel(WaveletThresholdingParams params)
 	{			
 		setBorder(BorderFactory.createTitledBorder("Wavelet Thresholding Parameters"));
@@ -16,13 +19,16 @@ class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		JLabel alphaLabel = new JLabel("Alpha:");
-		JFormattedTextField alphaField = new JFormattedTextField(floatFormat);
+		alphaPair = new SliderFieldPair(0, 100, floatFormat, WaveletThresholdingParams.alphaMin, WaveletThresholdingParams.alphaMax);
+		alphaPair.setValue(params.alpha);
+		alphaPair.addPropertyChangeListener(e -> { params.alpha = alphaPair.getValue(); fireChangeEvent(); });
+		
+		JSlider alphaSlider = alphaPair.getSlider();
+		
+		JFormattedTextField alphaField = alphaPair.getFloatField();
 		alphaField.setColumns(5);
-		alphaField.setValue(new Float(params.alpha));
-		alphaField.addPropertyChangeListener("value", e -> { params.alpha = ((Number)alphaField.getValue()).floatValue();
-                                                             System.out.println("model updated, alpha now:" + params.alpha);
-                                                             fireChangeEvent(); });
+		
+		JLabel alphaLabel = new JLabel("Alpha:");
 		
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
@@ -34,14 +40,18 @@ class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 			           .addComponent(alphaLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 			           .addComponent(alphaField))
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+			           .addComponent(alphaSlider))
 		);
 		
 		layout.setVerticalGroup(
 		   layout.createSequentialGroup()
-		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			           .addComponent(alphaLabel)
-			           .addComponent(alphaField))
-		);		
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(alphaLabel)
+		    				  .addComponent(alphaField))
+			           .addComponent(alphaSlider))
+		);    	
 		
 		setLayout(layout);
 	}
