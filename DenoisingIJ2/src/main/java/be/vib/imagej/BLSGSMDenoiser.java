@@ -22,14 +22,11 @@ class BLSGSMDenoiser extends Denoiser
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
 		
-	    int J = 4; // number of scales
-	    int K = 8; // number of orientations
-		
 		QValue result = blsgsm.apply(imageCube,
 				                     new QValue(params.sigma),
-				                     new QValue("dtcwt"),
-				                     new QValue(J),
-				                     new QValue(K));
+				                     new QValue(BLSGSMParams.sparsityTrf),
+				                     new QValue(BLSGSMParams.J),
+				                     new QValue(BLSGSMParams.K));
 		
 		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.width, image.height, result);
 		

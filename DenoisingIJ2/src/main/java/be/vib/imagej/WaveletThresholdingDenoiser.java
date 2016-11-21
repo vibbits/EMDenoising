@@ -19,9 +19,7 @@ class WaveletThresholdingDenoiser extends Denoiser
 	{		
 		QFunction waveletThresholding = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\wavelet_thresholding.q",
                                                             "wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
-		
-//		QFunction print = new QFunction("print(...)");
-		
+				
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
 		
 		QValue w1 = QValue.readhostVariable("filtercoeff_farras");          // wavelet for the first scale (a 2x10 matrix)
@@ -31,15 +29,13 @@ class WaveletThresholdingDenoiser extends Denoiser
 //		System.out.println("imwrite mat exists? " + QHost.functionExists("imwrite"));
 //		imwrite.apply(new QValue("e:\\imagecube.tif"), imageCube);
 //		System.out.println("saved image cube");
-		
-		// FIXME: the wavelet thresholding code does not support non-power of two size images!
-		
+				
 		QValue result = waveletThresholding.apply(imageCube,
-				                                  new QValue(20.0f),  // = sigma // TODO: should this be a parameter the user can choose? is related to alpha
-				                                  new QValue(6),      // = J = number of scales
+				                                  new QValue(WaveletThresholdingParams.sigma),
+				                                  new QValue(WaveletThresholdingParams.J),
 				                                  w1,
 				                                  w2,
-				                                  new QValue("soft"), // use soft thresholding ("hard" is for hard thresholding)
+				                                  new QValue(WaveletThresholdingParams.thresholding),
 				                                  new QValue(params.alpha));
 		
 		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.width, image.height, result);
