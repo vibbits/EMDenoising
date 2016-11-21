@@ -14,7 +14,7 @@ class Denoiser implements Callable<byte[]>
 		this.image = image;
 	}
 
-	// Important: *must* be run on the Quasar thread!
+	// Important: call() *must* be run on the Quasar thread!
 	// Returns a new array with the denoised version of image.pixels.
 	// Its width and height must be the same as in the original image.
 	@Override
@@ -23,13 +23,16 @@ class Denoiser implements Callable<byte[]>
 		return null;
 	}
 
-	// Returns the Quasar function with the given signature. If the function
-	// does not exist yet in the Quasar host, it will load it from sourceFile.
+	// Returns the Quasar function object for the function with the given signature.
+	// If the function does not yet exist in the Quasar host, it will load it from sourceFile and compile it.
 	protected QFunction loadDenoiseFunction(String sourceFile, String signature)
 	{
-		String function = extractFunction(signature);
+		String functionName = extractFunctionName(signature);
+
+		// TODO: important: support loading from JAR or so
+		// TODO: important: load .qlib instead of .q (needed for installation on machine without Quasar license).
 		
-		if (!QHost.functionExists(function))
+		if (!QHost.functionExists(functionName))
 		{
 			// Lazy loading of the source module for this denoising function.
 			// Once it is loaded it will persist in the Quasar host
@@ -37,7 +40,7 @@ class Denoiser implements Callable<byte[]>
 			QHost.loadSourceModule(sourceFile);
 		}
 		
-		assert(QHost.functionExists(function));
+		assert(QHost.functionExists(functionName));
 		
 		return new QFunction(signature);
 	}
@@ -45,7 +48,7 @@ class Denoiser implements Callable<byte[]>
 	// Extracts the function name from a Quasar function signature.
 	// For example, given the signature "gaussian_filter(mat,scalar,int,string)"
 	// it returns "gaussian_filter".
-	private String extractFunction(String signature)
+	private String extractFunctionName(String signature)
 	{
 		int i = signature.indexOf('(');
 		assert(i != -1);
