@@ -17,17 +17,17 @@ class NonLocalMeansDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{		
-		QFunction nlmeans = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_denoising_stillimages.q",
-                                                "denoise_nlmeans(cube,scalar,int,ivec2,int,int)");
+		QFunction nlmeans = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_sc.q",
+                                                "denoise_nlmeans(mat,int,int,scalar)");
 		
-		int[] halfBlockSize = { params.halfBlockSize, params.halfBlockSize };
+		// The files nlmeans_denoising_stillimages.q and nlmeans_sc.q both contain implementation of the NLMS filter, but their API is slightly different.
+		// The nlmeans_denoising_stillimages implementation is more general, but we stick to nlmeans_sc.q so NLMS and NLMS-SC share the same code.
+		
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
 		QValue result = nlmeans.apply(imageCube,
-				                      new QValue(params.sigma),
-				                      new QValue(params.searchWindow),
-				                      new QValue(halfBlockSize),
-				                      new QValue(0),
-				                      new QValue(0));
+				                      new QValue(params.halfSearchSize),
+				                      new QValue(params.halfBlockSize),
+				                      new QValue(params.h));
 		
 		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.width, image.height, result);
 		

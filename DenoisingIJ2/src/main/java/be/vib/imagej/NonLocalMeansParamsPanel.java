@@ -18,24 +18,24 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		SliderFieldPair sigmaPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansParams.sigmaMin, NonLocalMeansParams.sigmaMax);
-		sigmaPair.setValue(params.sigma);
-		sigmaPair.addPropertyChangeListener(e -> { params.sigma = sigmaPair.getValue(); fireChangeEvent(); });
+		SliderFieldPair hPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansParams.hMin, NonLocalMeansParams.hMax);
+		hPair.setValue(params.h);
+		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireChangeEvent(); });
 				
-		SliderSpinnerPair searchWindowPair = new SliderSpinnerPair(NonLocalMeansParams.searchWindowMin, NonLocalMeansParams.searchWindowMax);
-		searchWindowPair.setValue(params.searchWindow);
-		searchWindowPair.addPropertyChangeListener(e -> { params.searchWindow = searchWindowPair.getValue(); fireChangeEvent(); });
+		SliderSpinnerPair searchWindowPair = new SliderSpinnerPair(NonLocalMeansParams.halfSearchSizeMin, NonLocalMeansParams.halfSearchSizeMax);
+		searchWindowPair.setValue(params.halfSearchSize);
+		searchWindowPair.addPropertyChangeListener(e -> { params.halfSearchSize = searchWindowPair.getValue(); fireChangeEvent(); });
 
 		SliderSpinnerPair halfBlockSizePair = new SliderSpinnerPair(NonLocalMeansParams.halfBlockSizeMin, NonLocalMeansParams.halfBlockSizeMax);
 		halfBlockSizePair.setValue(params.halfBlockSize);
 		halfBlockSizePair.addPropertyChangeListener(e -> { params.halfBlockSize = halfBlockSizePair.getValue(); fireChangeEvent(); });
 
-		JLabel sigmaLabel = new JLabel("Sigma:");	
-		JFormattedTextField sigmaField = sigmaPair.getFloatField();
-		sigmaField.setColumns(5);		
-		JSlider sigmaSlider = sigmaPair.getSlider();
+		JLabel hLabel = new JLabel("h:");	
+		JFormattedTextField hField = hPair.getFloatField();
+		hField.setColumns(5);		
+		JSlider hSlider = hPair.getSlider();
 
-		JLabel searchWindowLabel = new JLabel("Search window:");				
+		JLabel searchWindowLabel = new JLabel("Half search window:");				
 		JSpinner searchWindowSpinner = searchWindowPair.getSpinner();
 		JSlider searchWindowSlider = searchWindowPair.getSlider();
 		
@@ -50,15 +50,15 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		layout.setHorizontalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
-			           .addComponent(sigmaLabel)
+			           .addComponent(hLabel)
 			           .addComponent(searchWindowLabel)
 		      		   .addComponent(halfBlockSizeLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-			           .addComponent(sigmaField)
+			           .addComponent(hField)
 			           .addComponent(searchWindowSpinner)
 		      		   .addComponent(halfBlockSizeSpinner))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-		    		   .addComponent(sigmaSlider)
+		    		   .addComponent(hSlider)
 		               .addComponent(searchWindowSlider)
 		               .addComponent(halfBlockSizeSlider))
 		);
@@ -67,9 +67,9 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		  .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(sigmaLabel)
-		    				  .addComponent(sigmaField))
-			           .addComponent(sigmaSlider))
+		    				  .addComponent(hLabel)
+		    				  .addComponent(hField))
+			           .addComponent(hSlider))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		  .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		    				  .addComponent(searchWindowLabel)

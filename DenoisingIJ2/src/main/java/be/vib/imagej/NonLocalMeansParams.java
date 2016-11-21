@@ -2,30 +2,30 @@ package be.vib.imagej;
 
 public class NonLocalMeansParams
 {
-	public float sigma;
-	public int searchWindow;
+	public float h;
+	public int halfSearchSize;
 	public int halfBlockSize;
 	
-	public static final float sigmaMin = 0.01f;
-	public static final float sigmaMax = 100.0f;
+	public static final float hMin = 0.01f;
+	public static final float hMax = 200.0f;
 	
-	public static final int searchWindowMin = 1;
-	public static final int searchWindowMax = 20;
+	public static final int halfSearchSizeMin = 1;
+	public static final int halfSearchSizeMax = 20;
 	
 	public static final int halfBlockSizeMin = 1;
 	public static final int halfBlockSizeMax = 10;
 
 	public NonLocalMeansParams()
 	{
-		sigma = 50.0f;
-		searchWindow = 11;
-		halfBlockSize = 3;
+		h = 50.0f;
+		halfSearchSize = 5;
+		halfBlockSize = 4;
 	}
 	
 	public NonLocalMeansParams(NonLocalMeansParams other)
 	{
-		this.sigma = other.sigma;
-		this.searchWindow = other.searchWindow;
+		this.h = other.h;
+		this.halfSearchSize = other.halfSearchSize;
 		this.halfBlockSize = other.halfBlockSize;
 	}
 }
