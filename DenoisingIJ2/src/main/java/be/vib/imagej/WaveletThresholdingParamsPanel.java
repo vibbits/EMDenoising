@@ -9,9 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JSlider;
 
 class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
-{		
-	private SliderFieldPair alphaPair;
-	
+{			
 	public WaveletThresholdingParamsPanel(WaveletThresholdingParams params)
 	{			
 		setBorder(BorderFactory.createTitledBorder("Wavelet Thresholding Parameters"));
@@ -19,7 +17,7 @@ class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		alphaPair = new SliderFieldPair(0, 100, floatFormat, WaveletThresholdingParams.alphaMin, WaveletThresholdingParams.alphaMax);
+		SliderFieldPair alphaPair = new SliderFieldPair(0, 100, floatFormat, WaveletThresholdingParams.alphaMin, WaveletThresholdingParams.alphaMax);
 		alphaPair.setValue(params.alpha);
 		alphaPair.addPropertyChangeListener(e -> { params.alpha = alphaPair.getValue(); fireChangeEvent(); });
 		

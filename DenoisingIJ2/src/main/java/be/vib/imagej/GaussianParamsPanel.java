@@ -9,9 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JSlider;
 
 class GaussianParamsPanel extends DenoiseParamsPanelBase 
-{
-	private SliderFieldPair sigmaPair;
-	
+{	
 	public GaussianParamsPanel(GaussianParams params)
 	{
 		setBorder(BorderFactory.createTitledBorder("Gaussian Denoising Parameters"));
@@ -19,7 +17,7 @@ class GaussianParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		sigmaPair = new SliderFieldPair(0, 100, floatFormat, GaussianParams.sigmaMin, GaussianParams.sigmaMax);
+		SliderFieldPair sigmaPair = new SliderFieldPair(0, 100, floatFormat, GaussianParams.sigmaMin, GaussianParams.sigmaMax);
 		sigmaPair.setValue(params.sigma);
 		sigmaPair.addPropertyChangeListener(e -> { params.sigma = sigmaPair.getValue(); fireChangeEvent(); });
 		

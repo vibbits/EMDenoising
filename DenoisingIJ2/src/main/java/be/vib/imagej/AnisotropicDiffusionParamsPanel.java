@@ -10,8 +10,6 @@ import javax.swing.JSlider;
 
 class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase 
 {
-	private SliderFieldPair diffusionFactorPair;
-
 	public AnisotropicDiffusionParamsPanel(AnisotropicDiffusionParams params)
 	{
 		setBorder(BorderFactory.createTitledBorder("Anisotropic Diffusion Denoising Parameters"));
@@ -21,7 +19,7 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		diffusionFactorPair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.diffusionFactorMin, AnisotropicDiffusionParams.diffusionFactorMax);
+		SliderFieldPair diffusionFactorPair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.diffusionFactorMin, AnisotropicDiffusionParams.diffusionFactorMax);
 		diffusionFactorPair.setValue(params.diffusionFactor);
 		diffusionFactorPair.addPropertyChangeListener(e -> { params.diffusionFactor = diffusionFactorPair.getValue(); fireChangeEvent(); });
 		

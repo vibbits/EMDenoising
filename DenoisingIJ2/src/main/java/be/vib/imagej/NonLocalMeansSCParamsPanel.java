@@ -9,9 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JSlider;
 
 class NonLocalMeansSCParamsPanel extends DenoiseParamsPanelBase 
-{
-	private SliderFieldPair hPair;
-	
+{	
 	public NonLocalMeansSCParamsPanel(NonLocalMeansSCParams params)
 	{
 		setBorder(BorderFactory.createTitledBorder("Non-Local Means SC Denoising Parameters"));
@@ -19,7 +17,7 @@ class NonLocalMeansSCParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		hPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansSCParams.hMin, NonLocalMeansSCParams.hMax);
+		SliderFieldPair hPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansSCParams.hMin, NonLocalMeansSCParams.hMax);
 		hPair.setValue(params.h);
 		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireChangeEvent(); });
 		
