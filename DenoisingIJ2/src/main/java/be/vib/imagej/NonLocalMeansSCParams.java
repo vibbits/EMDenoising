@@ -3,7 +3,7 @@ package be.vib.imagej;
 public class NonLocalMeansSCParams
 {
 	public static final float hMin = 0.01f;
-	public static final float hMax = 50.0f;
+	public static final float hMax = 75.0f;
 	
 	public float h;
 	
@@ -41,7 +41,7 @@ public class NonLocalMeansSCParams
 
 	public NonLocalMeansSCParams()
 	{
-		h = 13.5f;
+		h = 40.0f;
 	}
 	
 	public NonLocalMeansSCParams(NonLocalMeansSCParams other)

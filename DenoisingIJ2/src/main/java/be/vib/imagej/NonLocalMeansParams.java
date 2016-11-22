@@ -17,7 +17,7 @@ public class NonLocalMeansParams
 
 	public NonLocalMeansParams()
 	{
-		h = 50.0f;
+		h = 140.0f;
 		halfSearchSize = 5;
 		halfBlockSize = 4;
 	}
