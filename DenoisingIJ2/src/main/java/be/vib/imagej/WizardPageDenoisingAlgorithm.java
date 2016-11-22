@@ -32,6 +32,24 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		buildUI();		
 	}
 	
+	private void buildUI()
+	{
+		JPanel algoChoicePanel = createAlgorithmChoicePanel();
+
+		algoParamsPanel = createAlgorithmParametersPanel();
+		
+		JPanel algorithmPanel = new JPanel();
+		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
+		algorithmPanel.add(algoChoicePanel);
+		algorithmPanel.add(algoParamsPanel);
+		
+		previewPanel = new PreviewPanel();
+		
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));		
+		add(previewPanel);
+		add(algorithmPanel);
+	}
+
 	private JPanel createAlgorithmChoicePanel()
 	{
 	    JRadioButton gaussianButton = createAlgorithmRadioButton("Gaussian", WizardModel.DenoisingAlgorithm.GAUSSIAN);   	    
@@ -67,24 +85,6 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		return algoChoicePanel;
 	}
 	
-	private void buildUI()
-	{
-		JPanel algoChoicePanel = createAlgorithmChoicePanel();
-
-		algoParamsPanel = createAlgorithmParametersPanel();
-		
-		JPanel algorithmPanel = new JPanel();
-		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
-		algorithmPanel.add(algoChoicePanel);
-		algorithmPanel.add(algoParamsPanel);
-		
-		previewPanel = new PreviewPanel();
-		
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));		
-		add(previewPanel);
-		add(algorithmPanel);
-	}
-
 	private JPanel createAlgorithmParametersPanel()
 	{
 		NonLocalMeansParamsPanel nonLocalMeansParamsPanel = new NonLocalMeansParamsPanel(model.nonLocalMeansParams);
@@ -117,6 +117,35 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		return panel;
 	}
 	
+	private Denoiser newDenoiser()
+	{
+		// Make an image denoiser. Since it will be used as a task that will be executed asynchronously,
+		// we take a snapshot (deep copy) of the input image as well as the denoising
+		// parameters as they are at this point in time.
+		LinearImage image = new LinearImage(model.previewOrigROI.getWidth(), model.previewOrigROI.getHeight(), getPixelsCopy(model.previewOrigROI));
+		
+		switch (model.denoisingAlgorithm)
+		{
+			case NLMS:
+				return new NonLocalMeansDenoiser(image, new NonLocalMeansParams(model.nonLocalMeansParams));
+			case NLMS_SC:
+				return new NonLocalMeansSCDenoiser(image, new NonLocalMeansSCParams(model.nonLocalMeansSCParams));
+			case NLMS_SCD:
+				return new NonLocalMeansSCDDenoiser(image, new NonLocalMeansSCDParams(model.nonLocalMeansSCDParams));
+			case GAUSSIAN:
+				return new GaussianDenoiser(image, new GaussianParams(model.gaussianParams));
+			case WAVELET_THRESHOLDING:
+				return new WaveletThresholdingDenoiser(image, new WaveletThresholdingParams(model.waveletThresholdingParams));
+			case ANISOTROPIC_DIFFUSION:
+				return new AnisotropicDiffusionDenoiser(image, new AnisotropicDiffusionParams(model.anisotropicDiffusionParams));
+			case BLSGSM:
+				return new BLSGSMDenoiser(image, new BLSGSMParams(model.blsgsmParams));
+			default:
+				assert(false);
+				return new NoOpDenoiser(image);
+		}
+	}
+
 	private JRadioButton createAlgorithmRadioButton(String text, WizardModel.DenoisingAlgorithm algorithm)
 	{
 	    JRadioButton button = new JRadioButton(text);
@@ -187,35 +216,6 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		return (byte[])pixelsObject; 		
 	}
 	
-	private Denoiser newDenoiser()
-	{
-		// Make an image denoiser. Since it will be used as a task that will be executed asynchronously,
-		// we take a snapshot (deep copy) of the input image as well as the denoising
-		// parameters as they are at this point in time.
-		LinearImage image = new LinearImage(model.previewOrigROI.getWidth(), model.previewOrigROI.getHeight(), getPixelsCopy(model.previewOrigROI));
-		
-		switch (model.denoisingAlgorithm)
-		{
-			case NLMS:
-				return new NonLocalMeansDenoiser(image, new NonLocalMeansParams(model.nonLocalMeansParams));
-			case NLMS_SC:
-				return new NonLocalMeansSCDenoiser(image, new NonLocalMeansSCParams(model.nonLocalMeansSCParams));
-			case NLMS_SCD:
-				return new NonLocalMeansSCDDenoiser(image, new NonLocalMeansSCDParams(model.nonLocalMeansSCDParams));
-			case GAUSSIAN:
-				return new GaussianDenoiser(image, new GaussianParams(model.gaussianParams));
-			case WAVELET_THRESHOLDING:
-				return new WaveletThresholdingDenoiser(image, new WaveletThresholdingParams(model.waveletThresholdingParams));
-			case ANISOTROPIC_DIFFUSION:
-				return new AnisotropicDiffusionDenoiser(image, new AnisotropicDiffusionParams(model.anisotropicDiffusionParams));
-			case BLSGSM:
-				return new BLSGSMDenoiser(image, new BLSGSMParams(model.blsgsmParams));
-			default:
-				assert(false);
-				return new NoOpDenoiser(image);
-		}
-	}
-
 	private static JPanel addTitle(JPanel p, String title)
 	{
 		JPanel panel = new JPanel();
