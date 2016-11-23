@@ -22,7 +22,7 @@ import ij.plugin.frame.Recorder;
 //    "e:\Program Files\Quasar\Quasar.exe" --make_lib --optimize --gpu nlmeans_denoising_stillimages.q
 
 
-@Plugin(type = Command.class, menuPath = "Plugins>EM Denoising")
+@Plugin(type = Command.class, menuPath = "VIB>EM Denoising") // "Plugins>EM Denoising" is a more standard location for the plugin, but harder too access...
 public class DenoisingIJ2 implements Command
 {
 	@Parameter
