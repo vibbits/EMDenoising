@@ -23,7 +23,7 @@ public class WizardModel
 		NLMS,                   // Non-local means filtering
 		NLMS_SC,                // NLMS-SC, an extension of non-local means filtering that deals with the fact that EM noise is correlated and signal-dependent
 		NLMS_SCD,               // NLMS-SCD, like NLMS-SC but with deblurring
-		BM3D,                   // Block-matching and 3D filtering
+		BM3D                    // Block-matching and 3D filtering
 	};
 
 	public DenoisingAlgorithm denoisingAlgorithm;
@@ -48,6 +48,7 @@ public class WizardModel
 	WizardModel()
 	{
 		denoisingAlgorithm = DenoisingAlgorithm.GAUSSIAN;
+		
 		nonLocalMeansParams = new NonLocalMeansParams();
 		nonLocalMeansSCParams = new NonLocalMeansSCParams();
 		nonLocalMeansSCDParams = new NonLocalMeansSCDParams();
