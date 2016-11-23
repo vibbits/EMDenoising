@@ -13,7 +13,7 @@ public class BLSGSMParams
 	
 	public BLSGSMParams()
 	{
-		sigma = 20.0f;
+		sigma = 50.0f;
 	}
 	
 	public BLSGSMParams(BLSGSMParams other)
