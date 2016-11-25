@@ -31,19 +31,20 @@ public class WizardModel
 	public NonLocalMeansSCParams nonLocalMeansSCParams;	
 	public NonLocalMeansSCDParams nonLocalMeansSCDParams;	
 	public GaussianParams gaussianParams;
+	public BilateralParams bilateralParams;
 	public WaveletThresholdingParams waveletThresholdingParams;
 	public AnisotropicDiffusionParams anisotropicDiffusionParams;
 	public BLSGSMParams blsgsmParams;
 	
-	ImagePlus imagePlus; // original image or image stack (a reference not a copy)
-	Rectangle roi;  // null if the full image should be used; the ROI bounds are with respect to the original image (not the possibly rescaled on-screen version in the dialog)
-	ImageRange range; // the range of slices that need to be denoised
+	public ImagePlus imagePlus; // original image or image stack (a reference not a copy)
+	public Rectangle roi;  // null if the full image should be used; the ROI bounds are with respect to the original image (not the possibly rescaled on-screen version in the dialog)
+	public ImageRange range; // the range of slices that need to be denoised
 
-	ImageProcessor previewOrigROI;
-	ImageProcessor previewDenoisedROI;
+	public ImageProcessor previewOrigROI;
+	public ImageProcessor previewDenoisedROI;
 	// TODO: Maybe we want to cache the result of denoising the ROI with the last parameter values used (for each algorithm)?
 	//       That would at least allow the user to compare the effect of different algorithms (by toggling the algorithm radio button)
-	//       without incurring any waiting.
+	//       without incurring *any* waiting.
 	
 	WizardModel()
 	{
@@ -53,6 +54,7 @@ public class WizardModel
 		nonLocalMeansSCParams = new NonLocalMeansSCParams();
 		nonLocalMeansSCDParams = new NonLocalMeansSCDParams();
 		gaussianParams = new GaussianParams();
+		bilateralParams = new BilateralParams();
 		waveletThresholdingParams = new WaveletThresholdingParams();
 		anisotropicDiffusionParams = new AnisotropicDiffusionParams();
 		blsgsmParams = new BLSGSMParams();

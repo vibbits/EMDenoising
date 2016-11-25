@@ -2,6 +2,7 @@ package be.vib.imagej;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -53,6 +54,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	private JPanel createAlgorithmChoicePanel()
 	{
 	    JRadioButton gaussianButton = createAlgorithmRadioButton("Gaussian", WizardModel.DenoisingAlgorithm.GAUSSIAN);   	    
+	    JRadioButton bilateralButton = createAlgorithmRadioButton("Bilateral", WizardModel.DenoisingAlgorithm.BILATERAL);   	    
 	    JRadioButton diffusionButton = createAlgorithmRadioButton("Anisotropic Diffusion", WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION); 
 	    JRadioButton blsgsmButton = createAlgorithmRadioButton("BLS-GSM", WizardModel.DenoisingAlgorithm.BLSGSM);    	    
 	    JRadioButton waveletButton = createAlgorithmRadioButton("Wavelet Thresholding", WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING);    	    
@@ -67,6 +69,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	    group.add(nlmeansSCDButton);
 	    group.add(diffusionButton);
 	    group.add(gaussianButton);
+	    group.add(bilateralButton);
 	    group.add(blsgsmButton);
 	    group.add(waveletButton);
 				
@@ -74,6 +77,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		algoChoicePanel.setLayout(new BoxLayout(algoChoicePanel, BoxLayout.Y_AXIS));
 		algoChoicePanel.setBorder(BorderFactory.createTitledBorder("Denoising Algorithm"));
 		algoChoicePanel.add(gaussianButton);
+		algoChoicePanel.add(bilateralButton);
 		algoChoicePanel.add(diffusionButton);
 		algoChoicePanel.add(blsgsmButton);
 		algoChoicePanel.add(waveletButton);
@@ -92,6 +96,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		NonLocalMeansSCDParamsPanel nonLocalMeansSCDParamsPanel = new NonLocalMeansSCDParamsPanel(model.nonLocalMeansSCDParams);
 		AnisotropicDiffusionParamsPanel anisotropicDiffusionParamsPanel = new AnisotropicDiffusionParamsPanel(model.anisotropicDiffusionParams);
 		GaussianParamsPanel gaussianParamsPanel = new GaussianParamsPanel(model.gaussianParams);
+		BilateralParamsPanel bilateralParamsPanel = new BilateralParamsPanel(model.bilateralParams);
 		BLSGSMParamsPanel blsgsmParamsPanel = new BLSGSMParamsPanel(model.blsgsmParams);
 		WaveletThresholdingParamsPanel waveletThresholdingParamsPanel = new WaveletThresholdingParamsPanel(model.waveletThresholdingParams);
 		
@@ -100,6 +105,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		nonLocalMeansSCDParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });		
 		anisotropicDiffusionParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
 		gaussianParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
+		bilateralParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
 		blsgsmParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
 		waveletThresholdingParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
 		
@@ -110,6 +116,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		panel.add(nonLocalMeansSCDParamsPanel, WizardModel.DenoisingAlgorithm.NLMS_SCD.name());
 		panel.add(anisotropicDiffusionParamsPanel, WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION.name());
 		panel.add(gaussianParamsPanel, WizardModel.DenoisingAlgorithm.GAUSSIAN.name());
+		panel.add(bilateralParamsPanel, WizardModel.DenoisingAlgorithm.BILATERAL.name());
 		panel.add(blsgsmParamsPanel, WizardModel.DenoisingAlgorithm.BLSGSM.name());
 		panel.add(waveletThresholdingParamsPanel, WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING.name());
 		
@@ -134,6 +141,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				return new NonLocalMeansSCDDenoiser(image, new NonLocalMeansSCDParams(model.nonLocalMeansSCDParams));
 			case GAUSSIAN:
 				return new GaussianDenoiser(image, new GaussianParams(model.gaussianParams));
+			case BILATERAL:
+				return new BilateralDenoiser(image, new BilateralParams(model.bilateralParams));
 			case WAVELET_THRESHOLDING:
 				return new WaveletThresholdingDenoiser(image, new WaveletThresholdingParams(model.waveletThresholdingParams));
 			case ANISOTROPIC_DIFFUSION:
@@ -182,23 +191,9 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		}
 	}
 	
-	private void recalculateOrigPreview()
-	{
-		System.out.println("recalculateOrigPreview: setting model.previewOrigROI and its panels");
-		model.previewOrigROI = cropImage(model.imagePlus, model.roi);
-		origImagePanel.setImage(model.previewOrigROI.getBufferedImage(), maxPreviewSize);
-	}
-	
 	private void recalculateDenoisedPreview()
 	{		
-		System.out.println("recalculateDenoisedPreview: will set model.previewDenoisedROI and denoisedImagePanel (via SwingWorker); current denoisedpreview=" + (model.previewDenoisedROI == null ? "null" : model.previewDenoisedROI));
-
-//		// If there is not denoised preview image yet (not even an old one),
-//		// then show the original image as a placeholder. Otherwise the layout of the preview image will look ugly.
-//		if (model.previewDenoisedROI == null)
-//		{
-//			denoisedImagePanel.setImage(model.previewOrigROI.getBufferedImage(), maxPreviewSize);
-//		}
+		System.out.println("recalculateDenoisedPreview");
 		
 //		denoisedImagePanel.setText("Calculating...");
 		DenoiseSwingWorker worker = new DenoiseSwingWorker(newDenoiser(), model.previewDenoisedROI, denoisedImagePanel);
@@ -237,23 +232,60 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	@Override
 	public void aboutToShowPanel()
 	{
-		// ROI may have changed, update the previews
-		recalculateOrigPreview();
+		// Here we are assuming that the ROI has changed both in position and in size.
+		// Maybe later we can be a bit more clever to avoid unnecessary changes to model and preview images.
+		
+		Dimension size = bestPreviewSize(model.roi, maxPreviewSize);
+		
+		model.previewOrigROI = cropImage(model.imagePlus, model.roi);
+		origImagePanel.setImage(model.previewOrigROI.getBufferedImage());   // TODO? should the panel listen to changes to model.previewOrigROI so it updates "automatically" ?
+
+		origImagePanel.setPreferredSize(size);
+		origImagePanel.invalidate();
+		
+		model.previewDenoisedROI = null;
+		denoisedImagePanel.setImage(null);
+		denoisedImagePanel.setText("Calculating...");
+		
+		denoisedImagePanel.setPreferredSize(size);
+		denoisedImagePanel.invalidate();
+
 		recalculateDenoisedPreview();
 		
 		// Ask layout manager to resize the dialog so it looks nice
 		wizard.pack();
 	}
 	
-	private ImageProcessor cropImage(ImagePlus image, Rectangle roi)
+	private static Dimension bestPreviewSize(Rectangle roi, int maxSize)
 	{
-		int slice = model.imagePlus.getCurrentSlice();
+		int width = roi.width;
+		int height = roi.height;
+		int actualSize = Math.max(width, height);
+		
+		float scale = 1.0f;
+		if (actualSize <= maxSize)
+		{
+			scale = 1.0f;
+		}
+		else
+		{
+			scale = (float)maxSize / (float)actualSize;		
+		}	
+
+		int w = (int)(roi.width * scale);
+		int h = (int)(roi.height * scale);
+		return new Dimension(w, h);
+	}
+
+	private static ImageProcessor cropImage(ImagePlus image, Rectangle roi)
+	{
+		int slice = image.getCurrentSlice();
 		ImageStack stack = image.getStack();
 		ImageProcessor imp = stack.getProcessor(slice);
 		
-		if (model.roi != null)
+		if (roi != null)
 		{
-			imp.setRoi(model.roi);
+			imp.setRoi(roi);
 			return imp.crop();
 		}
 		else
