@@ -8,10 +8,14 @@ public class NonLocalMeansSCDParams
 	public static final float lambdaMin = 0.01f;  // FIXME
 	public static final float lambdaMax = 50.0f;  // FIXME
 	
+	public static final float sigma0Min = 0.01f;  // FIXME
+	public static final float sigma0Max = 100.0f;  // FIXME
+	
 	public static final int numIterationsMin = 1;  // FIXME
-	public static final int numIterationsMax = 50;  // FIXME
+	public static final int numIterationsMax = 100;  // FIXME
 	
 	public float h;
+	public float sigma0;
 	public float lambda;   // trade-off denoising versus deconvolution
 	public int numIterations;
 	
@@ -20,7 +24,6 @@ public class NonLocalMeansSCDParams
 	
 	public static final int halfSearchSize = 5;
 	public static final int halfBlockSize = 4;
-	public static final float sigma0 = 20.0f;
 	public static final float alpha = 0.05f;
 	
 	public static final float[] emCorrFilterInv = { 
@@ -55,10 +58,14 @@ public class NonLocalMeansSCDParams
 		h = 13.5f;
 		lambda = 0.3f;
 		numIterations = 25;
+		sigma0 = 20.0f;
 	}
 	
 	public NonLocalMeansSCDParams(NonLocalMeansSCDParams other)
 	{
 		this.h = other.h;
+		this.lambda = other.lambda;
+		this.numIterations = other.numIterations;
+		this.sigma0 = other.sigma0;
 	}
 }
