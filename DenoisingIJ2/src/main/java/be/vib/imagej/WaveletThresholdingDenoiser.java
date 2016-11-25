@@ -6,7 +6,7 @@ import be.vib.bits.QValue;
 
 class WaveletThresholdingDenoiser extends Denoiser
 {
-	final WaveletThresholdingParams params;
+	private final WaveletThresholdingParams params;
 	
 	public WaveletThresholdingDenoiser(LinearImage image, WaveletThresholdingParams params)
 	{

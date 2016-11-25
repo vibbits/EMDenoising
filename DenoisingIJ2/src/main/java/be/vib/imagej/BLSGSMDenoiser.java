@@ -6,7 +6,7 @@ import be.vib.bits.QValue;
 
 class BLSGSMDenoiser extends Denoiser
 {
-	final BLSGSMParams params;
+	private final BLSGSMParams params;
 	
 	public BLSGSMDenoiser(LinearImage image, BLSGSMParams params)
 	{

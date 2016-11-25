@@ -19,7 +19,7 @@ class BilateralDenoiser extends Denoiser
 	{
 		QFunction applyBilateralFilter = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\bilateral_filter.q",
 				                                             "apply_bilateral_filter(mat,cube,int,int)");
-		QFunction computeBilateralFilter = new QFunction("compute_bilateral_filter(cube,int,int,scalar,scalar,scalar,scalar)");  // CHECKME: 1st arg cube or cube'safe ?
+		QFunction computeBilateralFilter = new QFunction("compute_bilateral_filter(cube,int,int,scalar,scalar,scalar,scalar)");
 		
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
 		

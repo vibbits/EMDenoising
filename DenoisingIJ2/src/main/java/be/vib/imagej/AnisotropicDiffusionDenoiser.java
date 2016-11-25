@@ -6,7 +6,7 @@ import be.vib.bits.QValue;
 
 class AnisotropicDiffusionDenoiser extends Denoiser
 {
-	final AnisotropicDiffusionParams params;
+	private final AnisotropicDiffusionParams params;
 	
 	public AnisotropicDiffusionDenoiser(LinearImage image, AnisotropicDiffusionParams params)
 	{

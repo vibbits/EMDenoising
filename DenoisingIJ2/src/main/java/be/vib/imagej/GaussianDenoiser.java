@@ -6,7 +6,7 @@ import be.vib.bits.QValue;
 
 class GaussianDenoiser extends Denoiser
 {
-	final GaussianParams params;
+	private final GaussianParams params;
 	
 	public GaussianDenoiser(LinearImage image, GaussianParams params)
 	{
