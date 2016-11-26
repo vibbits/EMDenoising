@@ -197,7 +197,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		System.out.println("recalculateDenoisedPreview");
 		
 //		denoisedImagePanel.setText("Calculating...");
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(newDenoiser(), model.previewDenoisedROI, denoisedImagePanel);
+		DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(newDenoiser(), model.previewDenoisedROI, denoisedImagePanel);
 		
 		// Run the denoising preview on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the denoising
