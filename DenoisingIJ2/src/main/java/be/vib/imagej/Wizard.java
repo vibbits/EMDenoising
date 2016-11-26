@@ -200,12 +200,14 @@ public class Wizard extends JDialog
 	/**
 	 *  Enables or disables the buttons based on which panel is currently active
 	 */
-	private void updateButtons()
+	public void updateButtons()
 	{
 		final int numPages = pagesPanel.getComponentCount();
+		final WizardPage currentPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
 		
-		backButton.setEnabled(currentPageIdx > 0);
-		nextButton.setEnabled(currentPageIdx < numPages - 1);
+		backButton.setEnabled((currentPageIdx > 0) && currentPage.canGoToPreviousPage());
+		nextButton.setEnabled((currentPageIdx < numPages - 1) && currentPage.canGoToNextPage());
+		
 		finishButton.setEnabled(false); // SHOULD BE: finishButton(currentPageIdx == numPages - 1); once quasar release is done consistently (currently only works if window is closed via the close button...)
 	}
 	

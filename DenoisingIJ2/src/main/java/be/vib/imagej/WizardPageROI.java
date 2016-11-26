@@ -1,6 +1,7 @@
 package be.vib.imagej;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -9,16 +10,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import ij.ImagePlus;
 import ij.ImageListener;
+import ij.ImagePlus;
 import ij.gui.RoiListener;
 
 
 public class WizardPageROI extends WizardPage implements ImageListener, RoiListener
 {		
-	private JLabel image;
-	private JLabel bitDepth;
-	private JLabel roi;
+	private JLabel imageInfoLabel;
+	private JLabel bitDepthInfoLabel;
+	private JLabel roiInfoLabel;
 	
 	public WizardPageROI(Wizard wizard, WizardModel model, String name)
 	{
@@ -50,9 +51,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			JLabel bitDepthLabel = new JLabel("Bit depth:");
 			JLabel roiLabel = new JLabel("ROI:");
 			
-			image = new JLabel();
-			bitDepth = new JLabel();
-			roi = new JLabel();
+			imageInfoLabel = new JLabel();
+			bitDepthInfoLabel = new JLabel();
+			roiInfoLabel = new JLabel();
 			
 			updateImageInfo();
 			updateRoiInfo();
@@ -68,22 +69,22 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				           .addComponent(bitDepthLabel)
 			      		   .addComponent(roiLabel))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, true)
-				           .addComponent(image)
-				           .addComponent(bitDepth)
-			      		   .addComponent(roi))
+				           .addComponent(imageInfoLabel)
+				           .addComponent(bitDepthInfoLabel)
+			      		   .addComponent(roiInfoLabel))
 			);
 			
 			layout.setVerticalGroup(
 			   layout.createSequentialGroup()
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			    		   .addComponent(imageLabel)
-			    		   .addComponent(image))
+			    		   .addComponent(imageInfoLabel))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			    		   .addComponent(bitDepthLabel)
-			    		   .addComponent(bitDepth))
+			    		   .addComponent(bitDepthInfoLabel))
 	 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			    		   .addComponent(roiLabel)
-			    		   .addComponent(roi))
+			    		   .addComponent(roiInfoLabel))
 			);		
 			
 			setLayout(layout);
@@ -95,13 +96,14 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		System.out.println("updateImageInfo EDT? " + SwingUtilities.isEventDispatchThread());
 		if (model.imagePlus == null)
 		{
-			image.setText(htmlAttention("not available"));
-			bitDepth.setText(htmlAttention("not available"));
+			imageInfoLabel.setText(htmlAttention("not available"));
+			bitDepthInfoLabel.setText(htmlAttention("not available"));
 		}
 		else
 		{
-			image.setText(model.imagePlus.getTitle());
-			bitDepth.setText(model.imagePlus.getBitDepth() == 8 ? model.imagePlus.getBitDepth() + " bit / pixel" : htmlAttention(model.imagePlus.getBitDepth() + " bit / pixel"));
+			imageInfoLabel.setText(model.imagePlus.getTitle());
+			bitDepthInfoLabel.setText(model.imagePlus.getBitDepth() == 8 ? model.imagePlus.getBitDepth() + " bit / pixel"
+					                                                     : htmlAttention(model.imagePlus.getBitDepth() + " bit / pixel, please convert to 8 bit / pixel"));
 		}
 	}
 
@@ -110,31 +112,31 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		System.out.println("updateRoiInfo EDT? " + SwingUtilities.isEventDispatchThread());
 		if (model.imagePlus != null && model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty())
 		{
-			roi.setText(model.imagePlus.getRoi().getBounds().toString());
+			Rectangle r = model.imagePlus.getRoi().getBounds();
+			roiInfoLabel.setText("x=" + r.x + ", y=" + r.y + ", width=" + r.width + ", height=" + r.height);
 		}
 		else
 		{
-			roi.setText(htmlAttention("not available"));
-		}
+			roiInfoLabel.setText(htmlAttention("not available, please select an ROI on the image"));
+		}		
 	}
-
+	
 	@Override
 	public void imageOpened(ImagePlus imp)
 	{
-		System.out.println("EDT? " + SwingUtilities.isEventDispatchThread());
-		System.out.println("imageOpened " + (imp != null ? imp.getTitle() : "null"));
-		// TODO Auto-generated method stub		
+		System.out.println("imageOpened " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
+		// Nothing to be done - model change handled by imageUpdated().
+		// (In fact, if an image is already open (or always?), imageUpdated() is called before imageOpened().)
 	}
 
 
 	@Override
 	public void imageClosed(ImagePlus imp)
 	{
-		System.out.println("EDT? " + SwingUtilities.isEventDispatchThread());
-		System.out.println("imageClosed " + (imp != null ? imp.getTitle() : "null"));
+		System.out.println("imageClosed " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
 		if (imp == model.imagePlus)
 		{
-			model.imagePlus = null;
+			model.imagePlus = null;   // CHECKME: needed? Or also handled by imageUpdated() ?
 		}
 	}
 
@@ -144,9 +146,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// This is not called from the Java EDT, so direct calls to Swing widgets will *not* happen
 		// immediately. That's why we use invokeLater() to do the imageInfo and RoiInfo updates on the EDT.
 
-		System.out.println("imageUpdated " + (imp != null ? imp.getTitle() : "null" + " EDT? " + SwingUtilities.isEventDispatchThread() + " -> updateImageInfo and updateRoiInfo"));
+		System.out.println("imageUpdated " + (imp != null ? imp.getTitle() : "null" + " EDT? " + SwingUtilities.isEventDispatchThread() + " -> invokeLater: updateImageInfo and updateRoiInfo"));
 
-		// Does this get called when the user changes the bit-depth of the image?
+		// Note: imageUpdated() also get called when the user changes the bit-depth or the type of the image via Fiji > Image > Type > ...
 		
 		if (model.imagePlus != imp)
 			model.imagePlus = imp;
@@ -154,6 +156,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		SwingUtilities.invokeLater(() -> {
 			updateImageInfo();
 			updateRoiInfo();
+			wizard.updateButtons();
 		});
 	}
 
@@ -162,12 +165,14 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 		
-		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null" + " id:" + id + " EDT? " + SwingUtilities.isEventDispatchThread() + " -> updateRoiInfo()"));
+		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null") + " id:" + id + " EDT? " + SwingUtilities.isEventDispatchThread() + " -> updateRoiInfo()");
 		if (imp == null)
 			return;
 
 		model.roi = imp.getRoi() != null ? imp.getRoi().getBounds() : null;
 		updateRoiInfo();
+		wizard.updateButtons();
+
 	}
 	
 	private static String htmlAttention(String s)
@@ -175,4 +180,11 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		return "<html><font color=red>" + s + "</font></html>";
 	}
 	
+	@Override
+	protected boolean canGoToNextPage()
+	{		
+		return (model.imagePlus != null) &&
+			   (model.imagePlus.getBitDepth() == 8) &&
+			   (model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty());
+	}
 }
