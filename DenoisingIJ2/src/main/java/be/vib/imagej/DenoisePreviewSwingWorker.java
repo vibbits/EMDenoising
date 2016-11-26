@@ -8,13 +8,13 @@ import be.vib.bits.QExecutor;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
-class DenoiseSwingWorker extends SwingWorker<byte[], Void>
+class DenoisePreviewSwingWorker extends SwingWorker<byte[], Void>
 {
 	Denoiser denoiser;
 	ImagePanel imagePanel;
 	ImageProcessor preview;
 	
-	public DenoiseSwingWorker(Denoiser denoiser, ImageProcessor preview, ImagePanel imagePanel)
+	public DenoisePreviewSwingWorker(Denoiser denoiser, ImageProcessor preview, ImagePanel imagePanel)
 	{
 		this.denoiser = denoiser;
 		this.preview = preview;
@@ -33,13 +33,16 @@ class DenoiseSwingWorker extends SwingWorker<byte[], Void>
 	{
 		try
 		{
-			System.out.println("DenoiseSwingWorker done()");
+			System.out.println("DenoisePreviewSwingWorker done()");
 			
 			final byte[] outputPixels = get();
 			
+			System.out.println("DenoisePreviewSwingWorker tries to set model and denoised image panel");
+			
 			preview = new ByteProcessor(denoiser.image.width, denoiser.image.height, outputPixels);
 			
-			imagePanel.setImage(preview.getBufferedImage(), WizardPageDenoisingAlgorithm.maxPreviewSize);
+			imagePanel.setImage(preview.getBufferedImage());
+//			imagePanel.setText(null);
 		}
 		catch (InterruptedException e) {
 			// TODO Auto-generated catch block

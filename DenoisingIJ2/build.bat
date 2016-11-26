@@ -24,7 +24,8 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\DenoiseParamsChangeEvent.java ^
 %SRC_JAVA%\DenoiseParamsChangeEventListener.java ^
 %SRC_JAVA%\DenoiseParamsPanelBase.java ^
-%SRC_JAVA%\DenoiseSwingWorker.java ^
+%SRC_JAVA%\DenoisePreviewSwingWorker.java ^
+%SRC_JAVA%\DenoiseSummaryPanel.java ^
 %SRC_JAVA%\GaussianDenoiser.java ^
 %SRC_JAVA%\GaussianParams.java ^
 %SRC_JAVA%\GaussianParamsPanel.java ^

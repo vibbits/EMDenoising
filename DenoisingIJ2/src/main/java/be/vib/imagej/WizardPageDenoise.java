@@ -9,7 +9,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,7 +23,7 @@ import ij.process.ImageProcessor;
 public class WizardPageDenoise extends WizardPage
 {
 	private JProgressBar progressBar;
-	private SummaryPanel summaryPanel;
+	private DenoiseSummaryPanel denoiseSummaryPanel;
 	
 	public WizardPageDenoise(Wizard wizard, WizardModel model, String name)
 	{
@@ -33,6 +32,7 @@ public class WizardPageDenoise extends WizardPage
 			buildImageStackUI();
 		else
 			buildImageUI();
+		// TODO: Extract the two possible panels, one for denoising a single slice and one for denoising a full stack 
 	}
 	
 	private void buildImageUI()
@@ -47,11 +47,11 @@ public class WizardPageDenoise extends WizardPage
 			DenoiseSlice(model.imagePlus.getCurrentSlice());
 			statusLabel.setText("Denoising done."); });
 
-		summaryPanel = new SummaryPanel();
-		summaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, summaryPanel.getMaximumSize().height));
+		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
+		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
 
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		add(summaryPanel);
+		add(denoiseSummaryPanel);
 		add(Box.createRigidArea(new Dimension(0, 20)));
 		add(startButton);
 		add(statusLabel);
@@ -78,8 +78,8 @@ public class WizardPageDenoise extends WizardPage
 		    DenoiseSlice(model.imagePlus.getCurrentSlice());
 		    statusLabel.setText("Denoising done."); });
 		
-		SummaryPanel summaryPanel = new SummaryPanel();
-		summaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, summaryPanel.getMaximumSize().height));
+		DenoiseSummaryPanel denoiseSummaryPanel = new DenoiseSummaryPanel(model);
+		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
 		
 		RangeSelectionPanel rangeSelectionPanel = new RangeSelectionPanel();
 		rangeSelectionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, rangeSelectionPanel.getMaximumSize().height));
@@ -88,7 +88,7 @@ public class WizardPageDenoise extends WizardPage
 		startButton.setAlignmentX(CENTER_ALIGNMENT);
 		statusLabel.setAlignmentX(CENTER_ALIGNMENT);
 		
-		add(summaryPanel);
+		add(denoiseSummaryPanel);
 		add(Box.createRigidArea(new Dimension(0, 10)));
 		add(rangeSelectionPanel);
 		add(Box.createRigidArea(new Dimension(0, 10)));
@@ -141,79 +141,6 @@ public class WizardPageDenoise extends WizardPage
 		
 		// Display denoised image
 		denoisedImagePlus.show();
-	}
-	
-	private static String html(String text)
-	{
-		return "<html>" + text + "</html>";  
-	}
-	
-	private static String italic(String text)
-	{
-		return "<i>" + text + "</i>";  
-	}
-	
-//	private static String color(String text, String color)
-//	{
-//		return "<font color=" + color + ">" + text + "</html>";  
-//	}
-	
-	private class SummaryPanel extends JPanel
-	{
-		private JLabel denoisingAlgorithm;
-		private JLabel inputImage;
-		private JLabel denoisedImage;
-		
-		public SummaryPanel()
-		{
-			setBorder(BorderFactory.createTitledBorder("Summary"));
-			
-			JLabel inputImageLabel = new JLabel("Original image:");
-			JLabel denoisedImageLabel = new JLabel("Denoised image:");
-			JLabel denoisingAlgorithmLabel = new JLabel("Denoising algorithm:");
-			
-			inputImage = new JLabel();
-			denoisedImage = new JLabel();
-			denoisingAlgorithm = new JLabel();
-			
-			GroupLayout layout = new GroupLayout(this);
-			layout.setAutoCreateGaps(true);
-			layout.setAutoCreateContainerGaps(true);
-			
-			layout.setHorizontalGroup(
-			   layout.createSequentialGroup()
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
-				           .addComponent(inputImageLabel)
-				           .addComponent(denoisedImageLabel)
-			      		   .addComponent(denoisingAlgorithmLabel))
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, true)
-				           .addComponent(inputImage)
-				           .addComponent(denoisedImage)
-			      		   .addComponent(denoisingAlgorithm))
-			);
-			
-			layout.setVerticalGroup(
-			   layout.createSequentialGroup()
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			    		   .addComponent(inputImageLabel)
-			    		   .addComponent(inputImage))
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			    		   .addComponent(denoisedImageLabel)
-			    		   .addComponent(denoisedImage))
-	 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			    		   .addComponent(denoisingAlgorithmLabel)
-			    		   .addComponent(denoisingAlgorithm))
-			);		
-			
-			setLayout(layout);
-		}
-		
-		public void updateText()
-		{
-			denoisingAlgorithm.setText(html(italic(model.getDenoisingAlgorithmName() + "; " + model.getDenoisingParams())));
-			inputImage.setText(html(italic(model.imagePlus.getTitle())));
-			denoisedImage.setText(html(italic("New image, original image will not be modified.")));
-		}
 	}
 	
 	class RangeSelectionPanel extends JPanel
@@ -270,6 +197,6 @@ public class WizardPageDenoise extends WizardPage
 		// FIXME - model.imagePlus may be different from when this page was initially build - 
 		// we may have to update it (e.g. it could have been a single image initially, and an image stack now.)
 		
-		summaryPanel.updateText();
+		denoiseSummaryPanel.updateText();
 	}
 }
