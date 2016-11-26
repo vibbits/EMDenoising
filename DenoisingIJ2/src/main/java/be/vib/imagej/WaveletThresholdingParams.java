@@ -20,4 +20,10 @@ public class WaveletThresholdingParams
 	{
 		this.alpha = other.alpha;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "alpha " + alpha;
+	}
 }

@@ -48,4 +48,10 @@ public class NonLocalMeansSCParams
 	{
 		this.h = other.h;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "h " + h;
+	}
 }

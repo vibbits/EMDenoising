@@ -22,8 +22,8 @@ public class WizardModel
 		ANISOTROPIC_DIFFUSION,
 		NLMS,                   // Non-local means filtering
 		NLMS_SC,                // NLMS-SC, an extension of non-local means filtering that deals with the fact that EM noise is correlated and signal-dependent
-		NLMS_SCD,               // NLMS-SCD, like NLMS-SC but with deblurring
-		BM3D                    // Block-matching and 3D filtering
+		NLMS_SCD                // NLMS-SCD, like NLMS-SC but with deblurring
+//		BM3D                    // Block-matching and 3D filtering
 	};
 
 	public DenoisingAlgorithm denoisingAlgorithm;
@@ -46,7 +46,7 @@ public class WizardModel
 	//       That would at least allow the user to compare the effect of different algorithms (by toggling the algorithm radio button)
 	//       without incurring *any* waiting.
 	
-	WizardModel()
+	public WizardModel()
 	{
 		denoisingAlgorithm = DenoisingAlgorithm.GAUSSIAN;
 		
@@ -58,5 +58,37 @@ public class WizardModel
 		waveletThresholdingParams = new WaveletThresholdingParams();
 		anisotropicDiffusionParams = new AnisotropicDiffusionParams();
 		blsgsmParams = new BLSGSMParams();
+	}
+	
+	public Object getDenoisingParams()
+	{
+		switch (denoisingAlgorithm)
+		{
+			case GAUSSIAN: return gaussianParams;
+			case BILATERAL: return bilateralParams;
+			case BLSGSM: return blsgsmParams;
+			case WAVELET_THRESHOLDING: return waveletThresholdingParams;
+			case ANISOTROPIC_DIFFUSION: return anisotropicDiffusionParams;
+			case NLMS: return nonLocalMeansParams;
+			case NLMS_SC: return nonLocalMeansSCParams;
+			case NLMS_SCD: return nonLocalMeansSCDParams;
+			default: assert(false); return null;
+		}
+	}
+	
+	public String getDenoisingAlgorithmName()
+	{
+		switch (denoisingAlgorithm)
+		{
+			case GAUSSIAN: return "Gaussian";
+			case BILATERAL: return "Bilateral";
+			case BLSGSM: return "BLS-GSM";
+			case WAVELET_THRESHOLDING: return "Wavelet Thresholding";
+			case ANISOTROPIC_DIFFUSION: return "Anisotropic Diffusion";
+			case NLMS: return "Non-Local Means";
+			case NLMS_SC: return "Non-Local Means SC";
+			case NLMS_SCD: return "Non-Local Means SCD";
+			default: assert(false); return "Unknown algorithm";
+		}
 	}
 }

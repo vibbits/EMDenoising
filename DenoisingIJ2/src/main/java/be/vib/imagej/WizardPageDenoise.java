@@ -24,6 +24,7 @@ import ij.process.ImageProcessor;
 public class WizardPageDenoise extends WizardPage
 {
 	private JProgressBar progressBar;
+	private SummaryPanel summaryPanel;
 	
 	public WizardPageDenoise(Wizard wizard, WizardModel model, String name)
 	{
@@ -46,7 +47,7 @@ public class WizardPageDenoise extends WizardPage
 			DenoiseSlice(model.imagePlus.getCurrentSlice());
 			statusLabel.setText("Denoising done."); });
 
-		SummaryPanel summaryPanel = new SummaryPanel();
+		summaryPanel = new SummaryPanel();
 		summaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, summaryPanel.getMaximumSize().height));
 
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -159,6 +160,10 @@ public class WizardPageDenoise extends WizardPage
 	
 	private class SummaryPanel extends JPanel
 	{
+		private JLabel denoisingAlgorithm;
+		private JLabel inputImage;
+		private JLabel denoisedImage;
+		
 		public SummaryPanel()
 		{
 			setBorder(BorderFactory.createTitledBorder("Summary"));
@@ -167,9 +172,9 @@ public class WizardPageDenoise extends WizardPage
 			JLabel denoisedImageLabel = new JLabel("Denoised image:");
 			JLabel denoisingAlgorithmLabel = new JLabel("Denoising algorithm:");
 			
-			JLabel inputImage = new JLabel(html(italic(model.imagePlus.getTitle())));
-			JLabel denoisedImage = new JLabel(html(italic("New image, original image will not be modified.")));
-			JLabel denoisingAlgorithm = new JLabel(html(italic("Foo algorithm, param value, param value"))); // TODO - is there a Printable interface or so? to stringify the algorithm params
+			inputImage = new JLabel();
+			denoisedImage = new JLabel();
+			denoisingAlgorithm = new JLabel();
 			
 			GroupLayout layout = new GroupLayout(this);
 			layout.setAutoCreateGaps(true);
@@ -201,6 +206,13 @@ public class WizardPageDenoise extends WizardPage
 			);		
 			
 			setLayout(layout);
+		}
+		
+		public void updateText()
+		{
+			denoisingAlgorithm.setText(html(italic(model.getDenoisingAlgorithmName() + "; " + model.getDenoisingParams())));
+			inputImage.setText(html(italic(model.imagePlus.getTitle())));
+			denoisedImage.setText(html(italic("New image, original image will not be modified.")));
 		}
 	}
 	
@@ -257,5 +269,7 @@ public class WizardPageDenoise extends WizardPage
 		
 		// FIXME - model.imagePlus may be different from when this page was initially build - 
 		// we may have to update it (e.g. it could have been a single image initially, and an image stack now.)
+		
+		summaryPanel.updateText();
 	}
 }

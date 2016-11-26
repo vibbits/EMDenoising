@@ -20,4 +20,10 @@ public class AnisotropicDiffusionParams
 	{
 		this.diffusionFactor = other.diffusionFactor;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "diffusion factor " + diffusionFactor;
+	}
 }

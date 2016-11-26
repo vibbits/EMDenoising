@@ -20,4 +20,10 @@ public class BLSGSMParams
 	{
 		this.sigma = other.sigma;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "sigma " + sigma;
+	}
 }

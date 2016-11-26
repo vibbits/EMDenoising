@@ -28,4 +28,10 @@ public class NonLocalMeansParams
 		this.halfSearchSize = other.halfSearchSize;
 		this.halfBlockSize = other.halfBlockSize;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "h " + h + "; half seach size " + halfSearchSize + "; half block size " + halfBlockSize;
+	}
 }

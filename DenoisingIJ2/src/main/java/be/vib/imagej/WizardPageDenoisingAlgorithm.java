@@ -53,6 +53,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 
 	private JPanel createAlgorithmChoicePanel()
 	{
+		// FIXME: get rid of filter names - get them from the model or the panel instead
 	    JRadioButton gaussianButton = createAlgorithmRadioButton("Gaussian", WizardModel.DenoisingAlgorithm.GAUSSIAN);   	    
 	    JRadioButton bilateralButton = createAlgorithmRadioButton("Bilateral", WizardModel.DenoisingAlgorithm.BILATERAL);   	    
 	    JRadioButton diffusionButton = createAlgorithmRadioButton("Anisotropic Diffusion", WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION); 

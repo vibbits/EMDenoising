@@ -28,4 +28,10 @@ public class BilateralParams
 		this.alpha = other.alpha;
 		this.beta = other.beta;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "alpha " + alpha + "; beta " + beta;
+	}
 }

@@ -68,4 +68,10 @@ public class NonLocalMeansSCDParams
 		this.numIterations = other.numIterations;
 		this.sigma0 = other.sigma0;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "h " + h + "; lambda " + lambda + "; " + numIterations + " iterations; sigma0 " + sigma0;
+	}
 }
