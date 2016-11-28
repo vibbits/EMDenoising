@@ -91,4 +91,42 @@ public class WizardModel
 			default: assert(false); return "Unknown algorithm";
 		}
 	}
+	
+    public Denoiser getDenoiser(ImageProcessor imageProcessor) 
+	{
+		// Make an image denoiser. Since it will be used as a task that will be executed asynchronously,
+		// we take a snapshot (deep copy) of the input image as well as the denoising
+		// parameters as they are at this point in time.
+		LinearImage image = new LinearImage(imageProcessor.getWidth(), imageProcessor.getHeight(), getPixelsCopy(imageProcessor));
+		
+		switch (denoisingAlgorithm)
+		{
+			case NLMS:
+				return new NonLocalMeansDenoiser(image, new NonLocalMeansParams(nonLocalMeansParams));
+			case NLMS_SC:
+				return new NonLocalMeansSCDenoiser(image, new NonLocalMeansSCParams(nonLocalMeansSCParams));
+			case NLMS_SCD:
+				return new NonLocalMeansSCDDenoiser(image, new NonLocalMeansSCDParams(nonLocalMeansSCDParams));
+			case GAUSSIAN:
+				return new GaussianDenoiser(image, new GaussianParams(gaussianParams));
+			case BILATERAL:
+				return new BilateralDenoiser(image, new BilateralParams(bilateralParams));
+			case WAVELET_THRESHOLDING:
+				return new WaveletThresholdingDenoiser(image, new WaveletThresholdingParams(waveletThresholdingParams));
+			case ANISOTROPIC_DIFFUSION:
+				return new AnisotropicDiffusionDenoiser(image, new AnisotropicDiffusionParams(anisotropicDiffusionParams));
+			case BLSGSM:
+				return new BLSGSMDenoiser(image, new BLSGSMParams(blsgsmParams));
+			default:
+				assert(false);
+				return new NoOpDenoiser(image);
+		}
+	}
+	
+	private static byte[] getPixelsCopy(ImageProcessor image)
+	{
+		Object pixelsObject = image.duplicate().getPixels();
+		assert(pixelsObject instanceof byte[]);
+		return (byte[])pixelsObject; 		
+	}
 }

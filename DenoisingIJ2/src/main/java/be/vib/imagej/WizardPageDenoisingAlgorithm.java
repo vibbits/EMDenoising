@@ -124,37 +124,6 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		cardLayout.show(panel, model.denoisingAlgorithm.name());
 		return panel;
 	}
-	
-	private Denoiser newDenoiser()
-	{
-		// Make an image denoiser. Since it will be used as a task that will be executed asynchronously,
-		// we take a snapshot (deep copy) of the input image as well as the denoising
-		// parameters as they are at this point in time.
-		LinearImage image = new LinearImage(model.previewOrigROI.getWidth(), model.previewOrigROI.getHeight(), getPixelsCopy(model.previewOrigROI));
-		
-		switch (model.denoisingAlgorithm)
-		{
-			case NLMS:
-				return new NonLocalMeansDenoiser(image, new NonLocalMeansParams(model.nonLocalMeansParams));
-			case NLMS_SC:
-				return new NonLocalMeansSCDenoiser(image, new NonLocalMeansSCParams(model.nonLocalMeansSCParams));
-			case NLMS_SCD:
-				return new NonLocalMeansSCDDenoiser(image, new NonLocalMeansSCDParams(model.nonLocalMeansSCDParams));
-			case GAUSSIAN:
-				return new GaussianDenoiser(image, new GaussianParams(model.gaussianParams));
-			case BILATERAL:
-				return new BilateralDenoiser(image, new BilateralParams(model.bilateralParams));
-			case WAVELET_THRESHOLDING:
-				return new WaveletThresholdingDenoiser(image, new WaveletThresholdingParams(model.waveletThresholdingParams));
-			case ANISOTROPIC_DIFFUSION:
-				return new AnisotropicDiffusionDenoiser(image, new AnisotropicDiffusionParams(model.anisotropicDiffusionParams));
-			case BLSGSM:
-				return new BLSGSMDenoiser(image, new BLSGSMParams(model.blsgsmParams));
-			default:
-				assert(false);
-				return new NoOpDenoiser(image);
-		}
-	}
 
 	private JRadioButton createAlgorithmRadioButton(String text, WizardModel.DenoisingAlgorithm algorithm)
 	{
@@ -197,19 +166,12 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		System.out.println("recalculateDenoisedPreview");
 		
 //		denoisedImagePanel.setText("Calculating...");
-		DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(newDenoiser(), model.previewDenoisedROI, denoisedImagePanel);
+		DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(model.getDenoiser(model.previewOrigROI), model.previewDenoisedROI, denoisedImagePanel);
 		
 		// Run the denoising preview on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the denoising
 		// preview image in the Java Event Dispatch Thread (EDT).
 		worker.execute();
-	}
-	
-	private byte[] getPixelsCopy(ImageProcessor image)
-	{
-		Object pixelsObject = image.duplicate().getPixels();
-		assert(pixelsObject instanceof byte[]);
-		return (byte[])pixelsObject; 		
 	}
 	
 	private static JPanel addTitle(JPanel p, String title)

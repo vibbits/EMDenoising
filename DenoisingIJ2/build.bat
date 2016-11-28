@@ -26,6 +26,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\DenoiseParamsPanelBase.java ^
 %SRC_JAVA%\DenoisePreviewSwingWorker.java ^
 %SRC_JAVA%\DenoiseSummaryPanel.java ^
+%SRC_JAVA%\DenoiseSwingWorker.java ^
 %SRC_JAVA%\GaussianDenoiser.java ^
 %SRC_JAVA%\GaussianParams.java ^
 %SRC_JAVA%\GaussianParamsPanel.java ^
@@ -42,6 +43,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\ImagePanel.java ^
 %SRC_JAVA%\ImageRange.java ^
 %SRC_JAVA%\LinearImage.java ^
+%SRC_JAVA%\RangeSelectionPanel.java ^
 %SRC_JAVA%\SliderFieldPair.java ^
 %SRC_JAVA%\SliderSpinnerPair.java ^
 %SRC_JAVA%\WaveletThresholdingDenoiser.java ^
