@@ -8,9 +8,9 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 {
 	private final AnisotropicDiffusionParams params;
 	
-	public AnisotropicDiffusionDenoiser(LinearImage image, AnisotropicDiffusionParams params)
+	public AnisotropicDiffusionDenoiser(AnisotropicDiffusionParams params)
 	{
-		super(image);
+		super();
 		this.params = params;
 	}
 	

@@ -8,9 +8,9 @@ class BilateralDenoiser extends Denoiser
 {
 	private final BilateralParams params;
 	
-	public BilateralDenoiser(LinearImage image, BilateralParams params)
+	public BilateralDenoiser(BilateralParams params)
 	{
-		super(image);
+		super();
 		this.params = params;
 	}
 	

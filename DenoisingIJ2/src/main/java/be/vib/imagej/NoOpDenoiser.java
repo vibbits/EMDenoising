@@ -2,9 +2,9 @@ package be.vib.imagej;
 
 class NoOpDenoiser extends Denoiser
 {		
-	public NoOpDenoiser(LinearImage image)
+	public NoOpDenoiser()
 	{
-		super(image);
+		super();
 	}
 	
 	@Override

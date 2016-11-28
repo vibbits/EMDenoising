@@ -8,9 +8,9 @@ class NonLocalMeansSCDenoiser extends Denoiser
 {
 	private final NonLocalMeansSCParams params;
 	
-	public NonLocalMeansSCDenoiser(LinearImage image, NonLocalMeansSCParams params)
+	public NonLocalMeansSCDenoiser(NonLocalMeansSCParams params)
 	{
-		super(image);
+		super();
 		this.params = params;
 	}
 	

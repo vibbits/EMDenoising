@@ -8,9 +8,9 @@ class WaveletThresholdingDenoiser extends Denoiser
 {
 	private final WaveletThresholdingParams params;
 	
-	public WaveletThresholdingDenoiser(LinearImage image, WaveletThresholdingParams params)
+	public WaveletThresholdingDenoiser(WaveletThresholdingParams params)
 	{
-		super(image);
+		super();
 		this.params = params;
 	}
 	

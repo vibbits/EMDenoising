@@ -8,9 +8,9 @@ class BLSGSMDenoiser extends Denoiser
 {
 	private final BLSGSMParams params;
 	
-	public BLSGSMDenoiser(LinearImage image, BLSGSMParams params)
+	public BLSGSMDenoiser(BLSGSMParams params)
 	{
-		super(image);
+		super();
 		this.params = params;
 	}
 	

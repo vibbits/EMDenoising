@@ -8,9 +8,9 @@ class GaussianDenoiser extends Denoiser
 {
 	private final GaussianParams params;
 	
-	public GaussianDenoiser(LinearImage image, GaussianParams params)
+	public GaussianDenoiser(GaussianParams params)
 	{
-		super(image);
+		super();
 		this.params = params;
 	}
 	

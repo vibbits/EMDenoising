@@ -8,9 +8,9 @@ class NonLocalMeansDenoiser extends Denoiser
 {
 	private final NonLocalMeansParams params;
 	
-	public NonLocalMeansDenoiser(LinearImage image, NonLocalMeansParams params)
+	public NonLocalMeansDenoiser(NonLocalMeansParams params)
 	{
-		super(image);
+		super();
 		this.params = params;
 	}
 	

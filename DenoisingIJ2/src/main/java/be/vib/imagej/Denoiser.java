@@ -7,9 +7,14 @@ import be.vib.bits.QHost;
 
 class Denoiser implements Callable<byte[]>
 {
-	public final LinearImage image; // original, noisy source image
+	public LinearImage image; // original, noisy source image
 	
-	Denoiser(LinearImage image)
+	Denoiser()
+	{
+		this.image = null;
+	}
+	
+	void setImage(LinearImage image)
 	{
 		this.image = image;
 	}

@@ -8,9 +8,9 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 {
 	private final NonLocalMeansSCDParams params;
 	
-	public NonLocalMeansSCDDenoiser(LinearImage image, NonLocalMeansSCDParams params)
+	public NonLocalMeansSCDDenoiser(NonLocalMeansSCDParams params)
 	{
-		super(image);
+		super();
 		this.params = params;
 	}
 	
