@@ -10,31 +10,52 @@ import be.vib.bits.QExecutor;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
-class DenoiseSwingWorker extends SwingWorker<byte[], Void>
+class DenoiseSwingWorker extends SwingWorker<ImagePlus, Void>
 {
 	Denoiser denoiser;
+	ImagePlus noisyImagePlus;
+	ImageRange range;
 	
-	public DenoiseSwingWorker(Denoiser denoiser)
+	public DenoiseSwingWorker(Denoiser denoiser, ImagePlus noisyImagePlus, ImageRange range)
 	{
 		this.denoiser = denoiser;
+		this.noisyImagePlus = noisyImagePlus;
+		this.range = range;
 	}
 	
 	@Override
-	public byte[] doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
+	public ImagePlus doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
 	{
-		Instant startTime = Instant.now();
-
-		byte[] outputPixels = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
-
-		Instant endTime = Instant.now();
-		long durationMs = Duration.between(startTime, endTime).toMillis();
-		long numPixels = denoiser.image.width * denoiser.image.height;
-		System.out.println("Slice denoising time: " + durationMs + " ms " +
-		         "(" + (double)numPixels / (double)durationMs + " kpix/s)");
-
-		return outputPixels;
+		final int width = noisyImagePlus.getWidth();
+		final int height = noisyImagePlus.getHeight();
+		
+		final ImageStack noisyStack = noisyImagePlus.getStack();
+				
+		ImageStack denoisedStack = new ImageStack(width, height);
+		
+		for (int slice = range.getFirst(); slice <= range.getLast(); slice++)
+		{
+			ImageProcessor imageProcessor = noisyStack.getProcessor(slice);
+			LinearImage image = new LinearImage(width, height, WizardModel.getPixelsCopy(imageProcessor));
+			
+			denoiser.setImage(image);
+			byte[] outputPixels = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
+			
+			ByteProcessor denoisedImage = new ByteProcessor(width, height, outputPixels);
+			denoisedStack.addSlice("", denoisedImage);
+		}
+		
+		ImagePlus denoisedImagePlus = new ImagePlus("Denoised image", denoisedStack); // TODO: improve title - add original noisy image name
+		return denoisedImagePlus;
 	}
+	
+//	@Override
+//	protected void process(List<VVVVV> chunks)  // gets called asynchronously on the Java EDT
+//	{
+//		   
+//	}
 	
 	@Override
 	public void done()
@@ -42,15 +63,7 @@ class DenoiseSwingWorker extends SwingWorker<byte[], Void>
 		try
 		{
 			System.out.println("DenoiseSwingWorker done()");
-			
-			final byte[] outputPixels = get();
-			
-			ByteProcessor denoisedImage = new ByteProcessor(denoiser.image.width, denoiser.image.height, outputPixels);
-						
-			ImageStack denoisedStack = new ImageStack(denoisedImage.getWidth(), denoisedImage.getHeight());
-			denoisedStack.addSlice("", denoisedImage);
-			
-			ImagePlus denoisedImagePlus = new ImagePlus("Denoised image", denoisedStack); // TODO: improve title - add original noisy image name
+			ImagePlus denoisedImagePlus = get();
 			denoisedImagePlus.show();
 			
 			// TODO: we also need to update the rest of the GUI (like status strings etc) - how to do this?

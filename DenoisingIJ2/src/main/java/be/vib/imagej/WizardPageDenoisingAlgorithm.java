@@ -166,7 +166,14 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		System.out.println("recalculateDenoisedPreview");
 		
 //		denoisedImagePanel.setText("Calculating...");
-		DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(model.getDenoiser(model.previewOrigROI), model.previewDenoisedROI, denoisedImagePanel);
+		
+		// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
+		LinearImage linearImage = new LinearImage(model.previewOrigROI.getWidth(), model.previewOrigROI.getHeight(), WizardModel.getPixelsCopy(model.previewOrigROI));
+
+		Denoiser denoiser = model.getDenoiser();
+		denoiser.setImage(linearImage);		
+		
+		DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(denoiser, model.previewDenoisedROI, denoisedImagePanel);
 		
 		// Run the denoising preview on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the denoising

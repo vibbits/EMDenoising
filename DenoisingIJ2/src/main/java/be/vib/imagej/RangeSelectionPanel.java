@@ -13,7 +13,11 @@ class RangeSelectionPanel extends JPanel
 	public RangeSelectionPanel(WizardModel model)
 	{
 		this.model = model;
-		
+		buildUI();
+	}
+
+	private void buildUI()
+	{
 		setBorder(BorderFactory.createTitledBorder("Slices to Denoise"));
 
 		JRadioButton currentSliceRadioButton = new JRadioButton("Current slice");
@@ -51,6 +55,5 @@ class RangeSelectionPanel extends JPanel
 		add(currentSliceRadioButton);
 		add(allSlicesRadioButton);
 		add(rangeOfSlicesRadioButton);
-
 	}
 }

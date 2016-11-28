@@ -12,12 +12,14 @@ class DenoisePreviewSwingWorker extends SwingWorker<byte[], Void>
 {
 	Denoiser denoiser;
 	ImagePanel imagePanel;
-	ImageProcessor preview;
+	ImageProcessor denoisedPreview;
 	
-	public DenoisePreviewSwingWorker(Denoiser denoiser, ImageProcessor preview, ImagePanel imagePanel)
+	// - denoiser knows the input image that needs to be denoised
+	// - we will set denoisedPreview to the denoised result
+	public DenoisePreviewSwingWorker(Denoiser denoiser, ImageProcessor denoisedPreview, ImagePanel imagePanel) 
 	{
 		this.denoiser = denoiser;
-		this.preview = preview;
+		this.denoisedPreview = denoisedPreview;
 		this.imagePanel = imagePanel;
 	}
 	
@@ -36,12 +38,10 @@ class DenoisePreviewSwingWorker extends SwingWorker<byte[], Void>
 			System.out.println("DenoisePreviewSwingWorker done()");
 			
 			final byte[] outputPixels = get();
+						
+			denoisedPreview = new ByteProcessor(denoiser.image.width, denoiser.image.height, outputPixels);
 			
-			System.out.println("DenoisePreviewSwingWorker tries to set model and denoised image panel");
-			
-			preview = new ByteProcessor(denoiser.image.width, denoiser.image.height, outputPixels);
-			
-			imagePanel.setImage(preview.getBufferedImage());
+			imagePanel.setImage(denoisedPreview.getBufferedImage());
 //			imagePanel.setText(null);
 		}
 		catch (InterruptedException e) {

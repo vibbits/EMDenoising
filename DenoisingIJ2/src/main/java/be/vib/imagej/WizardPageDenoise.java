@@ -8,8 +8,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
-import ij.process.ImageProcessor;
-
 public class WizardPageDenoise extends WizardPage
 {
 	private JProgressBar progressBar;
@@ -34,7 +32,8 @@ public class WizardPageDenoise extends WizardPage
 		startButton.addActionListener(e -> {
 			startButton.setVisible(false);
 			statusLabel.setVisible(true);
-			DenoiseSlice(model.imagePlus.getCurrentSlice());
+			model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
+		    denoise();
 			statusLabel.setText("Denoising done."); });
 
 		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
@@ -64,10 +63,10 @@ public class WizardPageDenoise extends WizardPage
 			startButton.setVisible(false);
 			statusLabel.setVisible(true);
 			// FIXME: we may need to denoise the full stack, not just the current slice
-		    DenoiseSlice(model.imagePlus.getCurrentSlice());
+		    denoise();
 		    /*statusLabel.setText("Denoising done.");*/ });
 		
-		DenoiseSummaryPanel denoiseSummaryPanel = new DenoiseSummaryPanel(model);
+		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
 		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
 		
 		RangeSelectionPanel rangeSelectionPanel = new RangeSelectionPanel(model);
@@ -88,12 +87,11 @@ public class WizardPageDenoise extends WizardPage
 	
     // DenoiseSlice is called from the Java EDT, so it needs to complete ASAP.
 	// Off-load calculations to a separate thread and return immediately.
-	private void DenoiseSlice(int slice) 
+	private void denoise() 
 	{
-		System.out.println("DenoiseSlice " + slice + " (Java thread: " + Thread.currentThread().getId() + ")");
-		ImageProcessor image = model.imagePlus.getStack().getProcessor(slice);
-		
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(image));
+		System.out.println("Denoise " + model.range + " (Java thread: " + Thread.currentThread().getId() + ")");
+				
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range);
 		
 		// Run the denoising preview on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the denoising
