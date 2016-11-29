@@ -124,7 +124,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	@Override
 	public void imageOpened(ImagePlus imp)
 	{
-		System.out.println("imageOpened " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
+		System.out.println(">>> imageOpened " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
 		// Nothing to be done - model change handled by imageUpdated().
 		// (In fact, if an image is already open (or always?), imageUpdated() is called before imageOpened().)
 	}
@@ -133,10 +133,11 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	@Override
 	public void imageClosed(ImagePlus imp)
 	{
-		System.out.println("imageClosed " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
+		System.out.println(">>> imageClosed " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
 		if (imp == model.imagePlus)
 		{
 			model.imagePlus = null;   // CHECKME: needed? Or also handled by imageUpdated() ?
+			// TODO: move wizard back to this page!
 		}
 	}
 
@@ -146,7 +147,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// This is not called from the Java EDT, so direct calls to Swing widgets will *not* happen
 		// immediately. That's why we use invokeLater() to do the imageInfo and RoiInfo updates on the EDT.
 
-		System.out.println("imageUpdated " + (imp != null ? imp.getTitle() : "null" + " EDT? " + SwingUtilities.isEventDispatchThread() + " -> invokeLater: updateImageInfo and updateRoiInfo"));
+		System.out.println(">>> imageUpdated " + (imp != null ? imp.getTitle() : "null" + " EDT? " + SwingUtilities.isEventDispatchThread()));
 
 		// Note: imageUpdated() also get called when the user changes the bit-depth or the type of the image via Fiji > Image > Type > ...
 		

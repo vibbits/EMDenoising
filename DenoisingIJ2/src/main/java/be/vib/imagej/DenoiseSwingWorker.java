@@ -1,9 +1,9 @@
 package be.vib.imagej;
 
-import java.time.Duration;
-import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
 import be.vib.bits.QExecutor;
@@ -12,22 +12,25 @@ import ij.ImageStack;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
-class DenoiseSwingWorker extends SwingWorker<ImagePlus, Void>
+class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 {
-	Denoiser denoiser;
-	ImagePlus noisyImagePlus;
-	ImageRange range;
+	private Denoiser denoiser;
+	private ImagePlus noisyImagePlus;
+	private ImageRange range;
+	private JProgressBar progressBar;
 	
-	public DenoiseSwingWorker(Denoiser denoiser, ImagePlus noisyImagePlus, ImageRange range)
+	public DenoiseSwingWorker(Denoiser denoiser, ImagePlus noisyImagePlus, ImageRange range, JProgressBar progressBar)
 	{
 		this.denoiser = denoiser;
 		this.noisyImagePlus = noisyImagePlus;
 		this.range = range;
+		this.progressBar = progressBar;
 	}
 	
 	@Override
 	public ImagePlus doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
 	{
+		// doInBackground is run is a thread different from the Java Event Dispatch Thread (EDT)
 		final int width = noisyImagePlus.getWidth();
 		final int height = noisyImagePlus.getHeight();
 		
@@ -45,24 +48,30 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Void>
 			
 			ByteProcessor denoisedImage = new ByteProcessor(width, height, outputPixels);
 			denoisedStack.addSlice("", denoisedImage);
+			
+			publish(slice);
 		}
 		
-		ImagePlus denoisedImagePlus = new ImagePlus("Denoised image", denoisedStack); // TODO: improve title - add original noisy image name
+		String title = noisyImagePlus.getTitle() + " [denoised]";
+		ImagePlus denoisedImagePlus = new ImagePlus(title, denoisedStack);
 		return denoisedImagePlus;
 	}
 	
-//	@Override
-//	protected void process(List<VVVVV> chunks)  // gets called asynchronously on the Java EDT
-//	{
-//		   
-//	}
+	@Override
+	protected void process(List<Integer> chunks)  // gets called asynchronously on the Java EDT, update the UI here
+	{
+		for (Integer slice : chunks)
+		{
+			progressBar.setValue(slice);
+		}
+	}
 	
 	@Override
-	public void done()
+	public void done()  // executed on the EDT, update UI here.
 	{
+		System.out.println("DenoiseSwingWorker done()");
 		try
 		{
-			System.out.println("DenoiseSwingWorker done()");
 			ImagePlus denoisedImagePlus = get();
 			denoisedImagePlus.show();
 			

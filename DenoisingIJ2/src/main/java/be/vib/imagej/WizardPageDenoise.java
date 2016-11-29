@@ -16,55 +16,35 @@ public class WizardPageDenoise extends WizardPage
 	public WizardPageDenoise(Wizard wizard, WizardModel model, String name)
 	{
 		super(wizard, model, name);
-		if (model.imagePlus.getNSlices() > 1)
-			buildImageStackUI();
-		else
-			buildImageUI();
-		// TODO: Extract the two possible panels, one for denoising a single slice and one for denoising a full stack 
+		buildUI();
 	}
 	
-	private void buildImageUI()
-	{
-		JButton startButton = new JButton("Start Denoising");
-		JLabel statusLabel = new JLabel("Denoising...");
-		statusLabel.setVisible(false);
-
-		startButton.addActionListener(e -> {
-			startButton.setVisible(false);
-			statusLabel.setVisible(true);
-			model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
-		    denoise();
-			statusLabel.setText("Denoising done."); });
-
-		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
-		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
-
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		add(denoiseSummaryPanel);
-		add(Box.createRigidArea(new Dimension(0, 20)));
-		add(startButton);
-		add(statusLabel);
-	}
-	
-	private void buildImageStackUI()
+	private void buildUI()
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
 		JButton startButton = new JButton("Start Denoising");
 		JLabel statusLabel = new JLabel("Denoising...");
 		
-		progressBar = new JProgressBar(model.range.getFirst(), model.range.getLast());
+		progressBar = new JProgressBar();
 		
 		statusLabel.setVisible(false);
 		progressBar.setVisible(false);
+		progressBar.setStringPainted(true); // show percentage progress as text in the progress bar
 
 		startButton.addActionListener(e -> {
-			progressBar.setVisible(true);
 			startButton.setVisible(false);
 			statusLabel.setVisible(true);
-			// FIXME: we may need to denoise the full stack, not just the current slice
+
+			progressBar.setVisible(true);
+			progressBar.setMinimum(model.range.getFirst());
+			progressBar.setMaximum(model.range.getLast());
+			
+			// run a background thread doing the denoising
 		    denoise();
-		    /*statusLabel.setText("Denoising done.");*/ });
+		});
+		
+		// FIXME: we need some way to cancel a long denoising tasks
 		
 		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
 		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
@@ -91,7 +71,7 @@ public class WizardPageDenoise extends WizardPage
 	{
 		System.out.println("Denoise " + model.range + " (Java thread: " + Thread.currentThread().getId() + ")");
 				
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range);
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range, progressBar);
 		
 		// Run the denoising preview on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the denoising
@@ -106,7 +86,7 @@ public class WizardPageDenoise extends WizardPage
 		// So some status messages or buttons may need to be updated.
 		
 		// FIXME - model.imagePlus may be different from when this page was initially build - 
-		// we may have to update it (e.g. it could have been a single image initially, and an image stack now.)
+		// we may have to update the wizard (e.g. it could have been a single image initially, and an image stack now.)
 		
 		denoiseSummaryPanel.updateText();
 	}

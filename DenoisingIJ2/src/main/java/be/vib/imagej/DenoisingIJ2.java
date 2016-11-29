@@ -29,7 +29,7 @@ public class DenoisingIJ2 implements Command
 	private LogService log;
 
 	// If no image is active, the Fiji plugin framework will automatically
-	// issue a terse error message.
+	// issue a terse error message.     // FIXME: this is not a very friendly message - remove the @Parameter and move handling of no image to the WizardPageROI instead (setting model.range then needs to move there too).
     @Parameter
     private ImagePlus imp;
     
@@ -63,6 +63,11 @@ public class DenoisingIJ2 implements Command
 	public void run() 
 	{
 		System.out.println("plugin run() begin");
+		
+		// FIXME: since there can be only one Quasar host running at any time,
+		//        we must avoid creating the denoising wizard more than once.
+		//        So if one is already open, we cannot start another one. 
+		//        For now: do not allow more than one denoising wizard.
 
 		// A little experiment with the macro recorder 
 		// TODO: read http://imagej.net/PlugIn_Design_Guidelines
@@ -87,13 +92,17 @@ public class DenoisingIJ2 implements Command
 		
 		model = new WizardModel();
 		model.imagePlus = imp;
-		model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
-		// TODO: we have to be careful here: the user may close the image window after the wizard was opened. It looks like that means the ImagePlus becomes invalid. Correct??
+		model.range = ImageRange.makeAllSlicesRange(model.imagePlus);
+		// TODO: we have to be careful here: the user may close the image window after the wizard was opened.
+		//       It looks like that means the ImagePlus becomes invalid. Correct??
+		//       How do we handle that situation? Maybe at any time when the image disappears, move the wizard page to the first page where it asks for image, 8 bit, ROI selected.
 		
 		wizard = createWizard(model);
 		wizard.pack();
 		wizard.setVisible(true); // triggers creation of QHost, so need to go before *anything* else that uses the JavaQuasarBridge,
 		
+		// After displaying the denoising wizard the ImageJ plugin run() method finishes immediately,
+		// but the wizard is still visible and active.
 		System.out.println("plugin run() end");
 	}
 	

@@ -202,6 +202,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	@Override
 	public void aboutToShowPanel()
 	{
+		System.out.println("WizardPageDenoisingAlgorithm.aboutToShowPanel: model=" + model + " imagePlus=" + model.imagePlus);
 		// Here we are assuming that the ROI has changed both in position and in size.
 		// Maybe later we can be a bit more clever to avoid unnecessary changes to model and preview images.
 		
