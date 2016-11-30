@@ -17,7 +17,7 @@ class NonLocalMeansSCDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{		
-		QFunction nlmeansSC = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\nlmeans_sc.q",
+		QFunction nlmeansSC = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\nlmeans_sc.q",
                                                   "denoise_nlmeans_sc(mat,int,int,scalar,scalar,scalar,mat)");
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);

@@ -17,7 +17,7 @@ class WaveletThresholdingDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{		
-		QFunction waveletThresholding = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\wavelet_thresholding.q",
+		QFunction waveletThresholding = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\wavelet_thresholding.q",
                                                             "wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
 				
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);

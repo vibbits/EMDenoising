@@ -17,7 +17,7 @@ class BilateralDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{
-		QFunction applyBilateralFilter = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\bilateral_filter.q",
+		QFunction applyBilateralFilter = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\bilateral_filter.q",
 				                                             "apply_bilateral_filter(mat,cube,int,int)");
 		QFunction computeBilateralFilter = new QFunction("compute_bilateral_filter(cube,int,int,scalar,scalar,scalar,scalar)");
 		

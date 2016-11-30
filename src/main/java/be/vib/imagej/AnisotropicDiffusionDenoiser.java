@@ -17,7 +17,7 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{
-		QFunction diffusion = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\anisotropic_diffusion.q",
+		QFunction diffusion = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\anisotropic_diffusion.q",
                                                   "anisotropic_diffusion(mat,int,scalar,scalar,int)");
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);

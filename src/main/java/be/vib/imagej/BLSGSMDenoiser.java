@@ -17,7 +17,7 @@ class BLSGSMDenoiser extends Denoiser
 	@Override
 	public byte[] call()
 	{
-		QFunction blsgsm = loadDenoiseFunction("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\src\\main\\resources\\quasar\\blsgsm.q",
+		QFunction blsgsm = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\blsgsm.q",
 				                               "denoise_image_blsgsm(mat,scalar,string,int,int)");
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
