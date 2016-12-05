@@ -18,24 +18,24 @@ public class ImageRange
 	public static ImageRange makeCurrentSliceRange(ImagePlus imagePlus)
 	{
 		int slice = imagePlus.getCurrentSlice();
-		return new ImageRange(imagePlus, RangeType.CURRENT_SLICE, slice, slice);
+		return new ImageRange(RangeType.CURRENT_SLICE, slice, slice);
 	}
 	
 	public static ImageRange makeAllSlicesRange(ImagePlus imagePlus)
 	{
 		int first = 1;
 		int last = imagePlus.getNSlices();
-		return new ImageRange(imagePlus, RangeType.ALL_SLICES, first, last);
+		return new ImageRange(RangeType.ALL_SLICES, first, last);
 	}
 	
 	public static ImageRange makeNumericSliceRange(ImagePlus imagePlus, int first, int last)  // 0 <= first <= last
 	{
 		assert(first >= 1);
 		assert(last <= imagePlus.getNSlices());
-		return new ImageRange(imagePlus, RangeType.NUMERIC_SLICE_RANGE, first, last);
+		return new ImageRange(RangeType.NUMERIC_SLICE_RANGE, first, last);
 	}
 	
-	private ImageRange(ImagePlus imagePlus, RangeType type, int first, int last)
+	private ImageRange(RangeType type, int first, int last)
 	{
 		assert(0 <= first && first <= last);
 		assert(type != RangeType.CURRENT_SLICE ||
@@ -44,6 +44,12 @@ public class ImageRange
 		this.type = type;
 		this.first = first;
 		this.last = last;
+	}
+	
+	public ImageRange()
+	{
+		this.type = RangeType.ALL_SLICES;
+		this.first = this.last = 1;
 	}
 	
 	RangeType getType()
