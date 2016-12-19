@@ -1,7 +1,5 @@
 package be.vib.imagej;
 
-import java.awt.Rectangle;
-
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 
@@ -36,8 +34,8 @@ public class WizardModel
 	public AnisotropicDiffusionParams anisotropicDiffusionParams;
 	public BLSGSMParams blsgsmParams;
 	
-	public ImagePlus imagePlus; // original image or image stack (a reference not a copy)
-	public Rectangle roi;  // null if the full image should be used; the ROI bounds are with respect to the original image (not the possibly rescaled on-screen version in the dialog)
+	public ImagePlus imagePlus; // original image or image stack (a reference not a copy). Can be null iff. the wizard shows the WizardPageROI; is non-null otherwise.
+    
 	public ImageRange range; // the range of slices that need to be denoised
 
 	public ImageProcessor previewOrigROI;
@@ -49,6 +47,8 @@ public class WizardModel
 	public WizardModel()
 	{
 		denoisingAlgorithm = DenoisingAlgorithm.GAUSSIAN;
+		
+		range = new ImageRange();
 		
 		nonLocalMeansParams = new NonLocalMeansParams();
 		nonLocalMeansSCParams = new NonLocalMeansSCParams();

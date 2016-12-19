@@ -14,6 +14,7 @@ import javax.swing.JRadioButton;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.Roi;
 import ij.process.ImageProcessor;
 
 public class WizardPageDenoisingAlgorithm extends WizardPage 
@@ -200,15 +201,29 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	}
 	
 	@Override
-	public void aboutToShowPanel()
+	protected void aboutToShowPanel()
 	{
+		assert(model.imagePlus != null);
+		
+		
+		//assert(model.roi != null && model.roi.getBounds() != null && model.roi.getBounds().isEmpty() == false);
+		
 		System.out.println("WizardPageDenoisingAlgorithm.aboutToShowPanel: model=" + model + " imagePlus=" + model.imagePlus);
-		// Here we are assuming that the ROI has changed both in position and in size.
-		// Maybe later we can be a bit more clever to avoid unnecessary changes to model and preview images.
 		
-		Dimension size = bestPreviewSize(model.roi, maxPreviewSize);
+		Rectangle roi = null;
+		if (model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty())
+			roi = model.imagePlus.getRoi().getBounds();
+		else 
+			roi = new Rectangle(maxPreviewSize, maxPreviewSize);   // TODO: slightly better is probably to center this default ROI on the image, instead of the top left corner 
 		
-		model.previewOrigROI = cropImage(model.imagePlus, model.roi);
+		Dimension size = bestPreviewSize(roi, maxPreviewSize);
+		
+		// Take a deep copy of the selected ROI of the image.
+		// After this, the user changing or removing the ROI on the image
+		// has no effect anymore until she navigates back to the WizardPageROI.
+		// (In the future we may want to dynamically listen to ROI changes.
+		// But what if the ROI disappears? Pick one ourselves and warn the user in the UI?)
+		model.previewOrigROI = cropImage(model.imagePlus, roi);
 		origImagePanel.setImage(model.previewOrigROI.getBufferedImage());   // TODO? should the panel listen to changes to model.previewOrigROI so it updates "automatically" ?
 
 		origImagePanel.setPreferredSize(size);
@@ -229,6 +244,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private static Dimension bestPreviewSize(Rectangle roi, int maxSize)
 	{
+		assert(roi != null && roi.isEmpty() == false);
+		
 		int width = roi.width;
 		int height = roi.height;
 		int actualSize = Math.max(width, height);
@@ -248,7 +265,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		return new Dimension(w, h);
 	}
 
-	private static ImageProcessor cropImage(ImagePlus image, Rectangle roi)
+	private static ImageProcessor cropImage(ImagePlus image, Rectangle roi) // roi == null is allowed; note: image.getRoi() is ignored (the user may change it + it may be too large for a preview)
 	{
 		int slice = image.getCurrentSlice();
 		ImageStack stack = image.getStack();
