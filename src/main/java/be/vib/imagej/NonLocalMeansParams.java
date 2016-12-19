@@ -32,6 +32,6 @@ public class NonLocalMeansParams
 	@Override
 	public String toString()
 	{
-		return "h " + h + "; half seach size " + halfSearchSize + "; half block size " + halfBlockSize;
+		return "h " + h + "; half search size " + halfSearchSize + "; half block size " + halfBlockSize;
 	}
 }
