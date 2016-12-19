@@ -43,10 +43,12 @@ public class DenoisingIJ2 implements Command
 		
 		Wizard wizard = new Wizard("EM Denoising wizard");
 		
+		WizardPage pageInitialization = new WizardPageInitializeQuasar(wizard, model, "Initialization");
 		WizardPage pageROI = new WizardPageROI(wizard, model, "Select Image and ROI");
 		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Choose Denoising Algorithm");  // Later: "Choose Denoising Protocol" ?
 		WizardPage pageDenoise = new WizardPageDenoise(wizard, model, "Denoise");
 		
+		wizard.addPage(pageInitialization);
 		wizard.addPage(pageROI);
 		wizard.addPage(pageAlgorithm);
 		wizard.addPage(pageDenoise);

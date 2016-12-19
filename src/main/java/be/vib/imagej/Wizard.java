@@ -52,27 +52,27 @@ public class Wizard extends JDialog
 
 
 		addWindowListener(new WindowAdapter(){
-			@Override
-			public void windowOpened(WindowEvent e)
-			{
-				System.out.println("Wizard window opened - about to init quasar host (Java thread=" + Thread.currentThread().getId() + ")");
-
-				try {
-						QExecutor.getInstance().submit(() -> {
-						boolean loadCompiler = true;
-						QHost.init("cuda", loadCompiler);
-						System.out.println("QHost.init done");
-					}).get();
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ExecutionException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				System.out.println("Wizard window opened - quasar host initialized");
-			}
+//			@Override
+//			public void windowOpened(WindowEvent e)
+//			{
+//				System.out.println("Wizard window opened - about to init quasar host (Java thread=" + Thread.currentThread().getId() + ")");
+//
+//				try {
+//						QExecutor.getInstance().submit(() -> {
+//						boolean loadCompiler = true;
+//						QHost.init("cuda", loadCompiler);
+//						System.out.println("QHost.init done");
+//					}).get();
+//				} catch (InterruptedException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				} catch (ExecutionException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+//				
+//				System.out.println("Wizard window opened - quasar host initialized");
+//			}
 
 			@Override
 			public void windowClosing(WindowEvent e) // TODO: or windowClosed ?

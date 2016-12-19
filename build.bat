@@ -43,6 +43,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\ImagePanel.java ^
 %SRC_JAVA%\ImageRange.java ^
 %SRC_JAVA%\LinearImage.java ^
+%SRC_JAVA%\QuasarInitializationSwingWorker.java ^
 %SRC_JAVA%\RangeSelectionPanel.java ^
 %SRC_JAVA%\SliderFieldPair.java ^
 %SRC_JAVA%\SliderSpinnerPair.java ^
@@ -51,6 +52,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\WaveletThresholdingParamsPanel.java ^
 %SRC_JAVA%\WizardPageDenoise.java ^
 %SRC_JAVA%\WizardPageDenoisingAlgorithm.java ^
+%SRC_JAVA%\WizardPageInitializeQuasar.java ^
 %SRC_JAVA%\WizardPageROI.java ^
 %SRC_JAVA%\Wizard.java ^
 %SRC_JAVA%\WizardPage.java ^
