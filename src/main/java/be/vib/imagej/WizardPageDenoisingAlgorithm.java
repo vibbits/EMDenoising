@@ -43,12 +43,14 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		JPanel algorithmPanel = new JPanel();
 		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
 		algorithmPanel.add(algoChoicePanel);
+		algorithmPanel.add(Box.createRigidArea(new Dimension(5, 0)));
 		algorithmPanel.add(algoParamsPanel);
 		
 		previewPanel = new PreviewPanel();
 		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));		
 		add(previewPanel);
+		add(Box.createRigidArea(new Dimension(0, 5)));
 		add(algorithmPanel);
 	}
 
