@@ -25,7 +25,7 @@ public class WizardPage extends JPanel
 	}
 	
 	// override me
-	public void aboutToShowPanel()
+	protected void aboutToShowPanel()
 	{
 	}
 	
@@ -37,6 +37,12 @@ public class WizardPage extends JPanel
 
 	// override me
 	protected boolean canGoToNextPage()
+	{
+		return true;
+	}
+
+	// override me
+	protected boolean canFinish()
 	{
 		return true;
 	}
