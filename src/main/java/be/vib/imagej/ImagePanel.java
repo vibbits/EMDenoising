@@ -30,7 +30,7 @@ public class ImagePanel extends JPanel
 	
 	public void setImage(BufferedImage image)
 	{
-		System.out.println("ImagePanel.setImage " + image + " EDT? " + SwingUtilities.isEventDispatchThread());
+		assert(SwingUtilities.isEventDispatchThread());
 		
 		this.image = image;
 		
