@@ -101,6 +101,8 @@ public class Wizard extends JDialog
 		buildUI(title);
 	}
 	
+	// FIXME? call aboutToShowPanel() when first panel is shown initially (without the back/next buttons being pressed)
+
 	public void addPage(WizardPage page)
 	{
 		System.out.println("Wizard addPage (Java thread=" + Thread.currentThread().getId() + ")");
@@ -165,7 +167,7 @@ public class Wizard extends JDialog
 
 			WizardPage newPage = (WizardPage)pagesPanel.getComponent(newPageIdx);
 			newPage.aboutToShowPanel();
-
+			
 			cardLayout.previous(pagesPanel);
 			currentPageIdx = newPageIdx;
 		}
@@ -203,12 +205,14 @@ public class Wizard extends JDialog
 	public void updateButtons()
 	{
 		final int numPages = pagesPanel.getComponentCount();
+		if (numPages == 0)
+			return;
+		
 		final WizardPage currentPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
 		
 		backButton.setEnabled((currentPageIdx > 0) && currentPage.canGoToPreviousPage());
-		nextButton.setEnabled((currentPageIdx < numPages - 1) && currentPage.canGoToNextPage());
-		
-		finishButton.setEnabled(false); // SHOULD BE: finishButton(currentPageIdx == numPages - 1); once quasar release is done consistently (currently only works if window is closed via the close button...)
+		nextButton.setEnabled((currentPageIdx < numPages - 1) && currentPage.canGoToNextPage());		
+		finishButton.setEnabled((currentPageIdx == numPages - 1) && currentPage.canFinish());
 	}
 	
 	private void updateCrumbs()
@@ -238,7 +242,7 @@ public class Wizard extends JDialog
 			WizardPage page = (WizardPage)pagesPanel.getComponent(i);
 			String color = (i == idxToHighlight) ? "black" : "gray";
 			
-			crumbs = crumbs + "<font color=" + color + ">" + page.getName() + "</font>";
+			crumbs = crumbs + "<font color=" + color + " > " + page.getName() + "</font>";
 			if (i < numPages - 1)
 				crumbs = crumbs + "<font color=gray> > </font>";
 		}
