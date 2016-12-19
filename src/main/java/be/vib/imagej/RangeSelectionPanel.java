@@ -33,6 +33,7 @@ class RangeSelectionPanel extends JPanel
 		//             if we were to display it there.
 		
 		// FIXME: does this all work well if the user deletes one or more slices from model.imagePlus while a RangeSelectionPanel is visible...?
+		//        or can/should we somehow lock the image so that these changes are not possible?
 
 	    JRadioButton allSlicesRadioButton = new JRadioButton("All slices");
 	    allSlicesRadioButton.setSelected(model.range.getType() == ImageRange.RangeType.ALL_SLICES);
