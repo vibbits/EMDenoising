@@ -27,13 +27,6 @@ public class DenoisingIJ2 implements Command
 {
 	@Parameter
 	private LogService log;
-
-	// If no image is active, the Fiji plugin framework will automatically
-	// issue a terse error message.     // FIXME: this is not a very friendly message - remove the @Parameter and move handling of no image to the WizardPageROI instead (setting model.range then needs to move there too).
-    @Parameter
-    private ImagePlus imp;
-    
-    private WizardModel model;
     
     private Wizard wizard;
 	
@@ -44,12 +37,14 @@ public class DenoisingIJ2 implements Command
 		System.out.println("JavaQuasarBridge loaded.");
 	}
 	
-	private Wizard createWizard(WizardModel model)
+	private Wizard createWizard()
 	{
+		WizardModel model = new WizardModel();
+		
 		Wizard wizard = new Wizard("EM Denoising wizard");
 		
-		WizardPage pageROI = new WizardPageROI(wizard, model, "Select ROI");
-		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Select Denoising Algorithm");
+		WizardPage pageROI = new WizardPageROI(wizard, model, "Select Image and ROI");
+		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Choose Denoising Algorithm");  // Later: "Choose Denoising Protocol" ?
 		WizardPage pageDenoise = new WizardPageDenoise(wizard, model, "Denoise");
 		
 		wizard.addPage(pageROI);
@@ -62,12 +57,8 @@ public class DenoisingIJ2 implements Command
 	@Override
 	public void run() 
 	{
-		System.out.println("plugin run() begin");
-		
-		// FIXME: since there can be only one Quasar host running at any time,
-		//        we must avoid creating the denoising wizard more than once.
-		//        So if one is already open, we cannot start another one. 
-		//        For now: do not allow more than one denoising wizard.
+		System.out.println("DenoisingIJ2.run() begin");
+		log.info("DenoisingIJ2.run() called.");		
 
 		// A little experiment with the macro recorder 
 		// TODO: read http://imagej.net/PlugIn_Design_Guidelines
@@ -77,33 +68,15 @@ public class DenoisingIJ2 implements Command
 			Recorder.recordString(command);
 		}
 		
-		log.info("DenoisingIJ2.run() called.");		
-        log.info("Image: " + imp.getTitle());
-        log.info("Height:" + imp.getHeight() + " width:" + imp.getWidth() + " channels:" + imp.getNChannels() + " slices:" + imp.getNSlices() + " frames:" + imp.getNFrames());
-        log.info("Bytes per pixel:" + imp.getBytesPerPixel());
-        log.info("ROI: " + imp.getRoi());
-
-//		if (imp.getBytesPerPixel() != 1)
-//		{
-//			IJ.showMessage("For now only 8-bit images are supported. This image has " + imp.getBytesPerPixel() + " bytes per pixel. Please change the bit depth to 8 bits per pixel. In Fiji: Image > Type > 8-bit.");
-//			// TODO: support 16-bit images, they are common for EM
-//			return;
-//		}
-		
-		model = new WizardModel();
-		model.imagePlus = imp;
-		model.range = ImageRange.makeAllSlicesRange(model.imagePlus);
-		// TODO: we have to be careful here: the user may close the image window after the wizard was opened.
-		//       It looks like that means the ImagePlus becomes invalid. Correct??
-		//       How do we handle that situation? Maybe at any time when the image disappears, move the wizard page to the first page where it asks for image, 8 bit, ROI selected.
-		
-		wizard = createWizard(model);
+				
+		wizard = createWizard();
 		wizard.pack();
 		wizard.setVisible(true); // triggers creation of QHost, so need to go before *anything* else that uses the JavaQuasarBridge,
 		
 		// After displaying the denoising wizard the ImageJ plugin run() method finishes immediately,
 		// but the wizard is still visible and active.
-		System.out.println("plugin run() end");
+		System.out.println("DenoisingIJ2.run() end");
+		log.info("DenoisingIJ2.run() called.");		
 	}
 	
 }
