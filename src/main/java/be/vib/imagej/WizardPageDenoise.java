@@ -10,8 +10,12 @@ import javax.swing.JProgressBar;
 
 public class WizardPageDenoise extends WizardPage
 {
-	private JProgressBar progressBar;
 	private DenoiseSummaryPanel denoiseSummaryPanel;
+	private JButton startButton;
+	private JLabel statusLabel;
+	private JProgressBar progressBar;
+	private RangeSelectionPanel rangeSelectionPanel;
+	private boolean doneDenoising = false;
 	
 	public WizardPageDenoise(Wizard wizard, WizardModel model, String name)
 	{
@@ -23,8 +27,8 @@ public class WizardPageDenoise extends WizardPage
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-		JButton startButton = new JButton("Start Denoising");
-		JLabel statusLabel = new JLabel("Denoising...");
+		startButton = new JButton("Start Denoising");
+		statusLabel = new JLabel();
 		
 		progressBar = new JProgressBar();
 		
@@ -33,14 +37,6 @@ public class WizardPageDenoise extends WizardPage
 		progressBar.setStringPainted(true); // show percentage progress as text in the progress bar
 
 		startButton.addActionListener(e -> {
-			startButton.setVisible(false);
-			statusLabel.setVisible(true);
-
-			progressBar.setVisible(true);
-			progressBar.setMinimum(model.range.getFirst());
-			progressBar.setMaximum(model.range.getLast());
-			
-			// run a background thread doing the denoising
 		    denoise();
 		});
 		
@@ -49,7 +45,7 @@ public class WizardPageDenoise extends WizardPage
 		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
 		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
 		
-		RangeSelectionPanel rangeSelectionPanel = new RangeSelectionPanel(model);
+		rangeSelectionPanel = new RangeSelectionPanel(model);
 		rangeSelectionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, rangeSelectionPanel.getMaximumSize().height));
 		
 		rangeSelectionPanel.setAlignmentX(CENTER_ALIGNMENT);
@@ -65,29 +61,52 @@ public class WizardPageDenoise extends WizardPage
 		add(statusLabel);
 	}
 	
-    // DenoiseSlice is called from the Java EDT, so it needs to complete ASAP.
+    // denoise() is executed on the Java EDT, so it needs to complete ASAP.
 	// Off-load calculations to a separate thread and return immediately.
 	private void denoise() 
 	{
 		System.out.println("Denoise " + model.range + " (Java thread: " + Thread.currentThread().getId() + ")");
-				
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range, progressBar);
 		
-		// Run the denoising preview on a separate worker thread and return here immediately.
-		// Once denoising has completed, the worker will automatically update the denoising
-		// preview image in the Java Event Dispatch Thread (EDT).
+		startButton.setVisible(false);
+		
+		statusLabel.setText("Denoising...");
+		statusLabel.setVisible(true);
+
+		progressBar.setVisible(model.imagePlus.getNSlices() > 1);  // the progress bar only updates after each slice, so it is silly to show it if we only have a single slice
+		progressBar.setMinimum(model.range.getFirst());
+		progressBar.setMaximum(model.range.getLast());
+		
+		Runnable whenDone = () -> { doneDenoising = true; statusLabel.setText("Denoising done."); progressBar.setVisible(false); wizard.updateButtons(); };
+				
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range, progressBar, whenDone);
+		
+		// Run the denoising on a separate worker thread and return here immediately.
+		// Once denoising has completed, the worker will automatically update the user interface
+		// and show the denoised image in a new ImageJ window.
 		worker.execute();
 	}
 	
 	@Override
-	public void aboutToShowPanel()
+	protected void aboutToShowPanel()
 	{
-		// After denoising was complete, we may have gone back and returned to the denoising panel.
-		// So some status messages or buttons may need to be updated.
+		// After denoising was complete, we may have gone back, chosen another image or image stack, 
+		// and returned to the denoising panel. So some status messages or buttons may need to be updated.
 		
-		// FIXME - model.imagePlus may be different from when this page was initially build - 
-		// we may have to update the wizard (e.g. it could have been a single image initially, and an image stack now.)
+		doneDenoising = false;
+		
+		rangeSelectionPanel = new RangeSelectionPanel(model);
 		
 		denoiseSummaryPanel.updateText();
+
+		startButton.setVisible(true);
+		statusLabel.setVisible(false);
+		progressBar.setVisible(false);
 	}
+
+	@Override
+	protected boolean canFinish()
+	{
+		return doneDenoising;
+	}
+
 }
