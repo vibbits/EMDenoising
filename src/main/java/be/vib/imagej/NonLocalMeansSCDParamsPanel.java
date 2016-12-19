@@ -69,6 +69,10 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 
 		// ----
 
+		
+		// Note: the way to pick these parameters is to first chose a nice h in the NLMS-SC variant (*not* SCD!),
+		//       and use this h in NLMS-SCD. Then change lambda in NLMS-SCD. Probably use a fixed # iterations.
+		
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
@@ -76,34 +80,30 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		layout.setHorizontalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-		    		   .addComponent(iterationsLabel)
-		    		   .addComponent(sigma0Label)
+		    		   .addComponent(hLabel)
 		    		   .addComponent(lambdaLabel)
-			           .addComponent(hLabel))
+		    		   .addComponent(iterationsLabel)
+		    		   .addComponent(sigma0Label))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-		    		   .addComponent(iterationsSpinner)
-		    		   .addComponent(sigma0Field)
+		    		   .addComponent(hField)
 		    		   .addComponent(lambdaField)
-			           .addComponent(hField))
+		    		   .addComponent(iterationsSpinner)
+		    		   .addComponent(sigma0Field))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-		    		   .addComponent(iterationsSlider)
-		    		   .addComponent(sigma0Slider)
+		    		   .addComponent(hSlider)
 		    		   .addComponent(lambdaSlider)
-			           .addComponent(hSlider))
+		    		   .addComponent(iterationsSlider)
+		    		   .addComponent(sigma0Slider))
 		      );
-		
+
+		// Define top-to-bottom order
 		layout.setVerticalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(iterationsLabel)
-		    				  .addComponent(iterationsSpinner))
-			           .addComponent(iterationsSlider))
-		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(sigma0Label)
-		    				  .addComponent(sigma0Field))
-			           .addComponent(sigma0Slider))
+		    				  .addComponent(hLabel)
+		    				  .addComponent(hField))
+			           .addComponent(hSlider))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		    				  .addComponent(lambdaLabel)
@@ -111,9 +111,14 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 			           .addComponent(lambdaSlider))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(hLabel)
-		    				  .addComponent(hField))
-			           .addComponent(hSlider))
+		    				  .addComponent(sigma0Label)
+		    				  .addComponent(sigma0Field))
+			           .addComponent(sigma0Slider))
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(iterationsLabel)
+		    				  .addComponent(iterationsSpinner))
+			           .addComponent(iterationsSlider))
 		      );    	
 		
 		setLayout(layout);

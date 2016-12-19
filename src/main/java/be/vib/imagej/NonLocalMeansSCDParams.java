@@ -3,16 +3,16 @@ package be.vib.imagej;
 public class NonLocalMeansSCDParams
 {
 	public static final float hMin = 0.01f;
-	public static final float hMax = 50.0f;
+	public static final float hMax = 75.0f;
 	
-	public static final float lambdaMin = 0.01f;  // FIXME
-	public static final float lambdaMax = 50.0f;  // FIXME
+	public static final float lambdaMin = 0.01f;
+	public static final float lambdaMax = 50.0f;
 	
-	public static final float sigma0Min = 0.01f;  // FIXME
-	public static final float sigma0Max = 100.0f;  // FIXME
+	public static final float sigma0Min = 0.01f;
+	public static final float sigma0Max = 100.0f;
 	
-	public static final int numIterationsMin = 1;  // FIXME
-	public static final int numIterationsMax = 100;  // FIXME
+	public static final int numIterationsMin = 1;
+	public static final int numIterationsMax = 100;
 	
 	public float h;
 	public float sigma0;
@@ -55,7 +55,7 @@ public class NonLocalMeansSCDParams
 
 	public NonLocalMeansSCDParams()
 	{
-		h = 13.5f;
+		h = 40.0f;
 		lambda = 0.3f;
 		numIterations = 25;
 		sigma0 = 20.0f;
