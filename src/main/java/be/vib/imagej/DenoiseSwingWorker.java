@@ -18,19 +18,21 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	private ImagePlus noisyImagePlus;
 	private ImageRange range;
 	private JProgressBar progressBar;
+	private Runnable whenDone;  // Will be run on the EDT as soon as the DenoiseSwingWorker is done denoising. Can be used to indicate in the UI that we are done.
 	
-	public DenoiseSwingWorker(Denoiser denoiser, ImagePlus noisyImagePlus, ImageRange range, JProgressBar progressBar)
+	public DenoiseSwingWorker(Denoiser denoiser, ImagePlus noisyImagePlus, ImageRange range, JProgressBar progressBar, Runnable whenDone)
 	{
 		this.denoiser = denoiser;
 		this.noisyImagePlus = noisyImagePlus;
 		this.range = range;
 		this.progressBar = progressBar;
+		this.whenDone = whenDone;
 	}
 	
 	@Override
 	public ImagePlus doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
 	{
-		// doInBackground is run is a thread different from the Java Event Dispatch Thread (EDT)
+		// doInBackground is run is a thread different from the Java Event Dispatch Thread (EDT). Do not update Java Swing components here.
 		final int width = noisyImagePlus.getWidth();
 		final int height = noisyImagePlus.getHeight();
 		
@@ -58,7 +60,7 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	}
 	
 	@Override
-	protected void process(List<Integer> chunks)  // gets called asynchronously on the Java EDT, update the UI here
+	protected void process(List<Integer> chunks)  // executed on the Java EDT, so we can update the UI here
 	{
 		for (Integer slice : chunks)
 		{
@@ -67,15 +69,14 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	}
 	
 	@Override
-	public void done()  // executed on the EDT, update UI here.
+	public void done()  // executed on the Java EDT, we can update the UI here.
 	{
-		System.out.println("DenoiseSwingWorker done()");
 		try
 		{
-			ImagePlus denoisedImagePlus = get();
-			denoisedImagePlus.show();
+			whenDone.run();
 			
-			// TODO: we also need to update the rest of the GUI (like status strings etc) - how to do this?
+			ImagePlus denoisedImagePlus = get();
+			denoisedImagePlus.show();			
 		}
 		catch (InterruptedException e) {
 			// TODO Auto-generated catch block
