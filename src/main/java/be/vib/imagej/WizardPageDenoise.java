@@ -76,7 +76,12 @@ public class WizardPageDenoise extends WizardPage
 		progressBar.setMinimum(model.range.getFirst());
 		progressBar.setMaximum(model.range.getLast());
 		
-		Runnable whenDone = () -> { doneDenoising = true; statusLabel.setText("Denoising done."); progressBar.setVisible(false); wizard.updateButtons(); };
+		Runnable whenDone = () -> {
+			doneDenoising = true;
+			statusLabel.setText("Denoising done.");
+			progressBar.setVisible(false);
+			wizard.updateButtons();
+		};
 				
 		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range, progressBar, whenDone);
 		
