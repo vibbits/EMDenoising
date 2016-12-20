@@ -30,8 +30,8 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 		
 		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.width, image.height, result);
 
-		result.delete();
-		imageCube.delete();		
+		result.dispose();
+		imageCube.dispose();		
 
 		return outputPixels;
 	}
