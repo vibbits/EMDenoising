@@ -12,6 +12,9 @@ import javax.swing.JTextField;
 class RangeSelectionPanel extends JPanel
 {
 	private WizardModel model;
+	private JRadioButton allSlicesRadioButton;
+	private JRadioButton currentSliceRadioButton;
+	private JRadioButton rangeOfSlicesRadioButton;
 	
 	public RangeSelectionPanel(WizardModel model)
 	{
@@ -35,13 +38,13 @@ class RangeSelectionPanel extends JPanel
 		// FIXME: does this all work well if the user deletes one or more slices from model.imagePlus while a RangeSelectionPanel is visible...?
 		//        or can/should we somehow lock the image so that these changes are not possible?
 
-	    JRadioButton allSlicesRadioButton = new JRadioButton("All slices");
+	    allSlicesRadioButton = new JRadioButton("All slices");
 	    allSlicesRadioButton.setSelected(model.range.getType() == ImageRange.RangeType.ALL_SLICES);
 	    
-		JRadioButton currentSliceRadioButton = new JRadioButton("Current slice");
+		currentSliceRadioButton = new JRadioButton("Current slice");
 		currentSliceRadioButton.setSelected(model.range.getType() == ImageRange.RangeType.CURRENT_SLICE);
 
-	    JRadioButton rangeOfSlicesRadioButton = new JRadioButton("Range");
+	    rangeOfSlicesRadioButton = new JRadioButton("Range");
 	    rangeOfSlicesRadioButton.setSelected(model.range.getType() == ImageRange.RangeType.NUMERIC_SLICE_RANGE);
 	    
 	    JTextField rangeField = new JTextField("e.g. 1-42", 10);
@@ -51,20 +54,9 @@ class RangeSelectionPanel extends JPanel
 	    // TODO: remove example text when rangeField gets focus, put it back when it has no valid range
 	    // TODO: show example text dimmed, but show valid ranges as *undimmed*
 	    
-	    allSlicesRadioButton.addActionListener(e -> {
-    		model.range = ImageRange.makeAllSlicesRange(model.imagePlus);
-    	});
-
-	    currentSliceRadioButton.addActionListener(e -> {
-    		model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
-	    });
-
-	    rangeOfSlicesRadioButton.addActionListener(e -> {
-	    	// TODO: get first and last from range input field
-	    	int first = 1;
-	    	int last = 1;
-    		model.range = ImageRange.makeNumericSliceRange(model.imagePlus, first, last);
-    	});
+	    allSlicesRadioButton.addActionListener(e -> { updateRange(); });
+	    currentSliceRadioButton.addActionListener(e -> { updateRange(); });
+	    rangeOfSlicesRadioButton.addActionListener(e -> { updateRange(); });
 
 	    // Add radio buttons to a group to make them mutually exclusive
 	    ButtonGroup group = new ButtonGroup();
@@ -86,5 +78,28 @@ class RangeSelectionPanel extends JPanel
 		add(allSlicesRadioButton);
 		add(currentSliceRadioButton);
 		add(rangeRadioPanel);
+	}
+	
+	public void updateRange()
+	{
+		if (allSlicesRadioButton.isSelected())
+		{
+    		model.range = ImageRange.makeAllSlicesRange(model.imagePlus);
+		}
+		else if (currentSliceRadioButton.isSelected())
+		{
+    		model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
+		}
+		else if (rangeOfSlicesRadioButton.isSelected())
+		{
+    		model.range = ImageRange.makeAllSlicesRange(model.imagePlus);  // FIXME
+    		
+	    	// TODO: get first and last from range input field
+	    	// int first = ...;
+	    	// int last = ...;
+    		// model.range = ImageRange.makeNumericSliceRange(model.imagePlus, first, last);
+    		
+    		// TODO: what if the range that is filled in in the range field is not consistent with the current image anymore?
+		}
 	}
 }

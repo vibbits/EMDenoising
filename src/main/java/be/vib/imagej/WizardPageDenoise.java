@@ -99,7 +99,7 @@ public class WizardPageDenoise extends WizardPage
 		
 		doneDenoising = false;
 		
-		rangeSelectionPanel = new RangeSelectionPanel(model);
+		rangeSelectionPanel.updateRange();
 		
 		denoiseSummaryPanel.updateText();
 
