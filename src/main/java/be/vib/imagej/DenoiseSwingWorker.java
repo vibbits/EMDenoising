@@ -17,14 +17,16 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	private Denoiser denoiser;
 	private ImagePlus noisyImagePlus;
 	private ImageRange range;
+	private String algorithmName;
 	private JProgressBar progressBar;
 	private Runnable whenDone;  // Will be run on the EDT as soon as the DenoiseSwingWorker is done denoising. Can be used to indicate in the UI that we are done.
 	
-	public DenoiseSwingWorker(Denoiser denoiser, ImagePlus noisyImagePlus, ImageRange range, JProgressBar progressBar, Runnable whenDone)
+	public DenoiseSwingWorker(Denoiser denoiser, ImagePlus noisyImagePlus, ImageRange range, String algorithmName, JProgressBar progressBar, Runnable whenDone)
 	{
 		this.denoiser = denoiser;
 		this.noisyImagePlus = noisyImagePlus;
 		this.range = range;
+		this.algorithmName = algorithmName;
 		this.progressBar = progressBar;
 		this.whenDone = whenDone;
 	}
@@ -54,7 +56,7 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 			publish(slice);
 		}
 		
-		String title = noisyImagePlus.getTitle() + " [denoised]";
+		String title = noisyImagePlus.getTitle() + " ["+ algorithmName + "]";
 		ImagePlus denoisedImagePlus = new ImagePlus(title, denoisedStack);
 		return denoisedImagePlus;
 	}

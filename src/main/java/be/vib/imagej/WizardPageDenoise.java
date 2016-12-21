@@ -83,7 +83,7 @@ public class WizardPageDenoise extends WizardPage
 			wizard.updateButtons();
 		};
 				
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range, progressBar, whenDone);
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range, model.getDenoisingAlgorithmName(), progressBar, whenDone);
 		
 		// Run the denoising on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the user interface
