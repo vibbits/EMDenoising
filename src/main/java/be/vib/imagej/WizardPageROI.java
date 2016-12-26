@@ -291,7 +291,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 		
-		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null") + " id:" + id);
+//		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null") + " id:" + id);
 		assert(imp != null);
 		
 		if (imp != model.imagePlus)
@@ -352,7 +352,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	protected boolean canGoToNextPage()
 	{		
 		return (model.imagePlus != null) &&
-			   (model.imagePlus.getBitDepth() == 8) &&
+			   //(model.imagePlus.getBitDepth() == 8) &&
 			   (model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty());
 	}
 }
