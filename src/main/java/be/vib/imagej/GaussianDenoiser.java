@@ -15,7 +15,7 @@ class GaussianDenoiser extends Denoiser
 	}
 	
 	@Override
-	public byte[] call()
+	public LinearImage call()
 	{
 		QFunction gaussian = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\gaussian_filter.q",
 				                                 "gaussian_filter(mat,scalar,int,string)");
@@ -32,6 +32,6 @@ class GaussianDenoiser extends Denoiser
 		result.dispose();
 		imageCube.dispose();		
 		
-		return outputPixels;
+		return new LinearImage(image.width, image.height, outputPixels);
 	}
 }

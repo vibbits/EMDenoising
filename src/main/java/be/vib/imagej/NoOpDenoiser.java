@@ -8,8 +8,8 @@ class NoOpDenoiser extends Denoiser
 	}
 	
 	@Override
-	public byte[] call()
+	public LinearImage call()
 	{						
-		return image.pixels.clone();
+		return new LinearImage(image.width, image.height, image.pixels.clone());
 	}
 }

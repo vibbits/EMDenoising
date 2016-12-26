@@ -15,7 +15,7 @@ class NonLocalMeansDenoiser extends Denoiser
 	}
 	
 	@Override
-	public byte[] call()
+	public LinearImage call()
 	{		
 		QFunction nlmeans = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\nlmeans_sc.q",
                                                 "denoise_nlmeans(mat,int,int,scalar)");
@@ -34,6 +34,6 @@ class NonLocalMeansDenoiser extends Denoiser
 		result.dispose();
 		imageCube.dispose();		
 		
-		return outputPixels;
+		return new LinearImage(image.width, image.height, outputPixels);
 	}
 }

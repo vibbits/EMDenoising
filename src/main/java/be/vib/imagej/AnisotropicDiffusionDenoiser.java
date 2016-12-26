@@ -15,7 +15,7 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 	}
 	
 	@Override
-	public byte[] call()
+	public LinearImage call()
 	{
 		QFunction diffusion = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\anisotropic_diffusion.q",
                                                   "anisotropic_diffusion(mat,int,scalar,scalar,int)");
@@ -33,6 +33,6 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 		result.dispose();
 		imageCube.dispose();		
 
-		return outputPixels;
+		return new LinearImage(image.width, image.height, outputPixels);
 	}
 }

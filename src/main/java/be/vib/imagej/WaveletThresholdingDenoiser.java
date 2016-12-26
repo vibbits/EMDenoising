@@ -15,7 +15,7 @@ class WaveletThresholdingDenoiser extends Denoiser
 	}
 	
 	@Override
-	public byte[] call()
+	public LinearImage call()
 	{		
 		QFunction waveletThresholding = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\wavelet_thresholding.q",
                                                             "wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
@@ -43,6 +43,6 @@ class WaveletThresholdingDenoiser extends Denoiser
 		result.dispose();
 		imageCube.dispose();
 		
-		return outputPixels;
+		return new LinearImage(image.width, image.height, outputPixels);
 	}
 }

@@ -48,9 +48,9 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 			LinearImage image = new LinearImage(width, height, WizardModel.getPixelsCopy(imageProcessor));
 			
 			denoiser.setImage(image);
-			byte[] outputPixels = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
+			LinearImage denoisedResult = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
 			
-			ByteProcessor denoisedImage = new ByteProcessor(width, height, outputPixels);
+			ByteProcessor denoisedImage = new ByteProcessor(denoisedResult.width, denoisedResult.height, denoisedResult.pixels);
 			denoisedStack.addSlice("", denoisedImage);
 			
 			publish(slice);

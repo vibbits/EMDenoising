@@ -15,7 +15,7 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 	}
 	
 	@Override
-	public byte[] call()
+	public LinearImage call()
 	{		
 		QFunction nlmeansSCD = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\nlmeans_scd.q",
                                                    "deconv_nlmeans_sc(mat,mat,scalar,int,int,int,scalar,scalar,scalar,mat)");
@@ -78,6 +78,6 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 		result.dispose();
 		imageCube.dispose();		
 		
-		return outputPixels;
+		return new LinearImage(image.width, image.height, outputPixels);
 	}
 }

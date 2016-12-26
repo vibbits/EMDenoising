@@ -15,7 +15,7 @@ class BilateralDenoiser extends Denoiser
 	}
 	
 	@Override
-	public byte[] call()
+	public LinearImage call()
 	{
 		QFunction applyBilateralFilter = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\bilateral_filter.q",
 				                                             "apply_bilateral_filter(mat,cube,int,int)");
@@ -41,6 +41,6 @@ class BilateralDenoiser extends Denoiser
 		result.dispose();
 		imageCube.dispose();		
 		
-		return outputPixels;
+		return new LinearImage(image.width, image.height, outputPixels);
 	}
 }

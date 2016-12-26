@@ -5,9 +5,9 @@ import java.util.concurrent.Callable;
 import be.vib.bits.QFunction;
 import be.vib.bits.QHost;
 
-class Denoiser implements Callable<byte[]>
+class Denoiser implements Callable<LinearImage>
 {
-	public LinearImage image; // original, noisy source image
+	protected LinearImage image; // original, noisy source image
 	
 	Denoiser()
 	{
@@ -20,10 +20,10 @@ class Denoiser implements Callable<byte[]>
 	}
 
 	// Important: call() *must* be run on the Quasar thread!
-	// Returns a new array with the denoised version of image.pixels.
-	// Its width and height must be the same as in the original image.
+	// Returns a denoised version of the original image.
+	// Its width and height will be the same as in the original image.
 	@Override
-	public byte[] call() throws Exception
+	public LinearImage call() throws Exception
 	{
 		return null;
 	}
@@ -42,10 +42,18 @@ class Denoiser implements Callable<byte[]>
 			// Lazy loading of the source module for this denoising function.
 			// Once it is loaded it will persist in the Quasar host
 			// even beyond the lifetime of this GaussianDenoiser object.
-			QHost.loadSourceModule(sourceFile);
-		}
-		
-		assert(QHost.functionExists(functionName));
+			if (sourceFile.endsWith(".q"))
+			{
+				System.out.println("Loading source " + sourceFile);
+				QHost.loadSourceModule(sourceFile);
+			}
+			else
+			{
+				System.out.println("Loading binary " + sourceFile);
+				QHost.loadBinaryModule(sourceFile);
+			}
+		}		
+
 		
 		return new QFunction(signature);
 	}

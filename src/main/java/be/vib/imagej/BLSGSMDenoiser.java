@@ -15,7 +15,7 @@ class BLSGSMDenoiser extends Denoiser
 	}
 	
 	@Override
-	public byte[] call()
+	public LinearImage call()
 	{
 		QFunction blsgsm = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\blsgsm.q",
 				                               "denoise_image_blsgsm(mat,scalar,string,int,int)");
@@ -33,6 +33,6 @@ class BLSGSMDenoiser extends Denoiser
 		result.dispose();
 		imageCube.dispose();		
 		
-		return outputPixels;
+		return new LinearImage(image.width, image.height, outputPixels);
 	}
 }
