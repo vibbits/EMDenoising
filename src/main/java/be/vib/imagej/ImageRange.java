@@ -52,17 +52,17 @@ public class ImageRange
 		this.first = this.last = 1;
 	}
 	
-	RangeType getType()
+	public RangeType getType()
 	{
 		return type;
 	}
 	
-	int getFirst()
+	public int getFirst()
 	{
 		return first;
 	}
 	
-	int getLast()
+	public int getLast()
 	{
 		return last;
 	}
