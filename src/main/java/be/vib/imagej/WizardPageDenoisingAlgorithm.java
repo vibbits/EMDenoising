@@ -267,7 +267,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		return new Dimension(w, h);
 	}
 
-	private static ImageProcessor cropImage(ImagePlus image, Rectangle roi) // roi == null is allowed; note: image.getRoi() is ignored (the user may change it + it may be too large for a preview)
+	public static ImageProcessor cropImage(ImagePlus image, Rectangle roi) // roi == null is allowed; note: image.getRoi() is ignored (the user may change it + it may be too large for a preview)
 	{
 		int slice = image.getCurrentSlice();
 		ImageStack stack = image.getStack();

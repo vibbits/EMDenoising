@@ -4,7 +4,7 @@ import be.vib.bits.QFunction;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 
-class GaussianDenoiser extends Denoiser
+public class GaussianDenoiser extends Denoiser
 {
 	private final GaussianParams params;
 	

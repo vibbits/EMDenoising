@@ -5,16 +5,16 @@ import java.util.concurrent.Callable;
 import be.vib.bits.QFunction;
 import be.vib.bits.QHost;
 
-class Denoiser implements Callable<LinearImage>
+public class Denoiser implements Callable<LinearImage>
 {
 	protected LinearImage image; // original, noisy source image
 	
-	Denoiser()
+	public Denoiser()
 	{
 		this.image = null;
 	}
 	
-	void setImage(LinearImage image)
+	public void setImage(LinearImage image)
 	{
 		this.image = image;
 	}

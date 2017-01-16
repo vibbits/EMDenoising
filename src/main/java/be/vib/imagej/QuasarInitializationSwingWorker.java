@@ -7,7 +7,7 @@ import javax.swing.SwingWorker;
 import be.vib.bits.QExecutor;
 import be.vib.bits.QHost;
 
-class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
+public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 {
 	private String device;
 	private boolean loadCompiler;

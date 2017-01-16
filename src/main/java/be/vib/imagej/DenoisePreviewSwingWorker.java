@@ -8,7 +8,7 @@ import be.vib.bits.QExecutor;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
-class DenoisePreviewSwingWorker extends SwingWorker<LinearImage, Void>
+public class DenoisePreviewSwingWorker extends SwingWorker<LinearImage, Void>
 {
 	Denoiser denoiser;
 	ImagePanel imagePanel;

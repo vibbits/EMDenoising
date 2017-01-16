@@ -34,7 +34,7 @@ public class DenoisingIJ2 implements Command
 	{		
 		System.out.println("About to load JavaQuasarBridge dynamic library");
 		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
-		System.out.println("JavaQuasarBridge loaded.");
+		System.out.println("JavaQuasarBridge dynamic library loaded.");
 	}
 	
 	private Wizard createWizard()
