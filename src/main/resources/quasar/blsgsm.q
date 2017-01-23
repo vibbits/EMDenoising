@@ -224,10 +224,9 @@ end
 %
 function [S, S_inv] = symsqrt_and_inv(C)
     [U, Lambda, V] = svd(C)
-    %print "svd err=",sum(sum(abs(U*Lambda*transpose(V)-C)))
-    Lambda = diag(Lambda)
-    S = U*diag(sqrt(Lambda))*transpose(V)
-    S_inv = U*diag(1./sqrt(Lambda))*transpose(V)
+    Lambda1 = diag(Lambda)
+    S = U*diag(sqrt(Lambda1))*transpose(V)
+    S_inv = U*diag(1./sqrt(Lambda1))*transpose(V)
 end
 
 % Function: compute_covmtx_spat_stationary
@@ -606,6 +605,6 @@ function [] = main()
     fig1=imshow(img_den)
     title(sprintf("Deconvolution with non-local prior - psnr=%f dB", psnr(img_den,img)))
 
-    fig0.connect(fig1)
+    % fig0.connect(fig1)
 
 end
