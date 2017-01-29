@@ -70,6 +70,12 @@ public class DenoisingIJ2 implements Command
 			Recorder.recordString(command);
 		}
 		
+		// FIXME: if there is already an EM Denoising wizard open,
+		//        then do not start a new one, but instead make sure the exising wizard
+		//        window is moved to the front.
+		// PROBLEM: how de we detect this? Every invocation of EM Denoising from the Fiji menu
+		//          will create a new DenoisingIJ2 instance.
+		// SOLUTION: Wizard needs to be a singleton
 				
 		wizard = createWizard();
 		wizard.pack();
