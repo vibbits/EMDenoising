@@ -38,19 +38,41 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		final int width = noisyImagePlus.getWidth();
 		final int height = noisyImagePlus.getHeight();
 		
+		final int tileWidth = 1024;  // TODO: make this dependent on e.g. algorithm and its parameters
+		final int tileHeight = 1024;
+		final int margin = 16; // FIXME: must be dependent on algorithm parameters to avoid artifacts along tile boundaries
+		
 		final ImageStack noisyStack = noisyImagePlus.getStack();
 				
 		ImageStack denoisedStack = new ImageStack(width, height);
 		
 		for (int slice = range.getFirst(); slice <= range.getLast(); slice++)
 		{
-			ImageProcessor imageProcessor = noisyStack.getProcessor(slice);
-			LinearImage image = new LinearImage(width, height, WizardModel.getPixelsCopy(imageProcessor));
+			ImageProcessor noisyImage = noisyStack.getProcessor(slice);
+			ByteProcessor denoisedImage = new ByteProcessor(width, height); // blank image, will be filled below
 			
-			denoiser.setImage(image);
-			LinearImage denoisedResult = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
-			
-			ByteProcessor denoisedImage = new ByteProcessor(denoisedResult.width, denoisedResult.height, denoisedResult.pixels);
+			// -------------------;
+			ImageTiler tiler = new ImageTiler(noisyImage, tileWidth, tileHeight, margin);
+			for (ImageTile tile : tiler)
+			{
+				ImageProcessor noisyTileImp = tile.getImageWithMargins();
+				
+				assert(noisyTileImp.getPixels() instanceof byte[]); // TODO: support 16 bit / pixel too
+				LinearImage noisyTile = new LinearImage(noisyTileImp.getWidth(), noisyTileImp.getHeight(), (byte[])noisyTileImp.getPixels());
+				denoiser.setImage(noisyTile);
+				LinearImage denoisedTile = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
+				
+				ImageProcessor denoisedTileImp = new ByteProcessor(denoisedTile.width, denoisedTile.height, denoisedTile.pixels);
+				
+				// Remove margins
+				denoisedTileImp.setRoi(tile.getLeftMargin(), tile.getTopMargin(), tile.getWidthWithoutMargins(), tile.getHeightWithoutMargins());
+				denoisedTileImp = denoisedTileImp.crop();
+				
+				// Put denoised tile in result image
+				denoisedImage.insert(denoisedTileImp, tile.getXPositionWithoutMargins(), tile.getYPositionWithoutMargins());
+			}
+			// -------------------;
+
 			denoisedStack.addSlice("", denoisedImage);
 			
 			publish(slice);
