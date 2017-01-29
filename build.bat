@@ -57,7 +57,8 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\WizardPageROI.java ^
 %SRC_JAVA%\Wizard.java ^
 %SRC_JAVA%\WizardPage.java ^
-%SRC_JAVA%\WizardModel.java
+%SRC_JAVA%\WizardModel.java ^
+src\main\java\BilateralDenoiserTest.java
 
 jar cvfm output\jar\VIBDenoising-0.0.1.jar src\main\Manifest.txt -C output\class\ .
 
