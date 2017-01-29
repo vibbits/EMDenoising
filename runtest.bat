@@ -1,1 +1,1 @@
-java -cp output\class;e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar;e:\git\ImageJRepository\ij-1.50a.jar -Djava.library.path=e:\git\bits\bioimaging\JavaQuasarBridge\dist BilateralDenoiserTest
+"%JAVA_HOME%\bin\java" -cp output\class;e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar;e:\git\ImageJRepository\ij-1.50a.jar -Djava.library.path=e:\git\bits\bioimaging\JavaQuasarBridge\dist BilateralDenoiserTest
