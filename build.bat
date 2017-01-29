@@ -42,6 +42,8 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\NoOpDenoiser.java ^
 %SRC_JAVA%\ImagePanel.java ^
 %SRC_JAVA%\ImageRange.java ^
+%SRC_JAVA%\ImageTile.java ^
+%SRC_JAVA%\ImageTiler.java ^
 %SRC_JAVA%\LinearImage.java ^
 %SRC_JAVA%\QuasarInitializationSwingWorker.java ^
 %SRC_JAVA%\RangeSelectionPanel.java ^
@@ -56,7 +58,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\WizardPageROI.java ^
 %SRC_JAVA%\Wizard.java ^
 %SRC_JAVA%\WizardPage.java ^
-%SRC_JAVA%\WizardModel.java 
+%SRC_JAVA%\WizardModel.java
 
 jar cvfm output\jar\VIBDenoising-0.0.1.jar src\main\Manifest.txt -C output\class\ .
 
