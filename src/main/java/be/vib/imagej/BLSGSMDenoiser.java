@@ -3,6 +3,7 @@ package be.vib.imagej;
 import be.vib.bits.QFunction;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
+import ij.process.ByteProcessor;
 
 class BLSGSMDenoiser extends Denoiser
 {
@@ -15,12 +16,12 @@ class BLSGSMDenoiser extends Denoiser
 	}
 	
 	@Override
-	public LinearImage call()
+	public ByteProcessor call()
 	{
 		QFunction blsgsm = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\blsgsm.q",
 				                               "denoise_image_blsgsm(mat,scalar,string,int,int)");
 
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
+		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
 		
 		QValue result = blsgsm.apply(imageCube,
 				                     new QValue(params.sigma),
@@ -28,11 +29,11 @@ class BLSGSMDenoiser extends Denoiser
 				                     new QValue(BLSGSMParams.J),
 				                     new QValue(BLSGSMParams.K));
 		
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.width, image.height, result);
+		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
 		
 		result.dispose();
 		imageCube.dispose();		
 		
-		return new LinearImage(image.width, image.height, outputPixels);
+		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
 	}
 }

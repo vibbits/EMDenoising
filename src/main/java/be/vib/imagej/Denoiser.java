@@ -4,17 +4,18 @@ import java.util.concurrent.Callable;
 
 import be.vib.bits.QFunction;
 import be.vib.bits.QHost;
+import ij.process.ByteProcessor;
 
-public class Denoiser implements Callable<LinearImage>
+public class Denoiser implements Callable<ByteProcessor>
 {
-	protected LinearImage image; // original, noisy source image
+	protected ByteProcessor image; // original, noisy source image
 	
 	public Denoiser()
 	{
 		this.image = null;
 	}
 	
-	public void setImage(LinearImage image)
+	public void setImage(ByteProcessor image)
 	{
 		this.image = image;
 	}
@@ -23,7 +24,7 @@ public class Denoiser implements Callable<LinearImage>
 	// Returns a denoised version of the original image.
 	// Its width and height will be the same as in the original image.
 	@Override
-	public LinearImage call() throws Exception
+	public ByteProcessor call() throws Exception
 	{
 		return null;
 	}

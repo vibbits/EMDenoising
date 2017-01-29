@@ -1,5 +1,7 @@
 package be.vib.imagej;
 
+import ij.process.ByteProcessor;
+
 class NoOpDenoiser extends Denoiser
 {		
 	public NoOpDenoiser()
@@ -8,8 +10,8 @@ class NoOpDenoiser extends Denoiser
 	}
 	
 	@Override
-	public LinearImage call()
+	public ByteProcessor call()
 	{						
-		return new LinearImage(image.width, image.height, image.pixels.clone());
+		return (ByteProcessor)image.duplicate();
 	}
 }

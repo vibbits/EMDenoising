@@ -3,6 +3,7 @@ package be.vib.imagej;
 import be.vib.bits.QFunction;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
+import ij.process.ByteProcessor;
 
 class WaveletThresholdingDenoiser extends Denoiser
 {
@@ -15,12 +16,12 @@ class WaveletThresholdingDenoiser extends Denoiser
 	}
 	
 	@Override
-	public LinearImage call()
+	public ByteProcessor call()
 	{		
 		QFunction waveletThresholding = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\wavelet_thresholding.q",
                                                             "wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
 				
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
+		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
 		
 		QValue w1 = QValue.readhostVariable("filtercoeff_farras");          // wavelet for the first scale (a 2x10 matrix)
 		QValue w2 = QValue.readhostVariable("filtercoeff_selcw").at(3, 1);  // wavelet for the other scales (a 2x12 matrix)
@@ -38,11 +39,11 @@ class WaveletThresholdingDenoiser extends Denoiser
 				                                  new QValue(WaveletThresholdingParams.thresholding),
 				                                  new QValue(params.alpha));
 		
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.width, image.height, result);
+		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
 		
 		result.dispose();
 		imageCube.dispose();
 		
-		return new LinearImage(image.width, image.height, outputPixels);
+		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
 	}
 }

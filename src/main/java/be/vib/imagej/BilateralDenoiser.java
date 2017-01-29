@@ -1,8 +1,10 @@
 package be.vib.imagej;
 
 import be.vib.bits.QFunction;
+//import be.vib.bits.QHost;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
+import ij.process.ByteProcessor;
 
 public class BilateralDenoiser extends Denoiser
 {
@@ -15,19 +17,19 @@ public class BilateralDenoiser extends Denoiser
 	}
 	
 	@Override
-	public LinearImage call()
+	public ByteProcessor call()
 	{
 		QFunction applyBilateralFilter = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\bilateral_filter.q",
 				                                             "apply_bilateral_filter(mat,cube,int,int)");
 		
-		// System.out.println("bilateral_filter.q loaded");
-		
+//		System.out.println("bilateral_filter.qlib loaded");
+//		System.out.println("compute_bilateral_filter exists? " + QHost.functionExists("compute_bilateral_filter"));
+//		System.out.println("apply_bilateral_filter exists? " + QHost.functionExists("apply_bilateral_filter"));
+
 		QFunction computeBilateralFilter = new QFunction("compute_bilateral_filter(cube,int,int,scalar,scalar,scalar,scalar)");
 		
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
+		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
 		
-		// System.out.println("before computeBilateralFilter.apply");
-
 		QValue bf = computeBilateralFilter.apply(imageCube,
 				                                 new QValue(BilateralParams.nx),
 				                                 new QValue(BilateralParams.ny),
@@ -35,23 +37,17 @@ public class BilateralDenoiser extends Denoiser
 				                                 new QValue(params.beta),
 				                                 new QValue(BilateralParams.euclDist),
 				                                 new QValue(BilateralParams.normalize));
-		
-		// System.out.println("after computeBilateralFilter.apply");
-
-		// System.out.println("before applyBilateralFilter.apply");
 
 		QValue result = applyBilateralFilter.apply(imageCube,
     				                               bf,
 				                                   new QValue(BilateralParams.nx),
 				                                   new QValue(BilateralParams.ny));
 		
-		// System.out.println("after applyBilateralFilter.apply");
-
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.width, image.height, result);
+		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
 		
 		result.dispose();
 		imageCube.dispose();		
 		
-		return new LinearImage(image.width, image.height, outputPixels);
+		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
 	}
 }

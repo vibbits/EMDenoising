@@ -3,6 +3,8 @@ package be.vib.imagej;
 import be.vib.bits.QFunction;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
+import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 class AnisotropicDiffusionDenoiser extends Denoiser
 {
@@ -15,12 +17,12 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 	}
 	
 	@Override
-	public LinearImage call()
+	public ByteProcessor call()
 	{
 		QFunction diffusion = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\anisotropic_diffusion.q",
                                                   "anisotropic_diffusion(mat,int,scalar,scalar,int)");
 
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.width, image.height, image.pixels);
+		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
 				
 		QValue result = diffusion.apply(imageCube,
 				                        new QValue(params.numIterations),
@@ -28,11 +30,11 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 				                        new QValue(params.diffusionFactor),
 				                        new QValue(params.diffusionFunction));
 		
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.width, image.height, result);
+		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
 
 		result.dispose();
 		imageCube.dispose();		
 
-		return new LinearImage(image.width, image.height, outputPixels);
+		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
 	}
 }

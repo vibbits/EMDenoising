@@ -44,7 +44,6 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\ImageRange.java ^
 %SRC_JAVA%\ImageTile.java ^
 %SRC_JAVA%\ImageTiler.java ^
-%SRC_JAVA%\LinearImage.java ^
 %SRC_JAVA%\QuasarInitializationSwingWorker.java ^
 %SRC_JAVA%\RangeSelectionPanel.java ^
 %SRC_JAVA%\SliderFieldPair.java ^
