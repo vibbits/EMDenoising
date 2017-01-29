@@ -60,7 +60,7 @@ public class DenoisingIJ2 implements Command
 	public void run() 
 	{
 		System.out.println("DenoisingIJ2.run() begin");
-		log.info("DenoisingIJ2.run() called.");		
+		log.info("VIB Electron Microscopy Image Restoration plugin v1.0.0");
 
 		// A little experiment with the macro recorder 
 		// TODO: read http://imagej.net/PlugIn_Design_Guidelines
@@ -84,7 +84,6 @@ public class DenoisingIJ2 implements Command
 		// After displaying the denoising wizard the ImageJ plugin run() method finishes immediately,
 		// but the wizard is still visible and active.
 		System.out.println("DenoisingIJ2.run() end");
-		log.info("DenoisingIJ2.run() called.");		
 	}
 	
 }
