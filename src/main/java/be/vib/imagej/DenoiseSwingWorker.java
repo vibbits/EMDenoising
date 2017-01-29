@@ -51,27 +51,23 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 			ImageProcessor noisyImage = noisyStack.getProcessor(slice);
 			ByteProcessor denoisedImage = new ByteProcessor(width, height); // blank image, will be filled below
 			
-			// -------------------;
 			ImageTiler tiler = new ImageTiler(noisyImage, tileWidth, tileHeight, margin);
 			for (ImageTile tile : tiler)
 			{
-				ImageProcessor noisyTileImp = tile.getImageWithMargins();
+				// Get a noisy tile from the original image
+				ByteProcessor noisyTileImp = (ByteProcessor)tile.getImageWithMargins();
 				
-				assert(noisyTileImp.getPixels() instanceof byte[]); // TODO: support 16 bit / pixel too
-				LinearImage noisyTile = new LinearImage(noisyTileImp.getWidth(), noisyTileImp.getHeight(), (byte[])noisyTileImp.getPixels());
-				denoiser.setImage(noisyTile);
-				LinearImage denoisedTile = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
-				
-				ImageProcessor denoisedTileImp = new ByteProcessor(denoisedTile.width, denoisedTile.height, denoisedTile.pixels);
-				
-				// Remove margins
+				// Denoise the tile
+				denoiser.setImage(noisyTileImp);
+				ImageProcessor denoisedTileImp = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
+								
+				// Remove tile margins
 				denoisedTileImp.setRoi(tile.getLeftMargin(), tile.getTopMargin(), tile.getWidthWithoutMargins(), tile.getHeightWithoutMargins());
 				denoisedTileImp = denoisedTileImp.crop();
 				
-				// Put denoised tile in result image
+				// Put denoised tile at the correct position in the result image
 				denoisedImage.insert(denoisedTileImp, tile.getXPositionWithoutMargins(), tile.getYPositionWithoutMargins());
 			}
-			// -------------------;
 
 			denoisedStack.addSlice("", denoisedImage);
 			

@@ -8,7 +8,7 @@ import be.vib.bits.QExecutor;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
-public class DenoisePreviewSwingWorker extends SwingWorker<LinearImage, Void>
+public class DenoisePreviewSwingWorker extends SwingWorker<ByteProcessor, Void>
 {
 	Denoiser denoiser;
 	ImagePanel imagePanel;
@@ -24,7 +24,7 @@ public class DenoisePreviewSwingWorker extends SwingWorker<LinearImage, Void>
 	}
 	
 	@Override
-	public LinearImage doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
+	public ByteProcessor doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
 	{
 		return QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
 	}
@@ -36,11 +36,8 @@ public class DenoisePreviewSwingWorker extends SwingWorker<LinearImage, Void>
 		{
 			System.out.println("DenoisePreviewSwingWorker done()");
 			
-			final LinearImage denoisedResult = get();
+			final ByteProcessor denoisedPreview = get();
 						
-			// FIXME: ByteProcessor only correct if denoisedResult.bitsPerPixel == 8
-			denoisedPreview = new ByteProcessor(denoisedResult.width, denoisedResult.height, denoisedResult.pixels);
-			
 			imagePanel.setImage(denoisedPreview.getBufferedImage());
 //			imagePanel.setText(null);
 		}

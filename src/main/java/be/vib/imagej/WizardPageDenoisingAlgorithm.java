@@ -15,6 +15,7 @@ import javax.swing.JRadioButton;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
+import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
 public class WizardPageDenoisingAlgorithm extends WizardPage 
@@ -170,11 +171,10 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 //		denoisedImagePanel.setText("Calculating...");
 		
-		// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
-		LinearImage linearImage = new LinearImage(model.previewOrigROI.getWidth(), model.previewOrigROI.getHeight(), WizardModel.getPixelsCopy(model.previewOrigROI));
-
 		Denoiser denoiser = model.getDenoiser();
-		denoiser.setImage(linearImage);		
+		
+		// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
+		denoiser.setImage((ByteProcessor)model.previewOrigROI.duplicate());		
 		
 		DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(denoiser, model.previewDenoisedROI, denoisedImagePanel);
 		
