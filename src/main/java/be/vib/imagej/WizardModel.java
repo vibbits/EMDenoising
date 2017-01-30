@@ -120,11 +120,4 @@ public class WizardModel
 				return new NoOpDenoiser();
 		}
 	}
-	
-	public static byte[] getPixelsCopy(ImageProcessor image)   // FIXME: maybe not the best place to keep this utility function?
-	{
-		Object pixelsObject = image.duplicate().getPixels();
-		assert(pixelsObject instanceof byte[]);
-		return (byte[])pixelsObject; 		
-	}
 }
