@@ -46,6 +46,7 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 				
 		ImageStack denoisedStack = new ImageStack(width, height);
 		
+		int tileNr = 0;
 		for (int slice = range.getFirst(); slice <= range.getLast(); slice++)
 		{
 			ImageProcessor noisyImage = noisyStack.getProcessor(slice);
@@ -67,11 +68,14 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 				
 				// Put denoised tile at the correct position in the result image
 				denoisedImage.insert(denoisedTileImp, tile.getXPositionWithoutMargins(), tile.getYPositionWithoutMargins());
+				
+				// Progress feedback
+				tileNr++;
+				final int numTiles = tiler.getNumTiles() * (range.getLast() - range.getFirst() + 1);
+				publish((100 * tileNr) / numTiles);
 			}
 
-			denoisedStack.addSlice("", denoisedImage);
-			
-			publish(100 * (slice - range.getFirst() + 1) / (range.getLast() - range.getFirst() + 1));
+			denoisedStack.addSlice("", denoisedImage);			
 		}
 		
 		String title = noisyImagePlus.getTitle() + " ["+ algorithmName + "]";

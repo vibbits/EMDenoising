@@ -29,6 +29,14 @@ public class ImageTiler implements Iterable<ImageTile>
 		return new TilesIterator();
 	}
 	
+	// Predicts the number of tiles that will be returned by the TilesIterator
+	public int getNumTiles()
+	{
+		int rows = (image.getHeight() + tileHeightWithoutMargins - 1 ) / tileHeightWithoutMargins;
+		int cols = (image.getWidth() + tileWidthWithoutMargins - 1 ) / tileWidthWithoutMargins;
+		return rows * cols;
+	}
+	
 	private class TilesIterator implements Iterator<ImageTile>
 	{
 		// Position of top left corner of the tile (without margins) with respect to the top left corner of the image it is a tile of.

@@ -37,7 +37,6 @@ public class ImageTile
 		rightMargin = (xWithoutMargins + tileWidthWithoutMargins >= source.getWidth() - 1) ? 0 : Math.min(margin, source.getWidth() - 1 - xWithoutMargins - tileWidthWithoutMargins);
 		bottomMargin = (yWithoutMargins + tileHeightWithoutMargins >= source.getHeight() - 1) ? 0 : Math.min(margin, source.getHeight() - 1 - yWithoutMargins - tileHeightWithoutMargins);
 		
-		System.out.println("ImageTile: tl(" + tlx + ", " + tly + ") w=" + (brx - tlx + 1) + " h=" + (bry - tly + 1));
 		source.resetRoi();
 		source.setRoi(tlx, tly, brx - tlx + 1, bry - tly + 1);
 		tileImp = source.crop();
