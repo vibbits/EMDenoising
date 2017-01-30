@@ -71,7 +71,7 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 
 			denoisedStack.addSlice("", denoisedImage);
 			
-			publish(slice);
+			publish(100 * (slice - range.getFirst() + 1) / (range.getLast() - range.getFirst() + 1));
 		}
 		
 		String title = noisyImagePlus.getTitle() + " ["+ algorithmName + "]";

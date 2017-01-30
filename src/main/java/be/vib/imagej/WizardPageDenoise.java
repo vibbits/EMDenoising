@@ -15,7 +15,7 @@ public class WizardPageDenoise extends WizardPage
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
 	private RangeSelectionPanel rangeSelectionPanel;
-	private boolean doneDenoising = false;
+	private boolean busyDenoising = false;
 	
 	public WizardPageDenoise(Wizard wizard, WizardModel model, String name)
 	{
@@ -34,7 +34,6 @@ public class WizardPageDenoise extends WizardPage
 		
 		statusLabel.setVisible(false);
 		progressBar.setVisible(false);
-		progressBar.setStringPainted(true); // show percentage progress as text in the progress bar
 
 		startButton.addActionListener(e -> {
 		    denoise();
@@ -67,17 +66,22 @@ public class WizardPageDenoise extends WizardPage
 	{
 		System.out.println("Denoise " + model.range + " (Java thread: " + Thread.currentThread().getId() + ")");
 		
+		busyDenoising = true;
+		wizard.updateButtons();  // disable the Finish and Back buttons while we're busy denoising
+
 		startButton.setVisible(false);
 		
 		statusLabel.setText("Denoising...");
 		statusLabel.setVisible(true);
-
-		progressBar.setVisible(model.imagePlus.getNSlices() > 1);  // the progress bar only updates after each slice, so it is silly to show it if we only have a single slice
-		progressBar.setMinimum(model.range.getFirst());
-		progressBar.setMaximum(model.range.getLast());
+		
+		progressBar.setMinimum(0);    // progress will be mapped by DenoiseSwingWorker to a value in [0, 100]
+		progressBar.setMaximum(100);
+		progressBar.setValue(0);
+		progressBar.setStringPainted(true); // show percentage progress as text in the progress bar
+		progressBar.setVisible(true);
 		
 		Runnable whenDone = () -> {
-			doneDenoising = true;
+			busyDenoising = false;
 			statusLabel.setText("Denoising done.");
 			progressBar.setVisible(false);
 			wizard.updateButtons();
@@ -97,7 +101,7 @@ public class WizardPageDenoise extends WizardPage
 		// After denoising was complete, we may have gone back, chosen another image or image stack, 
 		// and returned to the denoising panel. So some status messages or buttons may need to be updated.
 		
-		doneDenoising = false;
+		busyDenoising = false;
 		
 		rangeSelectionPanel.updateRange();
 		
@@ -111,7 +115,13 @@ public class WizardPageDenoise extends WizardPage
 	@Override
 	protected boolean canFinish()
 	{
-		return doneDenoising;
+		return !busyDenoising;
+	}
+	
+	@Override
+	protected boolean canGoToPreviousPage()
+	{
+		return !busyDenoising;
 	}
 
 }
