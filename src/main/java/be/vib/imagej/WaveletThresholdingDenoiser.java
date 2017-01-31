@@ -3,9 +3,8 @@ package be.vib.imagej;
 import java.nio.file.NoSuchFileException;
 
 import be.vib.bits.QFunction;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
-import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 class WaveletThresholdingDenoiser extends Denoiser
 {
@@ -18,34 +17,30 @@ class WaveletThresholdingDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call() throws NoSuchFileException
+	public ImageProcessor call() throws NoSuchFileException
 	{		
-		QFunction waveletThresholding = loadDenoiseFunction("wavelet_thresholding.q",
-                                                            "wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
+		QFunction waveletThresholding = QuasarTools.loadDenoiseFunction("wavelet_thresholding.q",
+                                                                        "wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
 				
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
+		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
 		QValue w1 = QValue.readhostVariable("filtercoeff_farras");          // wavelet for the first scale (a 2x10 matrix)
 		QValue w2 = QValue.readhostVariable("filtercoeff_selcw").at(3, 1);  // wavelet for the other scales (a 2x12 matrix)
+
+		QValue denoisedImageCube = waveletThresholding.apply(noisyImageCube,
+							                                 new QValue(WaveletThresholdingParams.sigma),
+							                                 new QValue(WaveletThresholdingParams.J),
+							                                 w1,
+							                                 w2,
+							                                 new QValue(WaveletThresholdingParams.thresholding),
+							                                 new QValue(params.alpha));
 		
-//		QFunction imwrite = new QFunction("imwrite(string,mat)");
-//		System.out.println("imwrite mat exists? " + QHost.functionExists("imwrite"));
-//		imwrite.apply(new QValue("e:\\imagecube.tif"), imageCube);
-//		System.out.println("saved image cube");
-				
-		QValue result = waveletThresholding.apply(imageCube,
-				                                  new QValue(WaveletThresholdingParams.sigma),
-				                                  new QValue(WaveletThresholdingParams.J),
-				                                  w1,
-				                                  w2,
-				                                  new QValue(WaveletThresholdingParams.thresholding),
-				                                  new QValue(params.alpha));
-		
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
-		
-		result.dispose();
-		imageCube.dispose();
-		
-		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
+		noisyImageCube.dispose();
+
+		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+
+		denoisedImageCube.dispose();
+
+		return denoisedImage;
 	}
 }

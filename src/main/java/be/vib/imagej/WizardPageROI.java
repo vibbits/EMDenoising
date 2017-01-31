@@ -196,16 +196,20 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			{
 				bitDepthInfoLabel.setText("8 bit / pixel");
 			}
+			else if (model.imagePlus.getBitDepth() == 16)
+			{
+				bitDepthInfoLabel.setText("16 bit / pixel");
+			}
 			else
 			{
-				bitDepthInfoLabel.setText(htmlAttention(model.imagePlus.getBitDepth() + " bit / pixel, please convert to 8 bit / pixel"));
+				bitDepthInfoLabel.setText(htmlAttention(model.imagePlus.getBitDepth() + " bit / pixel, please convert to 8 or 16 bit / pixel"));
 			}
 		}
 	}
 
 	private void updateRoiInfo()
 	{
-		if (model.imagePlus == null || model.imagePlus.getBitDepth() != 8)
+		if (model.imagePlus == null || (model.imagePlus.getBitDepth() != 8 && model.imagePlus.getBitDepth() != 16))
 		{
 			roiInfoLabel.setText("-");
 		}

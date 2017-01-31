@@ -46,6 +46,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\ImageTiler.java ^
 %SRC_JAVA%\Preferences.java ^
 %SRC_JAVA%\QuasarInitializationSwingWorker.java ^
+%SRC_JAVA%\QuasarTools.java ^
 %SRC_JAVA%\RangeSelectionPanel.java ^
 %SRC_JAVA%\SliderFieldPair.java ^
 %SRC_JAVA%\SliderSpinnerPair.java ^

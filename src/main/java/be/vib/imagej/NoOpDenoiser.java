@@ -1,6 +1,6 @@
 package be.vib.imagej;
 
-import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 class NoOpDenoiser extends Denoiser
 {		
@@ -10,8 +10,8 @@ class NoOpDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call()
+	public ImageProcessor call()
 	{						
-		return (ByteProcessor)image.duplicate();
+		return image.duplicate();
 	}
 }

@@ -3,9 +3,8 @@ package be.vib.imagej;
 import java.nio.file.NoSuchFileException;
 
 import be.vib.bits.QFunction;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
-import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 class AnisotropicDiffusionDenoiser extends Denoiser
 {
@@ -16,26 +15,27 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 		super();
 		this.params = params;
 	}
-	
+
 	@Override
-	public ByteProcessor call() throws NoSuchFileException
+	public ImageProcessor call() throws NoSuchFileException
 	{
-		QFunction diffusion = loadDenoiseFunction("anisotropic_diffusion.q",
-                                                  "anisotropic_diffusion(mat,int,scalar,scalar,int)");
+		QFunction diffusion = QuasarTools.loadDenoiseFunction("anisotropic_diffusion.q",
+                                                              "anisotropic_diffusion(mat,int,scalar,scalar,int)");
 
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
+		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 				
-		QValue result = diffusion.apply(imageCube,
-				                        new QValue(params.numIterations),
-				                        new QValue(params.stepSize),
-				                        new QValue(params.diffusionFactor),
-				                        new QValue(params.diffusionFunction));
+		QValue denoisedImageCube = diffusion.apply(noisyImageCube,
+				                                   new QValue(params.numIterations),
+				                                   new QValue(params.stepSize),
+				                                   new QValue(params.diffusionFactor),
+				                                   new QValue(params.diffusionFunction));
 		
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
+		noisyImageCube.dispose();
 
-		result.dispose();
-		imageCube.dispose();		
+		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
 
-		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
+		denoisedImageCube.dispose();
+
+		return denoisedImage;
 	}
 }

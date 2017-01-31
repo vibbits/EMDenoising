@@ -11,6 +11,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 
 class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 {
@@ -50,13 +51,13 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		for (int slice = range.getFirst(); slice <= range.getLast(); slice++)
 		{
 			ImageProcessor noisyImage = noisyStack.getProcessor(slice);
-			ByteProcessor denoisedImage = new ByteProcessor(width, height); // blank image, will be filled below
+			ImageProcessor denoisedImage = (noisyImage instanceof ByteProcessor) ? new ByteProcessor(width, height) : new ShortProcessor(width, height); // blank image, will be filled below
 			
 			ImageTiler tiler = new ImageTiler(noisyImage, tileWidth, tileHeight, margin);
 			for (ImageTile tile : tiler)
 			{
 				// Get a noisy tile from the original image
-				ByteProcessor noisyTileImp = (ByteProcessor)tile.getImageWithMargins();
+				ImageProcessor noisyTileImp = tile.getImageWithMargins();
 				
 				// Denoise the tile
 				denoiser.setImage(noisyTileImp);

@@ -5,10 +5,9 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
 
 import be.vib.bits.QExecutor;
-import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
-public class DenoisePreviewSwingWorker extends SwingWorker<ByteProcessor, Void>
+public class DenoisePreviewSwingWorker extends SwingWorker<ImageProcessor, Void>
 {
 	Denoiser denoiser;
 	ImagePanel imagePanel;
@@ -24,7 +23,7 @@ public class DenoisePreviewSwingWorker extends SwingWorker<ByteProcessor, Void>
 	}
 	
 	@Override
-	public ByteProcessor doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
+	public ImageProcessor doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
 	{
 		return QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
 	}
@@ -36,7 +35,7 @@ public class DenoisePreviewSwingWorker extends SwingWorker<ByteProcessor, Void>
 		{
 			System.out.println("DenoisePreviewSwingWorker done()");
 			
-			final ByteProcessor denoisedPreview = get();
+			final ImageProcessor denoisedPreview = get();
 						
 			imagePanel.setImage(denoisedPreview.getBufferedImage());
 //			imagePanel.setText(null);

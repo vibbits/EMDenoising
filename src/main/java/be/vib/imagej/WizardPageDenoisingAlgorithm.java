@@ -2,7 +2,6 @@ package be.vib.imagej;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -14,8 +13,6 @@ import javax.swing.JRadioButton;
 
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.gui.Roi;
-import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
 public class WizardPageDenoisingAlgorithm extends WizardPage 
@@ -174,7 +171,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		Denoiser denoiser = model.getDenoiser();
 		
 		// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
-		denoiser.setImage((ByteProcessor)model.previewOrigROI.duplicate());		
+		denoiser.setImage(model.previewOrigROI.duplicate());		
 		
 		DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(denoiser, model.previewDenoisedROI, denoisedImagePanel);
 		

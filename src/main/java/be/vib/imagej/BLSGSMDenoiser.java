@@ -3,9 +3,8 @@ package be.vib.imagej;
 import java.nio.file.NoSuchFileException;
 
 import be.vib.bits.QFunction;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
-import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 class BLSGSMDenoiser extends Denoiser
 {
@@ -18,24 +17,25 @@ class BLSGSMDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call() throws NoSuchFileException
+	public ImageProcessor call() throws NoSuchFileException
 	{
-		QFunction blsgsm = loadDenoiseFunction("blsgsm.q",
-				                               "denoise_image_blsgsm(mat,scalar,string,int,int)");
+		QFunction blsgsm = QuasarTools.loadDenoiseFunction("blsgsm.q",
+				                                           "denoise_image_blsgsm(mat,scalar,string,int,int)");
 
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
+		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
-		QValue result = blsgsm.apply(imageCube,
+		QValue denoisedImageCube = blsgsm.apply(noisyImageCube,
 				                     new QValue(params.sigma),
 				                     new QValue(BLSGSMParams.sparsityTrf),
 				                     new QValue(BLSGSMParams.J),
 				                     new QValue(BLSGSMParams.K));
 		
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
-		
-		result.dispose();
-		imageCube.dispose();		
-		
-		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
+		noisyImageCube.dispose();
+
+		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+
+		denoisedImageCube.dispose();
+
+		return denoisedImage;
 	}
 }

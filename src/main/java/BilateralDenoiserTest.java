@@ -3,7 +3,6 @@ import be.vib.imagej.BilateralDenoiser;
 import be.vib.imagej.BilateralParams;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
 public class BilateralDenoiserTest
@@ -33,10 +32,10 @@ public class BilateralDenoiserTest
 			ImageProcessor noisyImage = imp.getStack().getProcessor(1);
 			
 			BilateralDenoiser denoiser = new BilateralDenoiser(new BilateralParams());			
-			denoiser.setImage((ByteProcessor)noisyImage);
+			denoiser.setImage(noisyImage);
 			
 			System.out.println("About to call denoiser");
-			ByteProcessor denoisedImage = denoiser.call();
+			ImageProcessor denoisedImage = denoiser.call();
 			
 			System.out.println("Denoising complete");
 

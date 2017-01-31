@@ -3,10 +3,8 @@ package be.vib.imagej;
 import java.nio.file.NoSuchFileException;
 
 import be.vib.bits.QFunction;
-//import be.vib.bits.QHost;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
-import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 class NonLocalMeansSCDenoiser extends Denoiser
 {
@@ -19,19 +17,20 @@ class NonLocalMeansSCDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call() throws NoSuchFileException
+	public ImageProcessor call() throws NoSuchFileException
 	{		
-		QFunction nlmeansSC = loadDenoiseFunction("nlmeans_scd.q",  // FIXME use _sc.qlib?
-                                                  "denoise_nlmeans_sc(mat,int,int,scalar,scalar,scalar,mat)");
+		QFunction nlmeansSC = QuasarTools.loadDenoiseFunction("nlmeans_scd.q",
+                                                              "denoise_nlmeans_sc(mat,int,int,scalar,scalar,scalar,mat)");
 
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
-		QValue result = nlmeansSC.apply(imageCube,
-				                        new QValue(NonLocalMeansSCParams.halfSearchSize),
-				                        new QValue(NonLocalMeansSCParams.halfBlockSize),
-				                        new QValue(params.h),
-				                        new QValue(NonLocalMeansSCParams.sigma0),
-				                        new QValue(NonLocalMeansSCParams.alpha),
-				                        new QValue(NonLocalMeansSCParams.emCorrFilterInv));
+		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		
+		QValue denoisedImageCube = nlmeansSC.apply(noisyImageCube,
+							                       new QValue(NonLocalMeansSCParams.halfSearchSize),
+							                       new QValue(NonLocalMeansSCParams.halfBlockSize),
+							                       new QValue(params.h),
+							                       new QValue(NonLocalMeansSCParams.sigma0),
+							                       new QValue(NonLocalMeansSCParams.alpha),
+							                       new QValue(NonLocalMeansSCParams.emCorrFilterInv));
 		
 //		QFunction print = new QFunction("print(...)");
 //		System.out.println("print exists? " + QHost.functionExists("print"));
@@ -41,11 +40,12 @@ class NonLocalMeansSCDenoiser extends Denoiser
 //		System.out.println("imwrite exists? " + QHost.functionExists("imwrite"));
 //		imwrite.apply(new QValue("E:\\out.tif"), result);
 		
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
-		
-		result.dispose();
-		imageCube.dispose();		
-		
-		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
+		noisyImageCube.dispose();
+
+		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+
+		denoisedImageCube.dispose();
+
+		return denoisedImage;
 	}
 }

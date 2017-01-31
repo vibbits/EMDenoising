@@ -3,10 +3,8 @@ package be.vib.imagej;
 import java.nio.file.NoSuchFileException;
 
 import be.vib.bits.QFunction;
-//import be.vib.bits.QHost;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
-import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 public class BilateralDenoiser extends Denoiser
 {
@@ -19,20 +17,16 @@ public class BilateralDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call() throws NoSuchFileException
+	public ImageProcessor call() throws NoSuchFileException
 	{
-		QFunction applyBilateralFilter = loadDenoiseFunction("bilateral_filter.q",
-				                                             "apply_bilateral_filter(mat,cube,int,int)");
-		
-//		System.out.println("bilateral_filter.qlib loaded");
-//		System.out.println("compute_bilateral_filter exists? " + QHost.functionExists("compute_bilateral_filter"));
-//		System.out.println("apply_bilateral_filter exists? " + QHost.functionExists("apply_bilateral_filter"));
+		QFunction applyBilateralFilter = QuasarTools.loadDenoiseFunction("bilateral_filter.q",
+				                                                         "apply_bilateral_filter(mat,cube,int,int)");
 
 		QFunction computeBilateralFilter = new QFunction("compute_bilateral_filter(cube,int,int,scalar,scalar,scalar,scalar)");
 		
-		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
+		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
-		QValue bf = computeBilateralFilter.apply(imageCube,
+		QValue bf = computeBilateralFilter.apply(noisyImageCube,
 				                                 new QValue(BilateralParams.nx),
 				                                 new QValue(BilateralParams.ny),
 				                                 new QValue(params.alpha),
@@ -40,16 +34,17 @@ public class BilateralDenoiser extends Denoiser
 				                                 new QValue(BilateralParams.euclDist),
 				                                 new QValue(BilateralParams.normalize));
 
-		QValue result = applyBilateralFilter.apply(imageCube,
-    				                               bf,
-				                                   new QValue(BilateralParams.nx),
-				                                   new QValue(BilateralParams.ny));
+		QValue denoisedImageCube = applyBilateralFilter.apply(noisyImageCube,
+    				                                          bf,
+				                                              new QValue(BilateralParams.nx),
+				                                              new QValue(BilateralParams.ny));
 		
-		byte[] outputPixels = QUtils.newGrayscaleArrayFromCube(image.getWidth(), image.getHeight(), result);
-		
-		result.dispose();
-		imageCube.dispose();		
-		
-		return new ByteProcessor(image.getWidth(), image.getHeight(), outputPixels);
+		noisyImageCube.dispose();
+
+		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+
+		denoisedImageCube.dispose();
+
+		return denoisedImage;
 	}
 }
