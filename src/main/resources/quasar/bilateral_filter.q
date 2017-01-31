@@ -25,7 +25,7 @@ function bf:cube = compute_bilateral_filter(Lab:cube'safe, n_width:int, n_height
     height:int = size(Lab,0)
     width:int  = size(Lab,1)
     
-    bf = zeros(height, width, n_width*n_height)
+    bf = zeros(height, width, n_width * n_height)   % Beware of out-of-memory here - this may be a rather large cube.
     summ = zeros(height, width)
         
     function [] = __kernel__ fcalcbf(pos:ivec3)
