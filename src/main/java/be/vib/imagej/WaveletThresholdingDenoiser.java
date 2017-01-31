@@ -1,5 +1,7 @@
 package be.vib.imagej;
 
+import java.nio.file.NoSuchFileException;
+
 import be.vib.bits.QFunction;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
@@ -16,9 +18,9 @@ class WaveletThresholdingDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call()
+	public ByteProcessor call() throws NoSuchFileException
 	{		
-		QFunction waveletThresholding = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\wavelet_thresholding.q",
+		QFunction waveletThresholding = loadDenoiseFunction("wavelet_thresholding.q",
                                                             "wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
 				
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());

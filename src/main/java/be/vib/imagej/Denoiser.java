@@ -1,5 +1,8 @@
 package be.vib.imagej;
 
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 import be.vib.bits.QFunction;
@@ -30,8 +33,8 @@ public class Denoiser implements Callable<ByteProcessor>
 	}
 
 	// Returns the Quasar function object for the function with the given signature.
-	// If the function does not yet exist in the Quasar host, it will load it from sourceFile and compile it.
-	protected QFunction loadDenoiseFunction(String sourceFile, String signature)
+	// If the function does not yet exist in the Quasar host, it will load it from filename (and compile it if needed)
+	protected QFunction loadDenoiseFunction(String filename, String signature) throws NoSuchFileException
 	{
 		String functionName = extractFunctionName(signature);
 
@@ -40,18 +43,21 @@ public class Denoiser implements Callable<ByteProcessor>
 		
 		if (!QHost.functionExists(functionName))
 		{
+			Path path = Preferences.getQuasarResourcesPath();
+			String module = Paths.get(path.toString(), filename).toString();
+			
 			// Lazy loading of the source module for this denoising function.
 			// Once it is loaded it will persist in the Quasar host
 			// even beyond the lifetime of this GaussianDenoiser object.
-			if (sourceFile.endsWith(".q"))
+			if (module.endsWith(".q"))
 			{
-				System.out.println("Loading source " + sourceFile);
-				QHost.loadSourceModule(sourceFile);
+				System.out.println("Loading source " + module);
+				QHost.loadSourceModule(module);
 			}
 			else
 			{
-				System.out.println("Loading binary " + sourceFile);
-				QHost.loadBinaryModule(sourceFile);
+				System.out.println("Loading binary " + module);
+				QHost.loadBinaryModule(module);
 			}
 		}		
 

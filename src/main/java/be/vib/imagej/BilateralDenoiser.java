@@ -1,5 +1,7 @@
 package be.vib.imagej;
 
+import java.nio.file.NoSuchFileException;
+
 import be.vib.bits.QFunction;
 //import be.vib.bits.QHost;
 import be.vib.bits.QUtils;
@@ -17,9 +19,9 @@ public class BilateralDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call()
+	public ByteProcessor call() throws NoSuchFileException
 	{
-		QFunction applyBilateralFilter = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\bilateral_filter.q",
+		QFunction applyBilateralFilter = loadDenoiseFunction("bilateral_filter.q",
 				                                             "apply_bilateral_filter(mat,cube,int,int)");
 		
 //		System.out.println("bilateral_filter.qlib loaded");

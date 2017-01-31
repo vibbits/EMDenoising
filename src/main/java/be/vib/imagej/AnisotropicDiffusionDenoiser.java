@@ -1,10 +1,11 @@
 package be.vib.imagej;
 
+import java.nio.file.NoSuchFileException;
+
 import be.vib.bits.QFunction;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ByteProcessor;
-import ij.process.ImageProcessor;
 
 class AnisotropicDiffusionDenoiser extends Denoiser
 {
@@ -17,9 +18,9 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call()
+	public ByteProcessor call() throws NoSuchFileException
 	{
-		QFunction diffusion = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\anisotropic_diffusion.q",
+		QFunction diffusion = loadDenoiseFunction("anisotropic_diffusion.q",
                                                   "anisotropic_diffusion(mat,int,scalar,scalar,int)");
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());

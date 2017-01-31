@@ -1,5 +1,7 @@
 package be.vib.imagej;
 
+import java.nio.file.NoSuchFileException;
+
 import be.vib.bits.QFunction;
 //import be.vib.bits.QHost;
 import be.vib.bits.QUtils;
@@ -17,9 +19,9 @@ class NonLocalMeansSCDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call()
+	public ByteProcessor call() throws NoSuchFileException
 	{		
-		QFunction nlmeansSC = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\nlmeans_scd.q",  // FIXME use _sc.qlib?
+		QFunction nlmeansSC = loadDenoiseFunction("nlmeans_scd.q",  // FIXME use _sc.qlib?
                                                   "denoise_nlmeans_sc(mat,int,int,scalar,scalar,scalar,mat)");
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());

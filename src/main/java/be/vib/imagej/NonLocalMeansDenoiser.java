@@ -1,5 +1,7 @@
 package be.vib.imagej;
 
+import java.nio.file.NoSuchFileException;
+
 import be.vib.bits.QFunction;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
@@ -16,9 +18,9 @@ class NonLocalMeansDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call()
+	public ByteProcessor call() throws NoSuchFileException
 	{		
-		QFunction nlmeans = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\nlmeans_sc.q",
+		QFunction nlmeans = loadDenoiseFunction("nlmeans_sc.q",
                                                 "denoise_nlmeans(mat,int,int,scalar)");
 		
 		// The files nlmeans_denoising_stillimages.q and nlmeans_sc.q both contain implementation of the NLMS filter, but their API is slightly different.

@@ -1,5 +1,7 @@
 package be.vib.imagej;
 
+import java.nio.file.NoSuchFileException;
+
 import be.vib.bits.QFunction;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
@@ -16,9 +18,9 @@ class BLSGSMDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ByteProcessor call()
+	public ByteProcessor call() throws NoSuchFileException
 	{
-		QFunction blsgsm = loadDenoiseFunction("E:\\git\\bits\\bioimaging\\EMDenoising\\src\\main\\resources\\quasar\\blsgsm.q",
+		QFunction blsgsm = loadDenoiseFunction("blsgsm.q",
 				                               "denoise_image_blsgsm(mat,scalar,string,int,int)");
 
 		QValue imageCube = QUtils.newCubeFromGrayscaleArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
