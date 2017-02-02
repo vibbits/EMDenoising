@@ -1,5 +1,5 @@
 
-function img_den:mat = anisotropic_diffusion(img:mat,niter:int,dt:scalar,k:scalar,diff_function:int)
+function img_den:mat = denoise_anisotropic_diffusion(img:mat,niter:int,dt:scalar,k:scalar,diff_function:int)
     % initialization
     img_den = copy(img)
     dx = 1
@@ -97,7 +97,7 @@ function [] = main()
     
     print "Computing anisotropic diffusion ..."
     tic()
-    img_den = anisotropic_diffusion(img_noisy,niter,dt,k,diff_function)
+    img_den = denoise_anisotropic_diffusion(img_noisy,niter,dt,k,diff_function)
     toc()
     
     % computation of the PSNR
