@@ -102,7 +102,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			
 			bitDepthInfoLabel = new JLabel();
 			roiInfoLabel = new JLabel();
-			noImageWarningLabel = new JLabel(htmlAttention("not available, please open an image"));
+			noImageWarningLabel = new JLabel(htmlAttention("Not available, please open an image."));
 			
 			imagesModel = new DefaultComboBoxModel<String>(getOpenImages());
 
@@ -215,12 +215,12 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		}
 		else if (model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty())
 		{
-			roiInfoLabel.setText(htmlAttention("not available, please select an ROI on the image"));
+			roiInfoLabel.setText(htmlAttention("Not available, please select an ROI on the image."));
 		}	
 		else
 		{
 			Rectangle r = model.imagePlus.getRoi().getBounds();
-			roiInfoLabel.setText("x=" + r.x + ", y=" + r.y + ", width=" + r.width + ", height=" + r.height);
+			roiInfoLabel.setText(r.width + " x " + r.height + " pixels, top left corner at (" + r.x + ", " + r.y + ")");
 		}		
 	}
 	
@@ -312,11 +312,11 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 
 		printOpenImages();
 		
-		System.out.println("combo pref size=" + imagesCombo.getPreferredSize());
-		System.out.println("warning label pref size=" + noImageWarningLabel.getPreferredSize());
-		
-		System.out.println("combo pref max size=" + imagesCombo.getMaximumSize());
-		System.out.println("warning label max size=" + noImageWarningLabel.getMaximumSize());
+//		System.out.println("combo pref size=" + imagesCombo.getPreferredSize());
+//		System.out.println("warning label pref size=" + noImageWarningLabel.getPreferredSize());
+//		
+//		System.out.println("combo pref max size=" + imagesCombo.getMaximumSize());
+//		System.out.println("warning label max size=" + noImageWarningLabel.getMaximumSize());
 		
 		updateImageInfo();
 		updateBitDepthInfo();
@@ -356,7 +356,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	protected boolean canGoToNextPage()
 	{		
 		return (model.imagePlus != null) &&
-			   //(model.imagePlus.getBitDepth() == 8) &&
 			   (model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty());
 	}
 }
