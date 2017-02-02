@@ -105,8 +105,6 @@ public class Wizard extends JDialog
 
 	public void addPage(WizardPage page)
 	{
-		System.out.println("Wizard addPage (Java thread=" + Thread.currentThread().getId() + ")");
-
 		pagesPanel.add(page);
 
 		updateButtons();

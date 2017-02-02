@@ -18,6 +18,11 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 	
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
+	{	
+		return params.deconvolution ? nonLocalMeansSCD() : nonLocalMeansSC();
+	}
+	
+	private ImageProcessor nonLocalMeansSCD() throws NoSuchFileException
 	{		
 		QFunction nlmeansSCD = QuasarTools.loadDenoiseFunction("nlmeans_scd.q",
                                                                "deconv_nlmeans_sc(mat,mat,scalar,int,int,int,scalar,scalar,scalar,mat)");
@@ -46,6 +51,30 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 
 		denoisedImageCube.dispose();
 
+		return denoisedImage;
+	}
+	
+	private ImageProcessor nonLocalMeansSC() throws NoSuchFileException
+	{		
+		QFunction nlmeansSC = QuasarTools.loadDenoiseFunction("nlmeans_scd.q",
+                                                              "denoise_nlmeans_sc(mat,int,int,scalar,scalar,scalar,mat)");
+
+		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		
+		QValue denoisedImageCube = nlmeansSC.apply(noisyImageCube,
+							   				       new QValue(NonLocalMeansSCDParams.halfSearchSize),
+											       new QValue(NonLocalMeansSCDParams.halfBlockSize),
+											       new QValue(params.h),
+											       new QValue(params.sigma0),
+											       new QValue(NonLocalMeansSCDParams.alpha),
+											       new QValue(NonLocalMeansSCDParams.emCorrFilterInv));
+		
+		noisyImageCube.dispose();
+		
+		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+		
+		denoisedImageCube.dispose();
+		
 		return denoisedImage;
 	}
 }

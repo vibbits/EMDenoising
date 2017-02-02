@@ -19,14 +19,12 @@ public class WizardModel
 		WAVELET_THRESHOLDING,
 		ANISOTROPIC_DIFFUSION,
 		NLMS,                   // Non-local means filtering
-		NLMS_SC,                // NLMS-SC, an extension of non-local means filtering that deals with the fact that EM noise is correlated and signal-dependent
-		NLMS_SCD                // NLMS-SCD, like NLMS-SC but with deblurring
+		NLMS_SCD                // NLMS-SCD, an extension of non-local means filtering that deals with the fact that EM noise is correlated and signal-dependent, and, optionally does a deconvolution to try and undo lens blur
 //		BM3D                    // Block-matching and 3D filtering
 	};
 
 	public DenoisingAlgorithm denoisingAlgorithm;
 	public NonLocalMeansParams nonLocalMeansParams;	
-	public NonLocalMeansSCParams nonLocalMeansSCParams;	
 	public NonLocalMeansSCDParams nonLocalMeansSCDParams;	
 	public GaussianParams gaussianParams;
 	public BilateralParams bilateralParams;
@@ -51,7 +49,6 @@ public class WizardModel
 		range = new ImageRange();
 		
 		nonLocalMeansParams = new NonLocalMeansParams();
-		nonLocalMeansSCParams = new NonLocalMeansSCParams();
 		nonLocalMeansSCDParams = new NonLocalMeansSCDParams();
 		gaussianParams = new GaussianParams();
 		bilateralParams = new BilateralParams();
@@ -70,7 +67,6 @@ public class WizardModel
 			case WAVELET_THRESHOLDING: return waveletThresholdingParams;
 			case ANISOTROPIC_DIFFUSION: return anisotropicDiffusionParams;
 			case NLMS: return nonLocalMeansParams;
-			case NLMS_SC: return nonLocalMeansSCParams;
 			case NLMS_SCD: return nonLocalMeansSCDParams;
 			default: assert(false); return null;
 		}
@@ -86,7 +82,6 @@ public class WizardModel
 			case WAVELET_THRESHOLDING: return "Wavelet Thresholding";
 			case ANISOTROPIC_DIFFUSION: return "Anisotropic Diffusion";
 			case NLMS: return "Non-Local Means";
-			case NLMS_SC: return "Non-Local Means SC";
 			case NLMS_SCD: return "Non-Local Means SCD";
 			default: assert(false); return "Unknown algorithm";
 		}
@@ -101,8 +96,6 @@ public class WizardModel
 		{
 			case NLMS:
 				return new NonLocalMeansDenoiser(new NonLocalMeansParams(nonLocalMeansParams));
-			case NLMS_SC:
-				return new NonLocalMeansSCDenoiser(new NonLocalMeansSCParams(nonLocalMeansSCParams));
 			case NLMS_SCD:
 				return new NonLocalMeansSCDDenoiser(new NonLocalMeansSCDParams(nonLocalMeansSCDParams));
 			case GAUSSIAN:

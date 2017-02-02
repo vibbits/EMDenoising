@@ -4,6 +4,7 @@ import java.text.NumberFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
@@ -11,6 +12,14 @@ import javax.swing.JSpinner;
 
 class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase 
 {
+	private JLabel iterationsLabel;
+	private JSlider iterationsSlider;
+	private JSpinner iterationsSpinner;
+	
+	private JLabel lambdaLabel;
+	private JFormattedTextField lambdaField;
+	private JSlider lambdaSlider;
+	
 	public NonLocalMeansSCDParamsPanel(NonLocalMeansSCDParams params)
 	{
 		setBorder(BorderFactory.createTitledBorder("Non-Local Means SCD Denoising Parameters"));
@@ -37,12 +46,12 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		lambdaPair.setValue(params.lambda);
 		lambdaPair.addPropertyChangeListener(e -> { params.lambda = lambdaPair.getValue(); fireChangeEvent(); });
 		
-		JSlider lambdaSlider = lambdaPair.getSlider();
+		lambdaSlider = lambdaPair.getSlider();
 		
-		JFormattedTextField lambdaField = lambdaPair.getFloatField();
+		lambdaField = lambdaPair.getFloatField();
 		lambdaField.setColumns(5);
 		
-		JLabel lambdaLabel = new JLabel("lambda:");
+		lambdaLabel = new JLabel("lambda:");
 		
 		// ----
 		
@@ -63,15 +72,23 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		iterationsPair.setValue(params.numIterations);
 		iterationsPair.addPropertyChangeListener(e -> { params.numIterations = iterationsPair.getValue(); fireChangeEvent(); });
 
-		JLabel iterationsLabel = new JLabel("Iterations:");
-		JSpinner iterationsSpinner = iterationsPair.getSpinner();
-		JSlider iterationsSlider = iterationsPair.getSlider();
+		iterationsLabel = new JLabel("Iterations:");
+		iterationsSpinner = iterationsPair.getSpinner();
+		iterationsSlider = iterationsPair.getSlider();
 
 		// ----
-
 		
-		// Note: the way to pick these parameters is to first chose a nice h in the NLMS-SC variant (*not* SCD!),
-		//       and use this h in NLMS-SCD. Then change lambda in NLMS-SCD. Probably use a fixed # iterations.
+		JCheckBox deconvolutionCheckBox = new JCheckBox("Deconvolution");
+		deconvolutionCheckBox.setSelected(params.deconvolution);
+		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); EnableDeconvolutionControls(params.deconvolution); fireChangeEvent(); });
+
+		// Update controls dependent on whether we want deconvolution or not
+		EnableDeconvolutionControls(params.deconvolution);
+
+		// ----
+		
+		// Note: the way to pick these parameters is to first chose a nice h in the NLMS-SC variant,
+		//       and use this h in NLMS-SCD. Then change lambda in NLMS-SCD.
 		
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
@@ -81,19 +98,20 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 		    		   .addComponent(hLabel)
-		    		   .addComponent(lambdaLabel)
+		    		   .addComponent(sigma0Label)
 		    		   .addComponent(iterationsLabel)
-		    		   .addComponent(sigma0Label))
+		    		   .addComponent(lambdaLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 		    		   .addComponent(hField)
-		    		   .addComponent(lambdaField)
+		    		   .addComponent(sigma0Field)
+		    		   .addComponent(deconvolutionCheckBox)
 		    		   .addComponent(iterationsSpinner)
-		    		   .addComponent(sigma0Field))
+		    		   .addComponent(lambdaField))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 		    		   .addComponent(hSlider)
-		    		   .addComponent(lambdaSlider)
+		    		   .addComponent(sigma0Slider)
 		    		   .addComponent(iterationsSlider)
-		    		   .addComponent(sigma0Slider))
+		    		   .addComponent(lambdaSlider))
 		      );
 
 		// Define top-to-bottom order
@@ -106,14 +124,15 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 			           .addComponent(hSlider))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(lambdaLabel)
-		    				  .addComponent(lambdaField))
-			           .addComponent(lambdaSlider))
-		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		    				  .addComponent(sigma0Label)
 		    				  .addComponent(sigma0Field))
 			           .addComponent(sigma0Slider))
+		      .addComponent(deconvolutionCheckBox)
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(lambdaLabel)
+		    				  .addComponent(lambdaField))
+			           .addComponent(lambdaSlider))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		    				  .addComponent(iterationsLabel)
@@ -122,5 +141,16 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		      );    	
 		
 		setLayout(layout);
+	}
+	
+	private void EnableDeconvolutionControls(boolean enable)
+	{
+		iterationsLabel.setEnabled(enable);
+		iterationsSlider.setEnabled(enable);
+		iterationsSpinner.setEnabled(enable);
+		
+		lambdaLabel.setEnabled(enable);
+		lambdaField.setEnabled(enable);
+		lambdaSlider.setEnabled(enable);
 	}
 }
