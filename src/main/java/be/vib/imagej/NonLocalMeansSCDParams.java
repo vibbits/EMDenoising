@@ -26,7 +26,7 @@ public class NonLocalMeansSCDParams
 		public static final float lambdaMax = 50.0f;
 		
 		public static final int numIterationsMin = 1;
-		public static final int numIterationsMax = 100;
+		public static final int numIterationsMax = 50;
 		
 		public float lambda;   // trade-off denoising versus deconvolution
 		public int numIterations;
