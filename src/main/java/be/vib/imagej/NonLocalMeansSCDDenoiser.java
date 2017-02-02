@@ -25,19 +25,19 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 	private ImageProcessor nonLocalMeansSCD() throws NoSuchFileException
 	{		
 		QFunction nlmeansSCD = QuasarTools.loadDenoiseFunction("nlmeans_scd.q",
-                                                               "deconv_nlmeans_sc(mat,mat,scalar,int,int,int,scalar,scalar,scalar,mat)");
+                                                               "deconv_nlmeans_sc(mat,mat,scalar,int,int,int,scalar,scalar,scalar,mat)"); // TODO: rename to denoise_nlmeans_scd, the deconv prefix is easy to miss
 				
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
-		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansSCDParams.blurKernelSize), new QValue(NonLocalMeansSCDParams.blurKernelSigma)); 
+		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSigma)); 
 
 		// FIXME: QFunctionJNI should support any number of parameters, since so does quasar_dsl.h's Function::operator()(...).	
 		
 		QValue denoisedImageCube = nlmeansSCD.apply(noisyImageCube,
 							                        blurKernel,
-							                        new QValue(params.lambda),
-							                        new QValue(params.numIterations),
+							                        new QValue(params.deconvolutionParams.lambda),
+							                        new QValue(params.deconvolutionParams.numIterations),
 							                        new QValue(NonLocalMeansSCDParams.halfSearchSize),
 							                        new QValue(NonLocalMeansSCDParams.halfBlockSize),
 							                        new QValue(params.h),

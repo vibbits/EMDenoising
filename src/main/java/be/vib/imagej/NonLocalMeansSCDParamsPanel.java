@@ -42,9 +42,9 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		
 		// ----
 		
-		SliderFieldPair lambdaPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansSCDParams.lambdaMin, NonLocalMeansSCDParams.lambdaMax);
-		lambdaPair.setValue(params.lambda);
-		lambdaPair.addPropertyChangeListener(e -> { params.lambda = lambdaPair.getValue(); fireChangeEvent(); });
+		SliderFieldPair lambdaPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansSCDParams.DeconvolutionParams.lambdaMin, NonLocalMeansSCDParams.DeconvolutionParams.lambdaMax);
+		lambdaPair.setValue(params.deconvolutionParams.lambda);
+		lambdaPair.addPropertyChangeListener(e -> { params.deconvolutionParams.lambda = lambdaPair.getValue(); fireChangeEvent(); });
 		
 		lambdaSlider = lambdaPair.getSlider();
 		
@@ -68,9 +68,9 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		
 		// ----
 		
-		SliderSpinnerPair iterationsPair = new SliderSpinnerPair(NonLocalMeansSCDParams.numIterationsMin, NonLocalMeansSCDParams.numIterationsMax);
-		iterationsPair.setValue(params.numIterations);
-		iterationsPair.addPropertyChangeListener(e -> { params.numIterations = iterationsPair.getValue(); fireChangeEvent(); });
+		SliderSpinnerPair iterationsPair = new SliderSpinnerPair(NonLocalMeansSCDParams.DeconvolutionParams.numIterationsMin, NonLocalMeansSCDParams.DeconvolutionParams.numIterationsMax);
+		iterationsPair.setValue(params.deconvolutionParams.numIterations);
+		iterationsPair.addPropertyChangeListener(e -> { params.deconvolutionParams.numIterations = iterationsPair.getValue(); fireChangeEvent(); });
 
 		iterationsLabel = new JLabel("Iterations:");
 		iterationsSpinner = iterationsPair.getSpinner();
@@ -82,10 +82,13 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		deconvolutionCheckBox.setSelected(params.deconvolution);
 		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); EnableDeconvolutionControls(params.deconvolution); fireChangeEvent(); });
 
-		// Update controls dependent on whether we want deconvolution or not
+		// Update controls dependent on whether we want deconvolution or not.
 		EnableDeconvolutionControls(params.deconvolution);
 
 		// ----
+		
+		// FIXME: in case of SCD: window too small for string representation of SCD params
+
 		
 		// Note: the way to pick these parameters is to first chose a nice h in the NLMS-SC variant,
 		//       and use this h in NLMS-SCD. Then change lambda in NLMS-SCD.
