@@ -64,6 +64,27 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		public InfoPanel()
 		{
+			buildUI();
+			
+			// FIXME? The very first panel in the wizard does not get the AboutToShowPanel()
+			//        (because the wizard only calls it when the next/prev buttons are pressed...)
+			//        We probably want to fix that. When it is fixed, possibly some explicit initialization code
+			//       here would get called automatically (?).
+
+			// If there are already open images, then select the one that is currently active in ImageJ
+			// in the combo box.
+			if (imagesCombo.getItemCount() > 0)
+			{
+				String imageTitle = ij.WindowManager.getCurrentImage().getTitle();
+				imagesCombo.setSelectedItem(imageTitle);
+				assert(imagesCombo.getSelectedItem().equals(imageTitle));  // assert that image was indeed in the list
+			}
+			
+			updateInfo();
+		}
+		
+		private void buildUI()
+		{
 			setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Noisy Input Image"), new EmptyBorder(10, 10, 10, 10)));
 			
 			imageLabel = new JLabel("Image:");
@@ -86,15 +107,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			// FIXME: the combo box with the open images is too wide, try to give it the size corresponding to the largest image name (but no larger than the max. window size).
 			
 			
-			// If there are already open images, then select the one that is currently active in ImageJ
-			// in the combo box.
-			if (imagesCombo.getItemCount() > 0)
-			{
-				String imageTitle = ij.WindowManager.getCurrentImage().getTitle();
-				imagesCombo.setSelectedItem(imageTitle);
-				assert(imagesCombo.getSelectedItem().equals(imageTitle));  // assert that image was indeed in the list
-			}
-			
 			bitDepthLabel = new JLabel("Bit depth:");
 			bitDepthInfoLabel = new JLabel();
 
@@ -107,13 +119,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			     // TODO: Mention the current bit depth in the warning message
 			
 			spacer = Box.createRigidArea(new Dimension(0, 10));
-			
-			// FIXME? The very first panel in the wizard does not get the AboutToShowPanel()
-			//        (because the wizard only calls it when the next/prev buttons are pressed...)
-			//        We probably want to fix that. When it is fixed, the initialization code below
-			//        will be called automatically there and can be removed.
-
-			updateInfo();
 			
 			JPanel panel = new JPanel();   // will hold the info, but not the warning messages
 			
@@ -161,7 +166,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			add(spacer);
 			add(imageWarningLabel);
 			add(bitDepthWarningLabel);
-			add(roiWarningLabel);
+			add(roiWarningLabel);			
 		}
 	}
 	
@@ -284,12 +289,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		assert(SwingUtilities.isEventDispatchThread());
 
 		printOpenImages();
-		
-//		System.out.println("combo pref size=" + imagesCombo.getPreferredSize());
-//		System.out.println("warning label pref size=" + noImageWarningLabel.getPreferredSize());
-//		
-//		System.out.println("combo pref max size=" + imagesCombo.getMaximumSize());
-//		System.out.println("warning label max size=" + noImageWarningLabel.getMaximumSize());
 		
 		updateInfo();
 		//wizard.updateButtons();
