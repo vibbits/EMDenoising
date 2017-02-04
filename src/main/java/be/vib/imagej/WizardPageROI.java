@@ -1,12 +1,11 @@
 package be.vib.imagej;
 
-import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -14,62 +13,29 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
-import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.gui.RoiListener;
 
-// Some design choices. They differ from the current (2016/11/30) implementation.
-//
-// While in the WizardPageROI page:
-// - wizard tracks which image (window) ir currently active
-// - user is free to change ROI and image window as much as she likes
-// - image and roi checks are based on that active window;
-//   if checks are ok, user can move to the WizardPageDenoisingAlgorithm
-// - an roi must be selected (this is enforced to be able to "educate" the user in this first wizard panel).
-//   If the user later (when we are in a subsequent wizard page) removes the ROI, we will automatically define a default one and display a short warning somewhere in the UI.
-//
-// When changing to the WizardPageDenoisingAlgorithm:
-// - A reference to the currently active image is (already) stored in the WizardModel.
-// - The ROI is *not* stored separately in the WizardModel. We will always get the latest one from the ImagePlus object.
-//
-// While in the WizardPageDenoisingAlgorithm:
-// - Switching to a different image window has no effect. The plugin keeps using the image that was most recently active while the WizardPageROI was being shown.
-// - Changes to the ROI on model.imagePlus *are* honored.
-//   The WizardPageDenoisingAlgorithm tracks model.imagePlus ROI changes (and ignores ROI changes to all other images).
-//   If the ROI on WizardModel.imagePlus is changed, the WizardPageDenoisingAlgorithm needs to update it GUI.
-//   (Also recalculate a cropped section of the imagePlus, store in in WizardModel.previewOrigROI and recalculate WizardModel.previewDenoisedROI)
-//
-// While in the WizardPageDenoising:
-// - ROI changes are irrelevant (only needed for the preview)
-// - Changing the active image has no effect on the plugin, we only use the reference we stored in model.imagePlus while WizardPageROI was visible.
-// - When moving back to WizardPageDenoisingAlgorithm (say, to denoise using a different algorithm or set of parameters)
-//   the model.imagePlus is *not* updated to the currently active image. Only when the user moves back to WizardPageROI
-//   is WizardModel.imagePlus updated to the currently active window.
-//
-// To clarify the fact that WizardPageROI tracks changes to both image and ROI, maybe it's title should reflect this too:
-//    "Select image and ROI" instead of just "Select ROI"
-//
-// The EM denoising wizard should start up even without any image window open. It tracks images anyway.
-// (Currently it uses @Parameter ImagePlus to enforce an open image, but this leads to an ugly and terse
-// error message from ImageJ when no image is active.)
-//
-// Note: we may need to call ImagePlus.lockSilently() to keep the image alive while we are using it
-//       (the user might (accidentally or not) close the image window).
-//       see https://imagej.nih.gov/ij/source/ij/ImagePlus.java
-//
-// PROBLEMS:
-// - if user switches between multiple open image windows, how can we detect his?
 
 public class WizardPageROI extends WizardPage implements ImageListener, RoiListener
 {		
-	private JLabel bitDepthInfoLabel;                 // the bit depth info of the image selected in imagesCombo
-	private JLabel roiInfoLabel;                      // the ROI information for the image selected in imagesCombo
-	private JLabel noImageWarningLabel;               // label asking the user to open an image (only shown if no images are open, otherwise imagesCombo is shown)
-	private JComboBox<String> imagesCombo;            // lists the open images in ImageJ, the one selected in this combo box will be denoised
+	private JLabel imageLabel;
+	private JComboBox<String> imagesCombo; // lists the open images in ImageJ, the one selected in this combo box will be denoised
 	private DefaultComboBoxModel<String> imagesModel; // model for imagesCombo
 	
+	private JLabel bitDepthLabel;
+	private JLabel bitDepthInfoLabel; // the bit depth info of the image selected in imagesCombo
+
+	private JLabel roiLabel;
+	private JLabel roiInfoLabel;  // the ROI information for the image selected in imagesCombo
+	
+	private JLabel imageWarningLabel;
+	private JLabel roiWarningLabel;
+	private JLabel bitDepthWarningLabel;
+		
 	public WizardPageROI(Wizard wizard, WizardModel model, String name)
 	{
 		super(wizard, model, name);
@@ -88,30 +54,24 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		infoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, infoPanel.getMaximumSize().height));
 
 		add(infoPanel);
+		add(Box.createVerticalGlue());
 	}
 	
 	private class InfoPanel extends JPanel
 	{
 		public InfoPanel()
 		{
-			setBorder(BorderFactory.createTitledBorder("Noisy Input Image"));
+			setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Noisy Input Image"), new EmptyBorder(10, 10, 10, 10)));
 			
-			JLabel imageLabel = new JLabel("Image:");
-			JLabel bitDepthLabel = new JLabel("Bit depth:");
-			JLabel roiLabel = new JLabel("ROI:");
-			
-			bitDepthInfoLabel = new JLabel();
-			roiInfoLabel = new JLabel();
-			noImageWarningLabel = new JLabel(htmlAttention("Not available, please open an image."));
-			
+			imageLabel = new JLabel("Image:");
+
 			imagesModel = new DefaultComboBoxModel<String>(getOpenImages());
 
 			imagesCombo = new JComboBox<String>(imagesModel);
-			imagesCombo.setMaximumSize(imagesCombo.getPreferredSize());
 			imagesCombo.addActionListener(e -> {
 				String image = (String)imagesCombo.getSelectedItem();
-				// TODO: what does this return if the combo box does not contain any elements?
-				// TODO: is it possible to have nothing selected, even when there are elements in the combo box?
+				// CHECKME: what does this return if the combo box does not contain any elements?
+				// CHECKME: is it possible to have nothing selected, even when there are elements in the combo box?
 				System.out.println("Images combo: selected item = " + image);
 				model.imagePlus = ij.WindowManager.getImage(image);
 				
@@ -121,6 +81,10 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				wizard.updateButtons();
 			});
 
+			
+			// FIXME: the combo box with the open images is too wide, try to give it the size corresponding to the largest image name (but no larger than the max. window size).
+			
+			
 			// If there are already open images, then select the one that is currently active in ImageJ
 			// in the combo box.
 			if (imagesCombo.getItemCount() > 0)
@@ -130,10 +94,18 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				assert(imagesCombo.getSelectedItem().equals(imageTitle));  // assert that image was indeed in the list
 			}
 			
-			JPanel imagesPanel = new JPanel();
-			imagesPanel.setLayout(new BoxLayout(imagesPanel, BoxLayout.LINE_AXIS));  // Use BoxLayout instead of default FlowLayout so the panel doesn't expand unnecessarily
-			imagesPanel.add(imagesCombo);
-			imagesPanel.add(noImageWarningLabel);
+			bitDepthLabel = new JLabel("Bit depth:");
+			bitDepthInfoLabel = new JLabel();
+
+			roiLabel = new JLabel("ROI:");
+			roiInfoLabel = new JLabel();
+			
+			imageWarningLabel = new JLabel(htmlAttention("Please open the image that you want to denoise."));
+			roiWarningLabel = new JLabel(htmlAttention("Please select a region of interest (ROI) on the image. The ROI will be used to preview the effect of the denoising algorithms."));
+			bitDepthWarningLabel = new JLabel(htmlAttention("Please convert the image to 8 or 16 bit / pixel. Other bit depths are not supported."));
+			     // TODO: Mention the current bit depth in the warning message
+			
+			spacer = Box.createRigidArea(new Dimension(0, 10));
 			
 			// FIXME? The very first panel in the wizard does not get the AboutToShowPanel()
 			//        (because the wizard only calls it when the next/prev buttons are pressed...)
@@ -143,9 +115,10 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			updateBitDepthInfo();
 			updateRoiInfo();
 			
-			GroupLayout layout = new GroupLayout(this);
+			JPanel panel = new JPanel();   // will hold the info, but not the warning messages
+			
+			GroupLayout layout = new GroupLayout(panel);
 			layout.setAutoCreateGaps(true);
-			layout.setAutoCreateContainerGaps(true);
 			
 			layout.setHorizontalGroup(
 			   layout.createSequentialGroup()
@@ -154,7 +127,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				           .addComponent(bitDepthLabel)
 			      		   .addComponent(roiLabel))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, true)
-				           .addComponent(imagesPanel)
+				           .addComponent(imagesCombo)
 				           .addComponent(bitDepthInfoLabel)
 			      		   .addComponent(roiInfoLabel))
 			);
@@ -163,7 +136,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			   layout.createSequentialGroup()
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			    		   .addComponent(imageLabel)
-			    		   .addComponent(imagesPanel))
+			    		   .addComponent(imagesCombo))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			    		   .addComponent(bitDepthLabel)
 			    		   .addComponent(bitDepthInfoLabel))
@@ -172,56 +145,66 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			    		   .addComponent(roiInfoLabel))
 			);		
 			
-			setLayout(layout);
+			panel.setLayout(layout);
+			
+			// The info items will be on top, and the possible warning message at the bottom.
+			// At most one warning message is visible. Zero, one, two or three info items
+			// will be shown, the other info items will be hidden (and a corresponding warning message made visible).
+			
+			imageWarningLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+			bitDepthWarningLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+			roiWarningLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+			panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+			
+			setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+			add(panel);
+			add(spacer);
+			add(imageWarningLabel);
+			add(bitDepthWarningLabel);
+			add(roiWarningLabel);
 		}
 	}
 	
 	private void updateImageInfo()
 	{		
-		boolean hasImages = imagesCombo.getItemCount() > 0;
+		boolean haveImages = imagesCombo.getItemCount() > 0;
 		
-		imagesCombo.setVisible(hasImages);
-		noImageWarningLabel.setVisible(!hasImages);
+		imageLabel.setVisible(haveImages);
+		imagesCombo.setVisible(haveImages);
+		imageWarningLabel.setVisible(!haveImages);
 	}
 	
 	private void updateBitDepthInfo()
 	{				
-		if (model.imagePlus == null)
+		boolean haveImage = (model.imagePlus != null);
+		boolean showWarning = haveImage && !(model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
+		boolean showInfo = haveImage && (model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
+		
+		if (showInfo)
 		{
-			bitDepthInfoLabel.setText("-");
+			bitDepthInfoLabel.setText(model.imagePlus.getBitDepth() + " bit / pixel");
 		}
-		else
-		{
-			if (model.imagePlus.getBitDepth() == 8)
-			{
-				bitDepthInfoLabel.setText("8 bit / pixel");
-			}
-			else if (model.imagePlus.getBitDepth() == 16)
-			{
-				bitDepthInfoLabel.setText("16 bit / pixel");
-			}
-			else
-			{
-				bitDepthInfoLabel.setText(htmlAttention(model.imagePlus.getBitDepth() + " bit / pixel, please convert to 8 or 16 bit / pixel"));
-			}
-		}
+		
+		bitDepthLabel.setVisible(showInfo);
+		bitDepthInfoLabel.setVisible(showInfo);	
+		bitDepthWarningLabel.setVisible(showWarning);
 	}
 
 	private void updateRoiInfo()
 	{
-		if (model.imagePlus == null || (model.imagePlus.getBitDepth() != 8 && model.imagePlus.getBitDepth() != 16))
-		{
-			roiInfoLabel.setText("-");
-		}
-		else if (model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty())
-		{
-			roiInfoLabel.setText(htmlAttention("Not available, please select an ROI on the image."));
-		}	
-		else
+		boolean haveSupportedImage = (model.imagePlus != null) && (model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
+		boolean showWarning = haveSupportedImage && (model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty());
+		boolean showInfo = haveSupportedImage && !(model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty());
+		
+		if (showInfo)
 		{
 			Rectangle r = model.imagePlus.getRoi().getBounds();
 			roiInfoLabel.setText(r.width + " x " + r.height + " pixels, top left corner at (" + r.x + ", " + r.y + ")");
-		}		
+		}	
+
+		roiInfoLabel.setVisible(showInfo);
+		roiLabel.setVisible(showInfo);
+		roiWarningLabel.setVisible(showWarning);		
 	}
 	
 	@Override
@@ -260,6 +243,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		imagesModel.removeElement(imp.getTitle());
 
 		SwingUtilities.invokeLater(() -> {
+//			imagesPanel.validate();
 			updateImageInfo();
 			updateBitDepthInfo();
 			updateRoiInfo();
