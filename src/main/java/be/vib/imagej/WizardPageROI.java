@@ -125,6 +125,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			GroupLayout layout = new GroupLayout(panel);
 			layout.setAutoCreateGaps(true);
 			
+            // Note: the PREFERRED_SIZE arguments below to addComponent(imagesCombo, ...) tell the GroupLayout
+			// that we want the combo box to rescale with its contents. 
+
 			layout.setHorizontalGroup(
 			   layout.createSequentialGroup()
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
@@ -132,7 +135,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				           .addComponent(bitDepthLabel)
 			      		   .addComponent(roiLabel))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, true)
-				           .addComponent(imagesCombo)
+				           .addComponent(imagesCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 				           .addComponent(bitDepthInfoLabel)
 			      		   .addComponent(roiInfoLabel))
 			);
@@ -141,7 +144,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			   layout.createSequentialGroup()
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			    		   .addComponent(imageLabel)
-			    		   .addComponent(imagesCombo))
+			    		   .addComponent(imagesCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			    		   .addComponent(bitDepthLabel)
 			    		   .addComponent(bitDepthInfoLabel))
@@ -288,8 +291,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 
-		printOpenImages();
-		
+		printOpenImages();		
 		updateInfo();
 		//wizard.updateButtons();
 	}
