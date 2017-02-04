@@ -19,6 +19,7 @@ import ij.ImageListener;
 import ij.ImagePlus;
 import ij.gui.RoiListener;
 
+// TODO: this class needs cleaning up (we probably want just a single warning label whose text changes, etc.)
 
 public class WizardPageROI extends WizardPage implements ImageListener, RoiListener
 {		
@@ -35,6 +36,8 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	private JLabel imageWarningLabel;
 	private JLabel roiWarningLabel;
 	private JLabel bitDepthWarningLabel;
+	
+	private Component spacer;
 		
 	public WizardPageROI(Wizard wizard, WizardModel model, String name)
 	{
@@ -75,9 +78,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				System.out.println("Images combo: selected item = " + image);
 				model.imagePlus = ij.WindowManager.getImage(image);
 				
-				updateImageInfo();
-				updateBitDepthInfo();
-				updateRoiInfo();
+				updateInfo();
 				wizard.updateButtons();
 			});
 
@@ -111,9 +112,8 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			//        (because the wizard only calls it when the next/prev buttons are pressed...)
 			//        We probably want to fix that. When it is fixed, the initialization code below
 			//        will be called automatically there and can be removed.
-			updateImageInfo();
-			updateBitDepthInfo();
-			updateRoiInfo();
+
+			updateInfo();
 			
 			JPanel panel = new JPanel();   // will hold the info, but not the warning messages
 			
@@ -165,46 +165,42 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		}
 	}
 	
-	private void updateImageInfo()
+	private void updateInfo()
 	{		
 		boolean haveImages = imagesCombo.getItemCount() > 0;
 		
-		imageLabel.setVisible(haveImages);
-		imagesCombo.setVisible(haveImages);
-		imageWarningLabel.setVisible(!haveImages);
-	}
-	
-	private void updateBitDepthInfo()
-	{				
 		boolean haveImage = (model.imagePlus != null);
-		boolean showWarning = haveImage && !(model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
-		boolean showInfo = haveImage && (model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
+		boolean showBitDepthWarning = haveImage && !(model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
+		boolean showBitDepthInfo = haveImage && (model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
 		
-		if (showInfo)
+		boolean haveSupportedImage = haveImage && (model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
+		boolean showRoiWarning = haveSupportedImage && (model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty());
+		boolean showRoiInfo = haveSupportedImage && !(model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty());
+		
+		if (showBitDepthInfo)
 		{
 			bitDepthInfoLabel.setText(model.imagePlus.getBitDepth() + " bit / pixel");
 		}
 		
-		bitDepthLabel.setVisible(showInfo);
-		bitDepthInfoLabel.setVisible(showInfo);	
-		bitDepthWarningLabel.setVisible(showWarning);
-	}
-
-	private void updateRoiInfo()
-	{
-		boolean haveSupportedImage = (model.imagePlus != null) && (model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
-		boolean showWarning = haveSupportedImage && (model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty());
-		boolean showInfo = haveSupportedImage && !(model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty());
-		
-		if (showInfo)
+		if (showRoiInfo)
 		{
 			Rectangle r = model.imagePlus.getRoi().getBounds();
 			roiInfoLabel.setText(r.width + " x " + r.height + " pixels, top left corner at (" + r.x + ", " + r.y + ")");
 		}	
 
-		roiInfoLabel.setVisible(showInfo);
-		roiLabel.setVisible(showInfo);
-		roiWarningLabel.setVisible(showWarning);		
+		imageLabel.setVisible(haveImages);
+		imagesCombo.setVisible(haveImages);
+		imageWarningLabel.setVisible(!haveImages);
+			
+		bitDepthLabel.setVisible(showBitDepthInfo);
+		bitDepthInfoLabel.setVisible(showBitDepthInfo);	
+		bitDepthWarningLabel.setVisible(showBitDepthWarning);
+
+		roiInfoLabel.setVisible(showRoiInfo);
+		roiLabel.setVisible(showRoiInfo);
+		roiWarningLabel.setVisible(showRoiWarning);
+		
+		spacer.setVisible(showBitDepthWarning || showRoiWarning);
 	}
 	
 	@Override
@@ -224,9 +220,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		imagesModel.addElement(imp.getTitle());
 
 		SwingUtilities.invokeLater(() -> {
-			updateImageInfo();
-			updateBitDepthInfo();
-			updateRoiInfo();
+			updateInfo();
 			wizard.updateButtons();
 		});
 	}
@@ -243,10 +237,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		imagesModel.removeElement(imp.getTitle());
 
 		SwingUtilities.invokeLater(() -> {
-//			imagesPanel.validate();
-			updateImageInfo();
-			updateBitDepthInfo();
-			updateRoiInfo();
+			updateInfo();
 			wizard.updateButtons();
 		});
 	}
@@ -267,9 +258,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// Note: imageUpdated() is not called from the Java EDT.
 		// That's why we use invokeLater() to make sure we update the wizard GUI on the EDT.		
 		SwingUtilities.invokeLater(() -> {
-			updateImageInfo();     // CHECKME: maybe not needed
-			updateBitDepthInfo();  // e.g. in case the user changed the bit depth of the image
-			updateRoiInfo();       // e.g. if image was fine and an ROI was selected, and user then changes image bit depth to <> 8, we want do change the ROI to "-" instead
+			updateInfo();
 			wizard.updateButtons();
 		});
 	}
@@ -285,7 +274,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		if (imp != model.imagePlus)
 			return;  // We're not interested in ROI changes for an image that the user did not select for denoising
 						
-		updateRoiInfo();
+		updateInfo();
 		wizard.updateButtons();
 	}
 	
@@ -302,9 +291,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 //		System.out.println("combo pref max size=" + imagesCombo.getMaximumSize());
 //		System.out.println("warning label max size=" + noImageWarningLabel.getMaximumSize());
 		
-		updateImageInfo();
-		updateBitDepthInfo();
-		updateRoiInfo();
+		updateInfo();
 		//wizard.updateButtons();
 	}
 	
