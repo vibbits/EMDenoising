@@ -40,7 +40,7 @@ public class DenoisingIJ2 implements Command
 	{
 		WizardModel model = new WizardModel();
 		
-		Wizard wizard = new Wizard("EM Denoising wizard");
+		Wizard wizard = new Wizard("EM Denoising");
 		
 		WizardPage pageInitialization = new WizardPageInitializeQuasar(wizard, model, "Initialization");
 		WizardPage pageROI = new WizardPageROI(wizard, model, "Select Image and ROI");
@@ -78,6 +78,7 @@ public class DenoisingIJ2 implements Command
 				
 		wizard = createWizard();
 		wizard.pack();
+		wizard.moveToMiddleOfScreen();
 		wizard.setVisible(true); // triggers creation of QHost, so need to go before *anything* else that uses the JavaQuasarBridge,
 		
 		// After displaying the denoising wizard the ImageJ plugin run() method finishes immediately,

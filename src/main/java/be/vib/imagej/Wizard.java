@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -211,6 +212,20 @@ public class Wizard extends JDialog
 		backButton.setEnabled((currentPageIdx > 0) && currentPage.canGoToPreviousPage());
 		nextButton.setEnabled((currentPageIdx < numPages - 1) && currentPage.canGoToNextPage());		
 		finishButton.setEnabled((currentPageIdx == numPages - 1) && currentPage.canFinish());
+	}
+	
+	/*
+	 * Position the wizard horizontally in the center of the screen,
+	 * and vertically somewhat above center.
+	 */
+	public void moveToMiddleOfScreen()
+	{
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        int wizardWidth = getSize().width;
+        int wizardHeight = getSize().height;
+        int x = (screen.width - wizardWidth) / 2; 
+        int y = (screen.height - wizardHeight) / 3;
+        setLocation(x, y);
 	}
 	
 	private void updateCrumbs()
