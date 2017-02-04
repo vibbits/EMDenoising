@@ -101,7 +101,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			roiLabel = new JLabel("ROI:");
 			roiInfoLabel = new JLabel();
 			
-			imageWarningLabel = new JLabel(htmlAttention("Please open the image that you want to denoise."));
+			imageWarningLabel = new JLabel(htmlAttention("Please open the image or image stack that you want to denoise."));
 			roiWarningLabel = new JLabel(htmlAttention("Please select a region of interest (ROI) on the image. The ROI will be used to preview the effect of the denoising algorithms."));
 			bitDepthWarningLabel = new JLabel(htmlAttention("Please convert the image to 8 or 16 bit / pixel. Other bit depths are not supported."));
 			     // TODO: Mention the current bit depth in the warning message
