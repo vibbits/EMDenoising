@@ -101,11 +101,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				
 				updateInfo();
 				wizard.updateButtons();
-			});
-
-			
-			// FIXME: the combo box with the open images is too wide, try to give it the size corresponding to the largest image name (but no larger than the max. window size).
-			
+			});			
 			
 			bitDepthLabel = new JLabel("Bit depth:");
 			bitDepthInfoLabel = new JLabel();
