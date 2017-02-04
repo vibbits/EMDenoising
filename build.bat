@@ -59,5 +59,5 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\WizardModel.java ^
 src\main\java\BilateralDenoiserTest.java
 
-jar cvfm output\jar\VIBDenoising-0.0.1.jar src\main\Manifest.txt -C output\class\ .
+jar cvfm output\jar\EM_Denoising-0.0.1.jar src\main\Manifest.txt -C output\class\ .
 

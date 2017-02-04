@@ -5,7 +5,6 @@ import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-import ij.ImagePlus;
 import ij.plugin.frame.Recorder;
 
 // Windows 10
@@ -19,10 +18,10 @@ import ij.plugin.frame.Recorder;
 // (or "e:\Fiji.app\ImageJ-win64.exe --console" to see output in a text console)
 
 // Aside: to compile .q to .qlib
-//    "e:\Program Files\Quasar\Quasar.exe" --make_lib --optimize --gpu nlmeans_denoising_stillimages.q
+//    "e:\Program Files\Quasar\Quasar.exe" --make_lib (--optimize) --gpu nlmeans_denoising_stillimages.q
 
 
-@Plugin(type = Command.class, menuPath = "VIB>EM Denoising") // "Plugins>EM Denoising" is a more standard location for the plugin, but harder too access...
+@Plugin(type = Command.class, menuPath = "Plugins>EM Denoising")
 public class DenoisingIJ2 implements Command
 {
 	@Parameter
@@ -85,6 +84,5 @@ public class DenoisingIJ2 implements Command
 		// but the wizard is still visible and active.
 		System.out.println("DenoisingIJ2.run() end");
 	}
-	
 }
 	
