@@ -39,6 +39,7 @@ public class BilateralDenoiser extends Denoiser
 				                                              new QValue(BilateralParams.nx),
 				                                              new QValue(BilateralParams.ny));
 		
+		bf.dispose();
 		noisyImageCube.dispose();
 
 		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
