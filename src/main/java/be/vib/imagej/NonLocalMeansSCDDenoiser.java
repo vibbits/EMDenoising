@@ -34,6 +34,8 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 
 		// FIXME: QFunctionJNI should support any number of parameters, since so does quasar_dsl.h's Function::operator()(...).	
 		
+		QValue corrFilterInv = new QValue(NonLocalMeansSCDParams.emCorrFilterInv);
+		
 		QValue denoisedImageCube = nlmeansSCD.apply(noisyImageCube,
 							                        blurKernel,
 							                        new QValue(params.deconvolutionParams.lambda),
@@ -43,9 +45,11 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 							                        new QValue(params.h),
 							                        new QValue(params.sigma0),
 							                        new QValue(NonLocalMeansSCDParams.alpha),
-						                            new QValue(NonLocalMeansSCDParams.emCorrFilterInv));
+						                            corrFilterInv);
 		
 		noisyImageCube.dispose();
+		blurKernel.dispose();
+		corrFilterInv.dispose();
 
 		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
 
@@ -61,15 +65,18 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
+		QValue corrFilterInv = new QValue(NonLocalMeansSCDParams.emCorrFilterInv);
+		
 		QValue denoisedImageCube = nlmeansSC.apply(noisyImageCube,
 							   				       new QValue(NonLocalMeansSCDParams.halfSearchSize),
 											       new QValue(NonLocalMeansSCDParams.halfBlockSize),
 											       new QValue(params.h),
 											       new QValue(params.sigma0),
 											       new QValue(NonLocalMeansSCDParams.alpha),
-											       new QValue(NonLocalMeansSCDParams.emCorrFilterInv));
+											       corrFilterInv);
 		
 		noisyImageCube.dispose();
+		corrFilterInv.dispose();
 		
 		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
 		
