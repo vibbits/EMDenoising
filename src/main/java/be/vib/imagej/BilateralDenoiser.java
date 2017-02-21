@@ -19,6 +19,10 @@ public class BilateralDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{
+		// TODO: Replace this bilateral filter with the newer O(1) implementation in bilateral_filter.faster.q
+		//       Two obstacles: (i) I think that faster implementation may need changes to be able to deal with 16-bit imageds
+		//                      (ii) The code there mentions "the spatial distance term is currently being ignored for efficiency reasons", what does this mean, is it still bilateral then?
+		
 		QFunction applyBilateralFilter = QuasarTools.loadDenoiseFunction("bilateral_filter.q",
 				                                                         "apply_bilateral_filter(mat,cube,int,int)");
 
