@@ -4,8 +4,8 @@ public class GaussianParams
 {
 	public float sigma;
 	
-	public static final float sigmaMin = 0.01f;
-	public static final float sigmaMax = 20.0f;
+	public static final float sigmaMin = 0.5f;
+	public static final float sigmaMax = 10.0f;
 	
 	public GaussianParams()
 	{
