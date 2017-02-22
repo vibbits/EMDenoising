@@ -1,6 +1,8 @@
 package be.vib.imagej;
 
+import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 import javax.swing.SwingWorker;
 
@@ -10,16 +12,12 @@ import ij.process.ImageProcessor;
 public class DenoisePreviewSwingWorker extends SwingWorker<ImageProcessor, Void>
 {
 	Denoiser denoiser;
-	ImagePanel imagePanel;
-	ImageProcessor denoisedPreview;
+	Function<BufferedImage, Void> cacheAndShow;
 	
-	// - denoiser knows the input image that needs to be denoised
-	// - we will set denoisedPreview to the denoised result
-	public DenoisePreviewSwingWorker(Denoiser denoiser, ImageProcessor denoisedPreview, ImagePanel imagePanel) 
+	public DenoisePreviewSwingWorker(Denoiser denoiser, Function<BufferedImage, Void> cacheAndShow) 
 	{
 		this.denoiser = denoiser;
-		this.denoisedPreview = denoisedPreview;
-		this.imagePanel = imagePanel;
+		this.cacheAndShow = cacheAndShow;
 	}
 	
 	@Override
@@ -33,12 +31,9 @@ public class DenoisePreviewSwingWorker extends SwingWorker<ImageProcessor, Void>
 	{
 		try
 		{
-			System.out.println("DenoisePreviewSwingWorker done()");
-			
-			final ImageProcessor denoisedPreview = get();
-						
-			imagePanel.setImage(denoisedPreview.getBufferedImage());
-//			imagePanel.setText(null);
+			System.out.println("DenoisePreviewSwingWorker done");
+			BufferedImage denoisedPreview = get().getBufferedImage();
+			cacheAndShow.apply(denoisedPreview);
 		}
 		catch (InterruptedException e) {
 			// TODO Auto-generated catch block

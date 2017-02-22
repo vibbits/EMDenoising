@@ -34,4 +34,18 @@ public class BilateralParams
 	{
 		return "alpha " + alpha + "; beta " + beta;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		BilateralParams other = (BilateralParams)obj;
+		
+		return (obj instanceof BilateralParams) && (alpha == other.alpha) && (beta == other.beta);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Float.valueOf(alpha).hashCode() ^  Float.valueOf(beta).hashCode();
+	}
 }

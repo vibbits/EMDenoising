@@ -26,4 +26,18 @@ public class WaveletThresholdingParams
 	{
 		return "alpha " + alpha;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		WaveletThresholdingParams other = (WaveletThresholdingParams)obj;
+		
+		return (obj instanceof WaveletThresholdingParams) && (alpha == other.alpha);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Float.valueOf(alpha).hashCode();
+	}
 }

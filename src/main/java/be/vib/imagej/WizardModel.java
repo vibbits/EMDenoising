@@ -24,50 +24,49 @@ public class WizardModel
 	};
 
 	public DenoisingAlgorithm denoisingAlgorithm;
-	public NonLocalMeansParams nonLocalMeansParams;	
-	public NonLocalMeansSCDParams nonLocalMeansSCDParams;	
+
 	public GaussianParams gaussianParams;
 	public BilateralParams bilateralParams;
+	public BLSGSMParams blsgsmParams;
 	public WaveletThresholdingParams waveletThresholdingParams;
 	public AnisotropicDiffusionParams anisotropicDiffusionParams;
-	public BLSGSMParams blsgsmParams;
-	
+	public NonLocalMeansParams nonLocalMeansParams;	
+	public NonLocalMeansSCDParams nonLocalMeansSCDParams;	
+
 	public ImagePlus imagePlus; // original image or image stack (a reference not a copy). Can be null iff. the wizard shows the WizardPageROI; is non-null otherwise.
     
 	public ImageRange range; // the range of slices that need to be denoised
 
 	public ImageProcessor previewOrigROI;
 	public ImageProcessor previewDenoisedROI;
-	// TODO: Maybe we want to cache the result of denoising the ROI with the last parameter values used (for each algorithm)?
-	//       That would at least allow the user to compare the effect of different algorithms (by toggling the algorithm radio button)
-	//       without incurring *any* waiting.
 	
 	public WizardModel()
 	{
 		denoisingAlgorithm = DenoisingAlgorithm.GAUSSIAN;
 		
-		range = new ImageRange();
-		
-		nonLocalMeansParams = new NonLocalMeansParams();
-		nonLocalMeansSCDParams = new NonLocalMeansSCDParams();
 		gaussianParams = new GaussianParams();
 		bilateralParams = new BilateralParams();
+		blsgsmParams = new BLSGSMParams();
 		waveletThresholdingParams = new WaveletThresholdingParams();
 		anisotropicDiffusionParams = new AnisotropicDiffusionParams();
-		blsgsmParams = new BLSGSMParams();
+		nonLocalMeansParams = new NonLocalMeansParams();
+		nonLocalMeansSCDParams = new NonLocalMeansSCDParams();
+
+		range = new ImageRange();
 	}
 	
+	// Returns a copy of the current denoising parameters. 
 	public Object getDenoisingParams()
 	{
 		switch (denoisingAlgorithm)
 		{
-			case GAUSSIAN: return gaussianParams;
-			case BILATERAL: return bilateralParams;
-			case BLSGSM: return blsgsmParams;
-			case WAVELET_THRESHOLDING: return waveletThresholdingParams;
-			case ANISOTROPIC_DIFFUSION: return anisotropicDiffusionParams;
-			case NLMS: return nonLocalMeansParams;
-			case NLMS_SCD: return nonLocalMeansSCDParams;
+			case GAUSSIAN: return new GaussianParams(gaussianParams);
+			case BILATERAL: return new BilateralParams(bilateralParams);
+			case BLSGSM: return new BLSGSMParams(blsgsmParams);
+			case WAVELET_THRESHOLDING: return new WaveletThresholdingParams(waveletThresholdingParams);
+			case ANISOTROPIC_DIFFUSION: return new AnisotropicDiffusionParams(anisotropicDiffusionParams);
+			case NLMS: return new NonLocalMeansParams(nonLocalMeansParams);
+			case NLMS_SCD: return new NonLocalMeansSCDParams(nonLocalMeansSCDParams);
 			default: assert(false); return null;
 		}
 	}

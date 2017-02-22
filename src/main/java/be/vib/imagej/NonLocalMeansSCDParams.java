@@ -10,10 +10,10 @@ public class NonLocalMeansSCDParams
 	
 	public static final int halfSearchSize = 5;
 	public static final int halfBlockSize = 4;
-	public static final float alpha = 0.05f;
+	public static final float alpha = 0.05f;  // "amount" of signal dependency of the noise - make it a user parameter?
 	
-	public float h;
-	public float sigma0;
+	public float h;  // parameter influencing the NLMS algorithm: larger h will yield better denoising but more blurring (A small h will give smaller weights to neighborhoods that differ a lot from the neighborhood of the pixel being denoised.)
+	public float sigma0; // noise variance in the absence of signal
 	public boolean deconvolution;  // if true, use the NLMS-SCD algorithm, otherwise use NLMS-SC.
 	public DeconvolutionParams deconvolutionParams;
 
@@ -41,6 +41,20 @@ public class NonLocalMeansSCDParams
 		{
 			this.lambda = other.lambda;
 			this.numIterations = other.numIterations;
+		}
+		
+		@Override
+		public boolean equals(Object obj)
+		{
+			DeconvolutionParams other = (DeconvolutionParams)obj;
+			
+			return (obj instanceof DeconvolutionParams) && (lambda == other.lambda) && (numIterations == other.numIterations);
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Float.valueOf(lambda).hashCode() ^  Integer.valueOf(numIterations).hashCode();
 		}
 	};
 	
@@ -91,5 +105,19 @@ public class NonLocalMeansSCDParams
 	{
 		return deconvolution ? ("h " + h + "; sigma0 " + sigma0 + "; deconvolution: " + deconvolutionParams.numIterations + " iterations" + "; lambda " + deconvolutionParams.lambda) 
 			                 : ("h " + h + "; sigma0 " + sigma0 + "; no deconvolution");
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		NonLocalMeansSCDParams other = (NonLocalMeansSCDParams)obj;
+		
+		return (obj instanceof NonLocalMeansSCDParams) && (h == other.h) && (sigma0 == other.sigma0) && (deconvolution == other.deconvolution) && deconvolutionParams.equals(other.deconvolutionParams);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Float.valueOf(h).hashCode() ^  Float.valueOf(sigma0).hashCode() ^  Boolean.valueOf(deconvolution).hashCode() ^  deconvolutionParams.hashCode();
 	}
 }

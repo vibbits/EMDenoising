@@ -21,4 +21,18 @@ public class GaussianParams
 	public String toString() {
 		return "sigma " + sigma;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		GaussianParams other = (GaussianParams)obj;
+		
+		return (obj instanceof GaussianParams) && (sigma == other.sigma);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Float.valueOf(sigma).hashCode();
+	}
 }

@@ -34,4 +34,18 @@ public class NonLocalMeansParams
 	{
 		return "h " + h + "; half search size " + halfSearchSize + "; half block size " + halfBlockSize;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		NonLocalMeansParams other = (NonLocalMeansParams)obj;
+		
+		return (obj instanceof NonLocalMeansParams) && (h == other.h) && (halfSearchSize == other.halfSearchSize) && (halfBlockSize == other.halfBlockSize);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Float.valueOf(h).hashCode() ^  Integer.valueOf(halfSearchSize).hashCode() ^ Integer.valueOf(halfBlockSize).hashCode();
+	}
 }

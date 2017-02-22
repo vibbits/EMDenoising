@@ -2,6 +2,8 @@ package be.vib.imagej;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.util.function.Function;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -23,6 +25,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	private ImagePanel denoisedImagePanel;
 	
 	private PreviewPanel previewPanel;
+	
+	private DenoisePreviewCache previewCache = new DenoisePreviewCache(100); // Assuming a 512x512 ROI and 8 bit/pixel grayscale previews, a full cache requires about 100 * (1 MB / 4) = 25 MB storage
 	
     static final int maxPreviewSize = 256;
     
@@ -158,21 +162,30 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private void recalculateDenoisedPreview()
 	{		
-		System.out.println("recalculateDenoisedPreview");
-		
-//		denoisedImagePanel.setText("Calculating...");
-		
-		Denoiser denoiser = model.getDenoiser();
-		
-		// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
-		denoiser.setImage(model.previewOrigROI.duplicate());		
-		
-		DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(denoiser, model.previewDenoisedROI, denoisedImagePanel);
-		
-		// Run the denoising preview on a separate worker thread and return here immediately.
-		// Once denoising has completed, the worker will automatically update the denoising
-		// preview image in the Java Event Dispatch Thread (EDT).
-		worker.execute();
+		DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(model.denoisingAlgorithm, model.getDenoisingParams()); // Note: getDenoisingParams() returns a *copy* of the parameters, this is crucial since we will store them in a cache and do not want the model to change them afterwards
+		BufferedImage image = previewCache.get(cacheKey);
+		if (image != null)
+		{
+			denoisedImagePanel.setImage(image);
+		}
+		else
+		{			
+			Denoiser denoiser = model.getDenoiser();
+			
+			// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
+			denoiser.setImage(model.previewOrigROI.duplicate());		
+			
+			Function<BufferedImage, Void> cacheAndShow = (BufferedImage img) -> { previewCache.put(cacheKey, img);
+											                                      denoisedImagePanel.setImage(img);
+			                                                                      return null; };
+			
+			DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(denoiser, cacheAndShow);
+			
+			// Run the denoising preview on a separate worker thread and return here immediately.
+			// Once denoising has completed, the worker will automatically update the denoising
+			// preview image in the Java Event Dispatch Thread (EDT).
+			worker.execute();
+		}
 	}
 	
 	private static JPanel addTitle(JPanel p, String title)
@@ -197,6 +210,10 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	protected void aboutToShowPanel()
 	{
 		assert(model.imagePlus != null);
+		
+		// Always clear the cache, just in case the user switched to a different image or ROI.
+		// IMPROVEME: We could be more precise. We now occasionally clear the cache when it would be nice if we hadn't.
+		previewCache.clear();
 		
 		//assert(model.roi != null && model.roi.getBounds() != null && model.roi.getBounds().isEmpty() == false);
 		

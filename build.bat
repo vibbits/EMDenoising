@@ -18,12 +18,13 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\BLSGSMDenoiser.java ^
 %SRC_JAVA%\BLSGSMParams.java ^
 %SRC_JAVA%\BLSGSMParamsPanel.java ^
-%SRC_JAVA%\BM3DParams.java ^
 %SRC_JAVA%\DenoisingIJ2.java ^
 %SRC_JAVA%\Denoiser.java ^
 %SRC_JAVA%\DenoiseParamsChangeEvent.java ^
 %SRC_JAVA%\DenoiseParamsChangeEventListener.java ^
 %SRC_JAVA%\DenoiseParamsPanelBase.java ^
+%SRC_JAVA%\DenoisePreviewCache.java ^
+%SRC_JAVA%\DenoisePreviewCacheKey.java ^
 %SRC_JAVA%\DenoisePreviewSwingWorker.java ^
 %SRC_JAVA%\DenoiseSummaryPanel.java ^
 %SRC_JAVA%\DenoiseSwingWorker.java ^

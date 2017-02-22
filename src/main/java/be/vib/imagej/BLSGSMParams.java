@@ -26,4 +26,18 @@ public class BLSGSMParams
 	{
 		return "sigma " + sigma;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		BLSGSMParams other = (BLSGSMParams)obj;
+		
+		return (obj instanceof BLSGSMParams) && (sigma == other.sigma);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Float.valueOf(sigma).hashCode();
+	}
 }

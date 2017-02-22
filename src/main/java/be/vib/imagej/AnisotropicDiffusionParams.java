@@ -26,4 +26,18 @@ public class AnisotropicDiffusionParams
 	{
 		return "diffusion factor " + diffusionFactor;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		AnisotropicDiffusionParams other = (AnisotropicDiffusionParams)obj;
+		
+		return (obj instanceof AnisotropicDiffusionParams) && (diffusionFactor == other.diffusionFactor);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Float.valueOf(diffusionFactor).hashCode();
+	}
 }
