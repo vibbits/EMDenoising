@@ -3,6 +3,8 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.util.function.Function;
 
 import javax.swing.BorderFactory;
@@ -12,7 +14,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.SwingUtilities;
 
+import be.vib.bits.QExecutor;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
@@ -161,12 +165,17 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	}
 	
 	private void recalculateDenoisedPreview()
-	{		
-		DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(model.denoisingAlgorithm, model.getDenoisingParams()); // Note: getDenoisingParams() returns a *copy* of the parameters, this is crucial since we will store them in a cache and do not want the model to change them afterwards
+	{
+		// Note: we have to copy the cache key and value (the denoising parameters object and preview image object)
+		// to ensure they are not modified after we stored them in the cache.
+		DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(model.denoisingAlgorithm, model.getDenoisingParams());
 		BufferedImage image = previewCache.get(cacheKey);
 		if (image != null)
 		{
-			denoisedImagePanel.setImage(image);
+			// Our non-cached updates must be queued on the same task queue as the cached updates, so we use QExecutor.
+			// Furthermore, GUI updates need to be performed on the Java EDT, so we use invokeLater().
+			BufferedImage imageCopy = deepCopy(image);
+			QExecutor.getInstance().execute(() -> { SwingUtilities.invokeLater( () -> { denoisedImagePanel.setImage(imageCopy); }); });
 		}
 		else
 		{			
@@ -249,6 +258,15 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		// Ask layout manager to resize the dialog so it looks nice
 		wizard.pack();
+	}
+	
+	private static BufferedImage deepCopy(BufferedImage image)
+	{
+		// TODO: carefully chcek this code
+		ColorModel colorModel = image.getColorModel();
+		boolean isAlphaPremultiplied = colorModel.isAlphaPremultiplied();
+		WritableRaster raster = image.copyData(image.getRaster().createCompatibleWritableRaster());
+		return new BufferedImage(colorModel, raster, isAlphaPremultiplied, null);
 	}
 	
 	private static Dimension bestPreviewSize(Rectangle roi, int maxSize)

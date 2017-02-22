@@ -7,9 +7,8 @@ import java.util.function.Function;
 import javax.swing.SwingWorker;
 
 import be.vib.bits.QExecutor;
-import ij.process.ImageProcessor;
 
-public class DenoisePreviewSwingWorker extends SwingWorker<ImageProcessor, Void>
+public class DenoisePreviewSwingWorker extends SwingWorker<BufferedImage, Void>
 {
 	Denoiser denoiser;
 	Function<BufferedImage, Void> cacheAndShow;
@@ -21,9 +20,9 @@ public class DenoisePreviewSwingWorker extends SwingWorker<ImageProcessor, Void>
 	}
 	
 	@Override
-	public ImageProcessor doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
+	public BufferedImage doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
 	{
-		return QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
+		return QExecutor.getInstance().submit(denoiser).get().getBufferedImage(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
 	}
 	
 	@Override
@@ -32,7 +31,7 @@ public class DenoisePreviewSwingWorker extends SwingWorker<ImageProcessor, Void>
 		try
 		{
 			System.out.println("DenoisePreviewSwingWorker done");
-			BufferedImage denoisedPreview = get().getBufferedImage();
+			BufferedImage denoisedPreview = get();
 			cacheAndShow.apply(denoisedPreview);
 		}
 		catch (InterruptedException e) {
