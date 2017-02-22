@@ -12,11 +12,16 @@ import ij.plugin.frame.Recorder;
 // Installation:
 //    copy JavaQuasarBridge.jar   to e:\Fiji.app\plugins
 //    copy JavaQuasarBridge.dll   to e:\Fiji.app\lib\win64
-//    copy VIBDenoising-0.0.1.jar to e:\Fiji.app\plugins
+//    copy EM_Denoising-0.0.1.jar to e:\Fiji.app\plugins
+//
+// Prerequisites:
+//    Fiji
+//    Quasar (with a license, so .q sources can be compiled at runtime)
+//
 // Running:
 //    e:\Fiji.app\ImageJ-win64.exe
 // (or "e:\Fiji.app\ImageJ-win64.exe --console" to see output in a text console)
-
+//
 // Aside: to compile .q to .qlib
 //    "e:\Program Files\Quasar\Quasar.exe" --make_lib (--optimize) --gpu nlmeans_denoising_stillimages.q
 
