@@ -110,6 +110,8 @@ public class WizardPageDenoise extends WizardPage
 		startButton.setVisible(true);
 		statusLabel.setVisible(false);
 		progressBar.setVisible(false);
+		
+		wizard.pack();
 	}
 
 	@Override
