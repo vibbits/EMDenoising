@@ -5,6 +5,8 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import javax.swing.BorderFactory;
@@ -34,17 +36,42 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
     static final int maxPreviewSize = 256;
     
+	private class Algorithm
+	{
+		String name;
+		WizardModel.DenoisingAlgorithm algo;
+		DenoiseParamsPanelBase panel;
+		
+		public Algorithm(String name, WizardModel.DenoisingAlgorithm algo, DenoiseParamsPanelBase panel)
+		{
+			this.name = name;
+			this.algo = algo;
+			this.panel = panel;
+		}
+	}
+
 	public WizardPageDenoisingAlgorithm(Wizard wizard, WizardModel model, String name)
 	{
 		super(wizard, model, name);
-		buildUI();		
+		
+		final Algorithm[] algorithms = { 
+				new Algorithm("Gaussian", WizardModel.DenoisingAlgorithm.GAUSSIAN, new GaussianParamsPanel(model.gaussianParams)),   	    
+				new Algorithm("Bilateral", WizardModel.DenoisingAlgorithm.BILATERAL, new BilateralParamsPanel(model.bilateralParams)),   	    
+				new Algorithm("Anisotropic Diffusion", WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION, new AnisotropicDiffusionParamsPanel(model.anisotropicDiffusionParams)), 
+				new Algorithm("BLS-GSM", WizardModel.DenoisingAlgorithm.BLSGSM, new BLSGSMParamsPanel(model.blsgsmParams)),
+				new Algorithm("Wavelet Thresholding", WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING, new WaveletThresholdingParamsPanel(model.waveletThresholdingParams)),    	    
+				new Algorithm("Non-local means", WizardModel.DenoisingAlgorithm.NLMS, new NonLocalMeansParamsPanel(model.nonLocalMeansParams)),
+				new Algorithm("Non-local means SCD", WizardModel.DenoisingAlgorithm.NLMS_SCD, new NonLocalMeansSCDParamsPanel(model.nonLocalMeansSCDParams))
+				};
+		
+		buildUI(algorithms);		
 	}
 	
-	private void buildUI()
+	private void buildUI(Algorithm[] algorithms)
 	{
-		JPanel algoChoicePanel = createAlgorithmChoicePanel();
+		JPanel algoChoicePanel = createAlgorithmChoicePanel(algorithms);
 
-		algoParamsPanel = createAlgorithmParametersPanel();
+		algoParamsPanel = createAlgorithmParametersPanel(algorithms);
 		
 		JPanel algorithmPanel = new JPanel();
 		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
@@ -59,70 +86,47 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		add(Box.createRigidArea(new Dimension(0, 5)));
 		add(algorithmPanel);
 	}
-
-	private JPanel createAlgorithmChoicePanel()
+	
+	private JPanel createAlgorithmChoicePanel(Algorithm[] algorithms)
 	{
-		// FIXME: get rid of filter names - get them from the model or the panel instead
-	    JRadioButton gaussianButton = createAlgorithmRadioButton("Gaussian", WizardModel.DenoisingAlgorithm.GAUSSIAN);   	    
-	    JRadioButton bilateralButton = createAlgorithmRadioButton("Bilateral", WizardModel.DenoisingAlgorithm.BILATERAL);   	    
-	    JRadioButton diffusionButton = createAlgorithmRadioButton("Anisotropic Diffusion", WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION); 
-	    JRadioButton blsgsmButton = createAlgorithmRadioButton("BLS-GSM", WizardModel.DenoisingAlgorithm.BLSGSM);    	    
-	    JRadioButton waveletButton = createAlgorithmRadioButton("Wavelet Thresholding", WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING);    	    
-		JRadioButton nlmeansButton = createAlgorithmRadioButton("Non-local means", WizardModel.DenoisingAlgorithm.NLMS);
-		JRadioButton nlmeansSCDButton = createAlgorithmRadioButton("Non-local means SCD", WizardModel.DenoisingAlgorithm.NLMS_SCD);
-	    
+		List<JRadioButton> buttons = new ArrayList<JRadioButton>();
+		for (Algorithm a : algorithms)
+		{
+			buttons.add(createAlgorithmRadioButton(a.name, a.algo));
+		}
+		
 	    // Add radio buttons to group so they are mutually exclusive
 	    ButtonGroup group = new ButtonGroup();
-	    group.add(nlmeansButton);
-	    group.add(nlmeansSCDButton);
-	    group.add(diffusionButton);
-	    group.add(gaussianButton);
-	    group.add(bilateralButton);
-	    group.add(blsgsmButton);
-	    group.add(waveletButton);
+	    for (JRadioButton b : buttons)
+	    {
+	    	group.add(b);
+	    }
 				
 		JPanel algoChoicePanel = new JPanel();
 		algoChoicePanel.setLayout(new BoxLayout(algoChoicePanel, BoxLayout.Y_AXIS));
 		algoChoicePanel.setBorder(BorderFactory.createTitledBorder("Denoising Algorithm"));
-		algoChoicePanel.add(gaussianButton);
-		algoChoicePanel.add(bilateralButton);
-		algoChoicePanel.add(diffusionButton);
-		algoChoicePanel.add(blsgsmButton);
-		algoChoicePanel.add(waveletButton);
-		algoChoicePanel.add(nlmeansButton);
-		algoChoicePanel.add(nlmeansSCDButton);
+		for (JRadioButton b : buttons)
+		{
+			algoChoicePanel.add(b);
+		}
 		algoChoicePanel.add(Box.createVerticalGlue());
 		
 		return algoChoicePanel;
 	}
 	
-	private JPanel createAlgorithmParametersPanel()
-	{
-		NonLocalMeansParamsPanel nonLocalMeansParamsPanel = new NonLocalMeansParamsPanel(model.nonLocalMeansParams);
-		NonLocalMeansSCDParamsPanel nonLocalMeansSCDParamsPanel = new NonLocalMeansSCDParamsPanel(model.nonLocalMeansSCDParams);
-		AnisotropicDiffusionParamsPanel anisotropicDiffusionParamsPanel = new AnisotropicDiffusionParamsPanel(model.anisotropicDiffusionParams);
-		GaussianParamsPanel gaussianParamsPanel = new GaussianParamsPanel(model.gaussianParams);
-		BilateralParamsPanel bilateralParamsPanel = new BilateralParamsPanel(model.bilateralParams);
-		BLSGSMParamsPanel blsgsmParamsPanel = new BLSGSMParamsPanel(model.blsgsmParams);
-		WaveletThresholdingParamsPanel waveletThresholdingParamsPanel = new WaveletThresholdingParamsPanel(model.waveletThresholdingParams);
-		
-		nonLocalMeansParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });		
-		nonLocalMeansSCDParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });		
-		anisotropicDiffusionParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
-		gaussianParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
-		bilateralParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
-		blsgsmParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
-		waveletThresholdingParamsPanel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });
+	private JPanel createAlgorithmParametersPanel(Algorithm[] algorithms)
+	{		
+		for (Algorithm a : algorithms)
+		{
+			a.panel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });	
+		}
 		
 		CardLayout cardLayout = new CardLayout();
 		JPanel panel = new JPanel(cardLayout);
-		panel.add(nonLocalMeansParamsPanel, WizardModel.DenoisingAlgorithm.NLMS.name());
-		panel.add(nonLocalMeansSCDParamsPanel, WizardModel.DenoisingAlgorithm.NLMS_SCD.name());
-		panel.add(anisotropicDiffusionParamsPanel, WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION.name());
-		panel.add(gaussianParamsPanel, WizardModel.DenoisingAlgorithm.GAUSSIAN.name());
-		panel.add(bilateralParamsPanel, WizardModel.DenoisingAlgorithm.BILATERAL.name());
-		panel.add(blsgsmParamsPanel, WizardModel.DenoisingAlgorithm.BLSGSM.name());
-		panel.add(waveletThresholdingParamsPanel, WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING.name());
+		for (Algorithm a : algorithms)
+		{
+			panel.add(a.panel, a.algo.name());
+		}
 		
 		cardLayout.show(panel, model.denoisingAlgorithm.name());
 		return panel;
