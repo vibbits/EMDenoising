@@ -22,11 +22,11 @@ public class NonLocalMeansSCDParams
 		public static final int blurKernelSize = 15;
 		public static final float blurKernelSigma = 1.0f;
 		
-		public static final float lambdaMin = 0.01f;
-		public static final float lambdaMax = 50.0f;
+		public static final float lambdaMin = 0.0f;
+		public static final float lambdaMax = 5.0f;
 		
-		public static final int numIterationsMin = 1;
-		public static final int numIterationsMax = 50;
+		public static final int numIterationsMin = 5;
+		public static final int numIterationsMax = 30;
 		
 		public float lambda;   // trade-off denoising versus deconvolution
 		public int numIterations;
