@@ -246,13 +246,13 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		// (In the future we may want to dynamically listen to ROI changes.
 		// But what if the ROI disappears? Pick one ourselves and warn the user in the UI?)
 		model.previewOrigROI = cropImage(model.imagePlus, roi);
-		origImagePanel.setImage(model.previewOrigROI.getBufferedImage());   // TODO? should the panel listen to changes to model.previewOrigROI so it updates "automatically" ?
+		BufferedImage noisyPreviewBufferedImage = model.previewOrigROI.getBufferedImage();
+		origImagePanel.setImage(noisyPreviewBufferedImage);   // TODO? should the panel listen to changes to model.previewOrigROI so it updates "automatically" ?
 
 		origImagePanel.setPreferredSize(size);
 		origImagePanel.invalidate();
 		
-		model.previewDenoisedROI = null;
-		denoisedImagePanel.setImage(null);
+		denoisedImagePanel.setImage(noisyPreviewBufferedImage);  // To avoid an ugly empty image, show the noisy preview until we've calculated the denoised one
 		denoisedImagePanel.setText("Calculating...");
 		
 		denoisedImagePanel.setPreferredSize(size);

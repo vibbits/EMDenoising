@@ -38,7 +38,6 @@ public class WizardModel
 	public ImageRange range; // the range of slices that need to be denoised
 
 	public ImageProcessor previewOrigROI;
-	public ImageProcessor previewDenoisedROI;
 	
 	public WizardModel()
 	{
