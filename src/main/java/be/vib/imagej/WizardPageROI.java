@@ -111,8 +111,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			
 			imageWarningLabel = new JLabel(htmlAttention("Please open the image or image stack that you want to denoise."));
 			roiWarningLabel = new JLabel(htmlAttention("Please select a region of interest (ROI) on the image. The ROI will be used to preview the effect of the denoising algorithms."));
-			bitDepthWarningLabel = new JLabel(htmlAttention("Please convert the image to 8 or 16 bit / pixel. Other bit depths are not supported."));
-			     // TODO: Mention the current bit depth in the warning message
+			bitDepthWarningLabel = new JLabel(htmlAttention("Please convert the image to grayscale 8 or 16 bit / pixel. Other bit depths are not supported."));
 			
 			spacer = Box.createRigidArea(new Dimension(0, 10));
 			
@@ -212,21 +211,17 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		assert(imp != null);
 		
-		// Called when user does:
+		// imageOpened() is called when user does:
 		// - File > New
 		// - File > Open
 		// - File > Open Recent
 		// - ...?
 		
 		System.out.println(">>> imageOpened " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
-		
 		printOpenImages();
+		
 		imagesModel.addElement(imp.getTitle());
-
-		SwingUtilities.invokeLater(() -> {
-			updateInfo();
-			wizard.updateButtons();
-		});
+		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
 	}
 
 	@Override
@@ -235,51 +230,39 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		assert(imp != null);
 		
 		System.out.println(">>> imageClosed " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
-
 		printOpenImages();
 		
 		imagesModel.removeElement(imp.getTitle());
-
-		SwingUtilities.invokeLater(() -> {
-			updateInfo();
-			wizard.updateButtons();
-		});
+		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
 	}
 
 	@Override
 	public void imageUpdated(ImagePlus imp) // not called on the EDT
 	{
-		// Note: imageUpdated() is called on these occasions:
-		//       - when the user changes the bit-depth or the type of the image via Fiji > Image > Type > ...
-		//       - when the user moves to a different slice in an image stack
-		//       - when the user opens a new image
-		//       - ...
+		// imageUpdated() is called when the user
+		// - changes the bit-depth or the type of the image via Fiji > Image > Type > ...
+		// - moves to a different slice in an image stack
+		// - opens a new image
+		// - ...
 		
 		System.out.println(">>> imageUpdated " + (imp != null ? imp.getTitle() : "null"));
-
 		printOpenImages();
 		
-		// Note: imageUpdated() is not called from the Java EDT.
-		// That's why we use invokeLater() to make sure we update the wizard GUI on the EDT.		
-		SwingUtilities.invokeLater(() -> {
-			updateInfo();
-			wizard.updateButtons();
-		});
+		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
 	}
 	
 	@Override
 	public void roiModified(ImagePlus imp, int id) // called on the EDT
 	{
-		assert(SwingUtilities.isEventDispatchThread());
-		
 //		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null") + " id:" + id);
+
+		assert(SwingUtilities.isEventDispatchThread());
 		assert(imp != null);
 		
 		if (imp != model.imagePlus)
 			return;  // We're not interested in ROI changes for an image that the user did not select for denoising
 						
-		updateInfo();
-		wizard.updateButtons();
+		handlePreviewChange();
 	}
 	
 	@Override
@@ -288,8 +271,15 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		assert(SwingUtilities.isEventDispatchThread());
 
 		printOpenImages();		
+		
 		updateInfo();
 		//wizard.updateButtons();
+	}
+	
+	private void handlePreviewChange()  // must be called on the EDT
+	{
+		updateInfo();
+		wizard.updateButtons();
 	}
 	
 	private static void printOpenImages()
