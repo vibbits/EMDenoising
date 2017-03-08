@@ -247,14 +247,12 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		// But what if the ROI disappears? Pick one ourselves and warn the user in the UI?)
 		model.previewOrigROI = cropImage(model.imagePlus, roi);
 		BufferedImage noisyPreviewBufferedImage = model.previewOrigROI.getBufferedImage();
+		
 		origImagePanel.setImage(noisyPreviewBufferedImage);   // TODO? should the panel listen to changes to model.previewOrigROI so it updates "automatically" ?
-
 		origImagePanel.setPreferredSize(size);
 		origImagePanel.invalidate();
 		
 		denoisedImagePanel.setImage(noisyPreviewBufferedImage);  // To avoid an ugly empty image, show the noisy preview until we've calculated the denoised one
-		denoisedImagePanel.setText("Calculating...");
-		
 		denoisedImagePanel.setPreferredSize(size);
 		denoisedImagePanel.invalidate();
 
@@ -266,7 +264,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private static BufferedImage deepCopy(BufferedImage image)
 	{
-		// TODO: carefully chcek this code
+		// TODO: carefully check this code
 		ColorModel colorModel = image.getColorModel();
 		boolean isAlphaPremultiplied = colorModel.isAlphaPremultiplied();
 		WritableRaster raster = image.copyData(image.getRaster().createCompatibleWritableRaster());

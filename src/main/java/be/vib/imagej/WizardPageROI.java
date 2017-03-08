@@ -19,8 +19,6 @@ import ij.ImageListener;
 import ij.ImagePlus;
 import ij.gui.RoiListener;
 
-// TODO: this class needs cleaning up (we probably want just a single warning label whose text changes, etc.)
-
 public class WizardPageROI extends WizardPage implements ImageListener, RoiListener
 {		
 	private JLabel imageLabel;
@@ -93,11 +91,10 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 
 			imagesCombo = new JComboBox<String>(imagesModel);
 			imagesCombo.addActionListener(e -> {
-				String image = (String)imagesCombo.getSelectedItem();
-				// CHECKME: what does this return if the combo box does not contain any elements?
+				String imageTitle = (String)imagesCombo.getSelectedItem(); // image is null if no image windows are open (imagesCombo contains no elements)
 				// CHECKME: is it possible to have nothing selected, even when there are elements in the combo box?
-				System.out.println("Images combo: selected item = " + image);
-				model.imagePlus = ij.WindowManager.getImage(image);
+				System.out.println("Images combo: selected item = " + imageTitle);
+				model.imagePlus = ij.WindowManager.getImage(imageTitle);
 				
 				updateInfo();
 				wizard.updateButtons();
