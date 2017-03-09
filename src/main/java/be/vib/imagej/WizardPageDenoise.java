@@ -64,7 +64,7 @@ public class WizardPageDenoise extends WizardPage
 	// Off-load calculations to a separate thread and return immediately.
 	private void denoise() 
 	{
-		System.out.println("Denoise " + model.range + " (Java thread: " + Thread.currentThread().getId() + ")");
+		System.out.println("Denoise " + model.getRange() + " (Java thread: " + Thread.currentThread().getId() + ")");
 		
 		busyDenoising = true;
 		wizard.updateButtons();  // disable the Finish and Back buttons while we're busy denoising
@@ -88,7 +88,7 @@ public class WizardPageDenoise extends WizardPage
 		};
 			
 		// FIXME: pass model.getAlgorithm() alone, not xxx.getDenoiser() and xxx.getName()
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getAlgorithm().getDenoiser(), model.imagePlus, model.range, model.getAlgorithm().getReadableName(), progressBar, whenDone);
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getAlgorithm().getDenoiser(), model.getImage(), model.getRange(), model.getAlgorithm().getReadableName(), progressBar, whenDone);
 		
 		// Run the denoising on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the user interface

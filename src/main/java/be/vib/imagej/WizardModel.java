@@ -14,22 +14,20 @@ import ij.process.ImageProcessor;
  */
 public class WizardModel
 {
-	// FIXME: avoid making all variables public
+    private Name currentAlgorithmName; // name (enum) of currently active denoising algorithm
 	
-    public Name name; // name (enum) of currently active denoising algorithm
-	
-	public Map<Name, Algorithm> algorithms;
+	private Map<Name, Algorithm> algorithms;
 
-	public ImagePlus imagePlus; // original image or image stack (a reference not a copy). Can be null iff. the wizard shows the WizardPageROI; is non-null otherwise.
- 	                            //                                                         FIXME: can also be null if the user closes the image window, and we move from the denoising panel back to the algorithm selection panel
+	private ImagePlus image; // original image or image stack (a reference not a copy). Can be null iff. the wizard shows the WizardPageROI; is non-null otherwise.
+ 	                         //                                                         FIXME: can also be null if the user closes the image window, and we move from the denoising panel back to the algorithm selection panel
     
-	public ImageRange range; // the range of image slices that need to be denoised
+	private ImageRange range; // the range of image slices that need to be denoised
 
-	public ImageProcessor previewOrigROI;
+	private ImageProcessor noisyPreview; // a small region of interest cropped from the original noisy image
 	
 	public WizardModel()
 	{
-		name = Algorithm.Name.GAUSSIAN;
+		currentAlgorithmName = Algorithm.Name.GAUSSIAN;
 		
 		algorithms = new HashMap<Name, Algorithm>();
 		algorithms.put(Name.GAUSSIAN, new GaussianAlgorithm());
@@ -42,15 +40,20 @@ public class WizardModel
 		
 		range = new ImageRange();
 		
-		imagePlus = null;
+		image = null;
 		
-		previewOrigROI = null;
+		noisyPreview = null;
 	}
 	
 	// Returns the currently active algorithm.
 	public Algorithm getAlgorithm()
 	{
-		return algorithms.get(name);
+		return algorithms.get(currentAlgorithmName);
+	}
+	
+	public void setAlgorithm(Algorithm.Name name)
+	{
+		this.currentAlgorithmName = name;
 	}
 	
 	// Returns an array of the available algorithms,
@@ -65,5 +68,35 @@ public class WizardModel
 							algorithms.get(Name.NLMS),
 							algorithms.get(Name.NLMS_SCD) };
 		return arr;
+	}
+
+	public ImageProcessor getNoisyPreview()
+	{
+		return noisyPreview;
+	}
+
+	public void setNoisyPreview(ImageProcessor preview)
+	{
+		this.noisyPreview = preview;
+	}
+
+	public ImagePlus getImage()
+	{
+		return image;
+	}
+
+	public void setImage(ImagePlus image)
+	{
+		this.image = image;
+	}
+	
+	public ImageRange getRange()
+	{
+		return range;
+	}
+
+	public void setRange(ImageRange range)
+	{
+		this.range = range;
 	}
 }

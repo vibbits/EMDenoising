@@ -103,19 +103,19 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			panel.add(algorithm.getPanel(), algorithm.getName().name());
 		}
 		
-		cardLayout.show(panel, model.name.name());
+		cardLayout.show(panel, model.getAlgorithm().getName().name());
 		return panel;
 	}
 
 	private JRadioButton createAlgorithmRadioButton(Algorithm algorithm)
 	{
 	    JRadioButton button = new JRadioButton(algorithm.getReadableName());
-	    button.setSelected(algorithm.getName() == model.name);
+	    button.setSelected(algorithm.getName() == model.getAlgorithm().getName());
 		
 	    button.addActionListener(e -> {
-	    	if (model.name == algorithm.getName()) return;
+	    	if (model.getAlgorithm().getName() == algorithm.getName()) return;
     		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.getName().name());
-			model.name = algorithm.getName();
+			model.setAlgorithm(algorithm.getName());
 			recalculateDenoisedPreview();
 	    });
 	    
@@ -147,7 +147,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{
 		// Note: we have to copy the cache key and value (the denoising parameters object and preview image object)
 		// to ensure they are not modified after we stored them in the cache.
-		DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(model.name, model.getAlgorithm().getParams());  // FIXME: pass only model.getAlgorithm(), name and params can be recovered from it
+		DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(model.getAlgorithm().getName(), model.getAlgorithm().getParams());  // FIXME: pass only model.getAlgorithm(), name and params can be recovered from it
 		BufferedImage image = previewCache.get(cacheKey);
 		if (image != null)
 		{
@@ -161,7 +161,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			Denoiser denoiser = model.getAlgorithm().getDenoiser();
 			
 			// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
-			denoiser.setImage(model.previewOrigROI.duplicate());		
+			denoiser.setImage(model.getNoisyPreview().duplicate());		
 			
 			Function<BufferedImage, Void> cacheAndShow = (BufferedImage img) -> { previewCache.put(cacheKey, img);
 											                                      denoisedImagePanel.setImage(img);
@@ -197,7 +197,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	@Override
 	protected void aboutToShowPanel()
 	{
-		assert(model.imagePlus != null);
+		assert(model.getImage() != null);
 		
 		// Always clear the cache, just in case the user switched to a different image or ROI.
 		// IMPROVEME: We could be more precise. We now occasionally clear the cache when it would be nice if we hadn't.
@@ -205,11 +205,11 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		//assert(model.roi != null && model.roi.getBounds() != null && model.roi.getBounds().isEmpty() == false);
 		
-		System.out.println("WizardPageDenoisingAlgorithm.aboutToShowPanel: model=" + model + " imagePlus=" + model.imagePlus);
+		System.out.println("WizardPageDenoisingAlgorithm.aboutToShowPanel: model=" + model + " imagePlus=" + model.getImage());
 		
 		Rectangle roi = null;
-		if (model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty())
-			roi = model.imagePlus.getRoi().getBounds();
+		if (model.getImage().getRoi() != null && !model.getImage().getRoi().getBounds().isEmpty())
+			roi = model.getImage().getRoi().getBounds();
 		else 
 			roi = new Rectangle(maxPreviewSize, maxPreviewSize);   // TODO: slightly better is probably to center this default ROI on the image, instead of the top left corner 
 		
@@ -220,8 +220,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		// has no effect anymore until she navigates back to the WizardPageROI.
 		// (In the future we may want to dynamically listen to ROI changes.
 		// But what if the ROI disappears? Pick one ourselves and warn the user in the UI?)
-		model.previewOrigROI = cropImage(model.imagePlus, roi);
-		BufferedImage noisyPreviewBufferedImage = model.previewOrigROI.getBufferedImage();
+		model.setNoisyPreview(cropImage(model.getImage(), roi));
+		BufferedImage noisyPreviewBufferedImage = model.getNoisyPreview().getBufferedImage();
 		
 		origImagePanel.setImage(noisyPreviewBufferedImage);   // TODO? should the panel listen to changes to model.previewOrigROI so it updates "automatically" ?
 		origImagePanel.setPreferredSize(size);

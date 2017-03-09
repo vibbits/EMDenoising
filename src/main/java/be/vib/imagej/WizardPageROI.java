@@ -94,7 +94,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				String imageTitle = (String)imagesCombo.getSelectedItem(); // image is null if no image windows are open (imagesCombo contains no elements)
 				// CHECKME: is it possible to have nothing selected, even when there are elements in the combo box?
 				System.out.println("Images combo: selected item = " + imageTitle);
-				model.imagePlus = ij.WindowManager.getImage(imageTitle);
+				model.setImage(ij.WindowManager.getImage(imageTitle));
 				
 				updateInfo();
 				wizard.updateButtons();
@@ -169,22 +169,22 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{		
 		boolean haveImages = imagesCombo.getItemCount() > 0;
 		
-		boolean haveImage = (model.imagePlus != null);
-		boolean showBitDepthWarning = haveImage && !(model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
-		boolean showBitDepthInfo = haveImage && (model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
+		boolean haveImage = (model.getImage() != null);
+		boolean showBitDepthWarning = haveImage && !(model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
+		boolean showBitDepthInfo = haveImage && (model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
 		
-		boolean haveSupportedImage = haveImage && (model.imagePlus.getBitDepth() == 8 || model.imagePlus.getBitDepth() == 16);
-		boolean showRoiWarning = haveSupportedImage && (model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty());
-		boolean showRoiInfo = haveSupportedImage && !(model.imagePlus.getRoi() == null || model.imagePlus.getRoi().getBounds().isEmpty());
+		boolean haveSupportedImage = haveImage && (model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
+		boolean showRoiWarning = haveSupportedImage && (model.getImage().getRoi() == null || model.getImage().getRoi().getBounds().isEmpty());
+		boolean showRoiInfo = haveSupportedImage && !(model.getImage().getRoi() == null || model.getImage().getRoi().getBounds().isEmpty());
 		
 		if (showBitDepthInfo)
 		{
-			bitDepthInfoLabel.setText(model.imagePlus.getBitDepth() + " bit / pixel");
+			bitDepthInfoLabel.setText(model.getImage().getBitDepth() + " bit / pixel");
 		}
 		
 		if (showRoiInfo)
 		{
-			Rectangle r = model.imagePlus.getRoi().getBounds();
+			Rectangle r = model.getImage().getRoi().getBounds();
 			roiInfoLabel.setText(r.width + " x " + r.height + " pixels, top left corner at (" + r.x + ", " + r.y + ")");
 		}	
 
@@ -256,7 +256,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		assert(SwingUtilities.isEventDispatchThread());
 		assert(imp != null);
 		
-		if (imp != model.imagePlus)
+		if (imp != model.getImage())
 			return;  // We're not interested in ROI changes for an image that the user did not select for denoising
 						
 		handlePreviewChange();
@@ -310,7 +310,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	@Override
 	protected boolean canGoToNextPage()
 	{		
-		return (model.imagePlus != null) &&
-			   (model.imagePlus.getRoi() != null && !model.imagePlus.getRoi().getBounds().isEmpty());
+		return (model.getImage() != null) &&
+			   (model.getImage().getRoi() != null && !model.getImage().getRoi().getBounds().isEmpty());
 	}
 }
