@@ -67,5 +67,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\WizardModel.java ^
 src\main\java\BilateralDenoiserTest.java
 
+@if %errorlevel% neq 0 exit /b %errorlevel%
+
 jar cvfm output\jar\EM_Denoising-0.0.1.jar src\main\Manifest.txt -C output\class\ .
 
