@@ -86,8 +86,9 @@ public class WizardPageDenoise extends WizardPage
 			progressBar.setVisible(false);
 			wizard.updateButtons();
 		};
-				
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getDenoiser(), model.imagePlus, model.range, model.getDenoisingAlgorithmName(), progressBar, whenDone);
+			
+		// FIXME: pass model.getAlgorithm() alone, not xxx.getDenoiser() and xxx.getName()
+		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getAlgorithm().getDenoiser(), model.imagePlus, model.range, model.getAlgorithm().getReadableName(), progressBar, whenDone);
 		
 		// Run the denoising on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the user interface

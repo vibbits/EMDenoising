@@ -65,7 +65,7 @@ class DenoiseSummaryPanel extends JPanel
 	
 	public void updateText()
 	{
-		denoisingAlgorithm.setText(html(italic(model.getDenoisingAlgorithmName() + "; " + model.getDenoisingParams())));
+		denoisingAlgorithm.setText(html(italic(model.getAlgorithm().getReadableName() + "; " + model.getAlgorithm().getParams())));
 		inputImage.setText(html(italic(model.imagePlus.getTitle())));
 		denoisedImage.setText(html(italic("New image, original image will not be modified.")));
 	}

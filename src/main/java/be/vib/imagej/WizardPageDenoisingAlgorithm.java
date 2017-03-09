@@ -35,36 +35,11 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	private DenoisePreviewCache previewCache = new DenoisePreviewCache(100); // Assuming a 512x512 ROI and 8 bit/pixel grayscale previews, a full cache requires about 100 * (1 MB / 4) = 25 MB storage
 	
     static final int maxPreviewSize = 256;
-    
-	private class Algorithm
-	{
-		String name;
-		WizardModel.DenoisingAlgorithm algo;
-		DenoiseParamsPanelBase panel;
-		
-		public Algorithm(String name, WizardModel.DenoisingAlgorithm algo, DenoiseParamsPanelBase panel)
-		{
-			this.name = name;
-			this.algo = algo;
-			this.panel = panel;
-		}
-	}
 
 	public WizardPageDenoisingAlgorithm(Wizard wizard, WizardModel model, String name)
 	{
 		super(wizard, model, name);
-		
-		final Algorithm[] algorithms = { 
-				new Algorithm("Gaussian", WizardModel.DenoisingAlgorithm.GAUSSIAN, new GaussianParamsPanel(model.gaussianParams)),   	    
-				new Algorithm("Bilateral", WizardModel.DenoisingAlgorithm.BILATERAL, new BilateralParamsPanel(model.bilateralParams)),   	    
-				new Algorithm("Anisotropic Diffusion", WizardModel.DenoisingAlgorithm.ANISOTROPIC_DIFFUSION, new AnisotropicDiffusionParamsPanel(model.anisotropicDiffusionParams)), 
-				new Algorithm("BLS-GSM", WizardModel.DenoisingAlgorithm.BLSGSM, new BLSGSMParamsPanel(model.blsgsmParams)),
-				new Algorithm("Wavelet Thresholding", WizardModel.DenoisingAlgorithm.WAVELET_THRESHOLDING, new WaveletThresholdingParamsPanel(model.waveletThresholdingParams)),    	    
-				new Algorithm("Non-local means", WizardModel.DenoisingAlgorithm.NLMS, new NonLocalMeansParamsPanel(model.nonLocalMeansParams)),
-				new Algorithm("Non-local means SCD", WizardModel.DenoisingAlgorithm.NLMS_SCD, new NonLocalMeansSCDParamsPanel(model.nonLocalMeansSCDParams))
-				};
-		
-		buildUI(algorithms);		
+		buildUI(model.getAlgorithms());		
 	}
 	
 	private void buildUI(Algorithm[] algorithms)
@@ -90,24 +65,24 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	private JPanel createAlgorithmChoicePanel(Algorithm[] algorithms)
 	{
 		List<JRadioButton> buttons = new ArrayList<JRadioButton>();
-		for (Algorithm a : algorithms)
+		for (Algorithm algorithm : algorithms)
 		{
-			buttons.add(createAlgorithmRadioButton(a.name, a.algo));
+			buttons.add(createAlgorithmRadioButton(algorithm));
 		}
 		
 	    // Add radio buttons to group so they are mutually exclusive
 	    ButtonGroup group = new ButtonGroup();
-	    for (JRadioButton b : buttons)
+	    for (JRadioButton button : buttons)
 	    {
-	    	group.add(b);
+	    	group.add(button);
 	    }
 				
 		JPanel algoChoicePanel = new JPanel();
 		algoChoicePanel.setLayout(new BoxLayout(algoChoicePanel, BoxLayout.Y_AXIS));
 		algoChoicePanel.setBorder(BorderFactory.createTitledBorder("Denoising Algorithm"));
-		for (JRadioButton b : buttons)
+		for (JRadioButton button : buttons)
 		{
-			algoChoicePanel.add(b);
+			algoChoicePanel.add(button);
 		}
 		algoChoicePanel.add(Box.createVerticalGlue());
 		
@@ -116,31 +91,31 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private JPanel createAlgorithmParametersPanel(Algorithm[] algorithms)
 	{		
-		for (Algorithm a : algorithms)
+		for (Algorithm algorithm : algorithms)
 		{
-			a.panel.addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });	
+			algorithm.getPanel().addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });	
 		}
 		
 		CardLayout cardLayout = new CardLayout();
 		JPanel panel = new JPanel(cardLayout);
-		for (Algorithm a : algorithms)
+		for (Algorithm algorithm : algorithms)
 		{
-			panel.add(a.panel, a.algo.name());
+			panel.add(algorithm.getPanel(), algorithm.getName().name());
 		}
 		
-		cardLayout.show(panel, model.denoisingAlgorithm.name());
+		cardLayout.show(panel, model.name.name());
 		return panel;
 	}
 
-	private JRadioButton createAlgorithmRadioButton(String text, WizardModel.DenoisingAlgorithm algorithm)
+	private JRadioButton createAlgorithmRadioButton(Algorithm algorithm)
 	{
-	    JRadioButton button = new JRadioButton(text);
-	    button.setSelected(model.denoisingAlgorithm == algorithm);
+	    JRadioButton button = new JRadioButton(algorithm.getReadableName());
+	    button.setSelected(algorithm.getName() == model.name);
 		
 	    button.addActionListener(e -> {
-	    	if (model.denoisingAlgorithm == algorithm) return;
-    		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.name());
-			model.denoisingAlgorithm = algorithm;
+	    	if (model.name == algorithm.getName()) return;
+    		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.getName().name());
+			model.name = algorithm.getName();
 			recalculateDenoisedPreview();
 	    });
 	    
@@ -172,7 +147,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{
 		// Note: we have to copy the cache key and value (the denoising parameters object and preview image object)
 		// to ensure they are not modified after we stored them in the cache.
-		DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(model.denoisingAlgorithm, model.getDenoisingParams());
+		DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(model.name, model.getAlgorithm().getParams());  // FIXME: pass only model.getAlgorithm(), name and params can be recovered from it
 		BufferedImage image = previewCache.get(cacheKey);
 		if (image != null)
 		{
@@ -183,7 +158,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		}
 		else
 		{			
-			Denoiser denoiser = model.getDenoiser();
+			Denoiser denoiser = model.getAlgorithm().getDenoiser();
 			
 			// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
 			denoiser.setImage(model.previewOrigROI.duplicate());		

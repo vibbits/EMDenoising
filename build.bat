@@ -9,12 +9,16 @@ javac -d output\class ^
 C:\Users\frver\.m2\repository\org\scijava\scijava-common\2.56.0\scijava-common-2.56.0.jar;^
 e:\git\ImageJRepository\ij-1.50a.jar;^
 e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
+%SRC_JAVA%\Algorithm.java ^
+%SRC_JAVA%\AnisotropicDiffusionAlgorithm.java ^
 %SRC_JAVA%\AnisotropicDiffusionDenoiser.java ^
 %SRC_JAVA%\AnisotropicDiffusionParams.java ^
 %SRC_JAVA%\AnisotropicDiffusionParamsPanel.java ^
+%SRC_JAVA%\BilateralAlgorithm.java ^
 %SRC_JAVA%\BilateralDenoiser.java ^
 %SRC_JAVA%\BilateralParams.java ^
 %SRC_JAVA%\BilateralParamsPanel.java ^
+%SRC_JAVA%\BLSGSMAlgorithm.java ^
 %SRC_JAVA%\BLSGSMDenoiser.java ^
 %SRC_JAVA%\BLSGSMParams.java ^
 %SRC_JAVA%\BLSGSMParamsPanel.java ^
@@ -28,16 +32,18 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\DenoisePreviewSwingWorker.java ^
 %SRC_JAVA%\DenoiseSummaryPanel.java ^
 %SRC_JAVA%\DenoiseSwingWorker.java ^
+%SRC_JAVA%\GaussianAlgorithm.java ^
 %SRC_JAVA%\GaussianDenoiser.java ^
 %SRC_JAVA%\GaussianParams.java ^
 %SRC_JAVA%\GaussianParamsPanel.java ^
+%SRC_JAVA%\NonLocalMeansAlgorithm.java ^
 %SRC_JAVA%\NonLocalMeansDenoiser.java ^
 %SRC_JAVA%\NonLocalMeansParams.java ^
 %SRC_JAVA%\NonLocalMeansParamsPanel.java ^
+%SRC_JAVA%\NonLocalMeansSCDAlgorithm.java ^
 %SRC_JAVA%\NonLocalMeansSCDDenoiser.java ^
 %SRC_JAVA%\NonLocalMeansSCDParams.java ^
 %SRC_JAVA%\NonLocalMeansSCDParamsPanel.java ^
-%SRC_JAVA%\NoOpDenoiser.java ^
 %SRC_JAVA%\ImagePanel.java ^
 %SRC_JAVA%\ImageRange.java ^
 %SRC_JAVA%\ImageTile.java ^
@@ -48,6 +54,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\RangeSelectionPanel.java ^
 %SRC_JAVA%\SliderFieldPair.java ^
 %SRC_JAVA%\SliderSpinnerPair.java ^
+%SRC_JAVA%\WaveletThresholdingAlgorithm.java ^
 %SRC_JAVA%\WaveletThresholdingDenoiser.java ^
 %SRC_JAVA%\WaveletThresholdingParams.java ^
 %SRC_JAVA%\WaveletThresholdingParamsPanel.java ^

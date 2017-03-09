@@ -2,12 +2,12 @@ package be.vib.imagej;
 
 public class DenoisePreviewCacheKey
 {
-	WizardModel.DenoisingAlgorithm algorithm;
+	Algorithm.Name name;
 	Object params;
 	
-	public DenoisePreviewCacheKey(WizardModel.DenoisingAlgorithm algorithm, Object params)
+	public DenoisePreviewCacheKey(Algorithm.Name name, Object params)
 	{
-		this.algorithm = algorithm;
+		this.name = name;
 		this.params = params;
 	}
 	
@@ -16,12 +16,12 @@ public class DenoisePreviewCacheKey
 	{
 		DenoisePreviewCacheKey other = (DenoisePreviewCacheKey)obj;
 		
-		return (obj instanceof DenoisePreviewCacheKey) && (algorithm == other.algorithm) && params.equals(other.params);
+		return (obj instanceof DenoisePreviewCacheKey) && (name == other.name) && params.equals(other.params);
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return algorithm.hashCode() ^ params.hashCode();
+		return name.hashCode() ^ params.hashCode();
 	}
 }

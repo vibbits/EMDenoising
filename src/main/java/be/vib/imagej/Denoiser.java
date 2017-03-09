@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 
 import ij.process.ImageProcessor;
 
-public class Denoiser implements Callable<ImageProcessor>
+public abstract class Denoiser implements Callable<ImageProcessor>
 {
 	protected ImageProcessor image; // original, noisy source image
 	
