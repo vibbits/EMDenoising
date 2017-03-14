@@ -15,19 +15,17 @@ import ij.process.ShortProcessor;
 
 class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 {
-	private Denoiser denoiser;
+	private Algorithm algorithm;
 	private ImagePlus noisyImagePlus;
 	private ImageRange range;
-	private String algorithmName;
 	private JProgressBar progressBar;
 	private Runnable whenDone;  // Will be run on the EDT as soon as the DenoiseSwingWorker is done denoising. Can be used to indicate in the UI that we are done.
 	
-	public DenoiseSwingWorker(Denoiser denoiser, ImagePlus noisyImagePlus, ImageRange range, String algorithmName, JProgressBar progressBar, Runnable whenDone)
+	public DenoiseSwingWorker(Algorithm algorithm, ImagePlus noisyImagePlus, ImageRange range, JProgressBar progressBar, Runnable whenDone)
 	{
-		this.denoiser = denoiser;
+		this.algorithm = algorithm;
 		this.noisyImagePlus = noisyImagePlus;
 		this.range = range;
-		this.algorithmName = algorithmName;
 		this.progressBar = progressBar;
 		this.whenDone = whenDone;
 	}
@@ -44,6 +42,8 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		final int margin = 16; // FIXME: must be dependent on algorithm parameters to avoid artifacts along tile boundaries
 		
 		final ImageStack noisyStack = noisyImagePlus.getStack();
+		
+		final Denoiser denoiser = algorithm.getDenoiser();
 				
 		ImageStack denoisedStack = new ImageStack(width, height);
 		
@@ -79,7 +79,7 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 			denoisedStack.addSlice("", denoisedImage);			
 		}
 		
-		String title = noisyImagePlus.getTitle() + " ["+ algorithmName + "]";
+		String title = noisyImagePlus.getTitle() + " ["+ algorithm.getReadableName() + "]";
 		ImagePlus denoisedImagePlus = new ImagePlus(title, denoisedStack);
 		return denoisedImagePlus;
 	}
