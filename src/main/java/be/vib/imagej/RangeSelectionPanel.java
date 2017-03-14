@@ -1,10 +1,13 @@
 package be.vib.imagej;
 
 import java.awt.Component;
+import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.InputVerifier;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -21,6 +24,31 @@ class RangeSelectionPanel extends JPanel
 		this.model = model;
 		buildUI();
 	}
+	
+// http://docs.oracle.com/javase/tutorial/uiswing/misc/focus.html#inputVerification
+//
+//    private class RangeVerifier extends InputVerifier
+//    {    	
+//    	public boolean shouldYieldFocus(JComponent input)
+//    	{
+//    		boolean inputOK = verify(input);
+//    		if (inputOK)
+//    		{
+//    			return true;
+//    		}
+//    		else
+//    		{
+//    			Toolkit.getDefaultToolkit().beep();
+//    			return false;
+//    		}
+//    	}
+//    	
+//        public boolean verify(JComponent input)
+//        {
+//            JTextField tf = (JTextField)input;
+//            return "pass".equals(tf.getText());
+//        }
+//    }
 
 	private void buildUI()
 	{
@@ -39,13 +67,13 @@ class RangeSelectionPanel extends JPanel
 		//        or can/should we somehow lock the image so that these changes are not possible?
 
 	    allSlicesRadioButton = new JRadioButton("All slices");
-	    allSlicesRadioButton.setSelected(model.range.getType() == ImageRange.RangeType.ALL_SLICES);
+	    allSlicesRadioButton.setSelected(model.getRange().getType() == ImageRange.RangeType.ALL_SLICES);
 	    
 		currentSliceRadioButton = new JRadioButton("Current slice");
-		currentSliceRadioButton.setSelected(model.range.getType() == ImageRange.RangeType.CURRENT_SLICE);
+		currentSliceRadioButton.setSelected(model.getRange().getType() == ImageRange.RangeType.CURRENT_SLICE);
 
 	    rangeOfSlicesRadioButton = new JRadioButton("Range");
-	    rangeOfSlicesRadioButton.setSelected(model.range.getType() == ImageRange.RangeType.NUMERIC_SLICE_RANGE);
+	    rangeOfSlicesRadioButton.setSelected(model.getRange().getType() == ImageRange.RangeType.NUMERIC_SLICE_RANGE);
 	    
 	    JTextField rangeField = new JTextField("e.g. 1-42", 10);
 	    rangeField.setMaximumSize(rangeField.getPreferredSize());
@@ -84,15 +112,15 @@ class RangeSelectionPanel extends JPanel
 	{
 		if (allSlicesRadioButton.isSelected())
 		{
-    		model.range = ImageRange.makeAllSlicesRange(model.imagePlus);
+    		model.setRange(ImageRange.makeAllSlicesRange(model.getImage()));
 		}
 		else if (currentSliceRadioButton.isSelected())
 		{
-    		model.range = ImageRange.makeCurrentSliceRange(model.imagePlus);
+    		model.setRange(ImageRange.makeCurrentSliceRange(model.getImage()));
 		}
 		else if (rangeOfSlicesRadioButton.isSelected())
 		{
-    		model.range = ImageRange.makeAllSlicesRange(model.imagePlus);  // FIXME
+    		model.setRange(ImageRange.makeAllSlicesRange(model.getImage()));  // FIXME
     		
 	    	// TODO: get first and last from range input field
 	    	// int first = ...;
