@@ -551,7 +551,7 @@ function y = denoise_image_blsgsm(img_noisy, sigma, sparsity_tf="dtcwt", J=5, K=
 
     for j=0..numel(bands)-5
         C_n = compute_covmtx_spat_stationary(bands2[j], wnd) 
-        denoise_band_blsgsm(bands[j], wnd, C_n, sigma)
+        denoise_band_blsgsm(bands[j], wnd, C_n, sigma, "Jeffrey (fast)")
     end
     y = S_H(w)
 
