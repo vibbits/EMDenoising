@@ -19,8 +19,7 @@ class NonLocalMeansDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{		
-		QFunction nlmeans = QuasarTools.loadDenoiseFunction("nlmeans_scd.q",
-                                                            "denoise_nlmeans(mat,int,int,scalar)");
+		QFunction nlmeans = new QFunction("denoise_nlmeans(mat,int,int,scalar)");
 		
 		// The files nlmeans_denoising_stillimages.q and nlmeans_sc.q both contain implementation of the NLMS filter, but their API is slightly different.
 		// The nlmeans_denoising_stillimages implementation is more general, but we stick to nlmeans_sc.q so NLMS and NLMS-SC share the same code.

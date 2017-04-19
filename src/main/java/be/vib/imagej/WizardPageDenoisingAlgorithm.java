@@ -215,6 +215,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		Dimension size = bestPreviewSize(roi, maxPreviewSize);
 		
+		// CHECKME
 		// Take a deep copy of the selected ROI of the image.
 		// After this, the user changing or removing the ROI on the image
 		// has no effect anymore until she navigates back to the WizardPageROI.

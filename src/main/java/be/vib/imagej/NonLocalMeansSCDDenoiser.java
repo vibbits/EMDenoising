@@ -24,8 +24,7 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 	
 	private ImageProcessor nonLocalMeansSCD() throws NoSuchFileException
 	{		
-		QFunction nlmeansSCD = QuasarTools.loadDenoiseFunction("nlmeans_scd.q",
-                                                               "deconv_nlmeans_sc(mat,mat,scalar,int,int,int,scalar,scalar,scalar,mat)"); // TODO: rename to denoise_nlmeans_scd, the deconv prefix is easy to miss
+		QFunction nlmeansSCD = new QFunction("deconv_nlmeans_sc(mat,mat,scalar,int,int,int,scalar,scalar,scalar,mat)"); // TODO: rename to denoise_nlmeans_scd, the deconv prefix is easy to miss
 				
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 
@@ -60,8 +59,7 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 	
 	private ImageProcessor nonLocalMeansSC() throws NoSuchFileException
 	{		
-		QFunction nlmeansSC = QuasarTools.loadDenoiseFunction("nlmeans_scd.q",
-                                                              "denoise_nlmeans_sc(mat,int,int,scalar,scalar,scalar,mat)");
+		QFunction nlmeansSC = new QFunction("denoise_nlmeans_sc(mat,int,int,scalar,scalar,scalar,mat)");
 
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		

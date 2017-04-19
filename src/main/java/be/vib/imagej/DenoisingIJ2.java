@@ -1,22 +1,25 @@
 package be.vib.imagej;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
+import be.vib.bits.JavaQuasarBridge;
 import ij.plugin.frame.Recorder;
 
 // Windows 10
 // ----------
 // Installation:
 //    copy JavaQuasarBridge.jar   to e:\Fiji.app\plugins
-//    copy JavaQuasarBridge.dll   to e:\Fiji.app\lib\win64
 //    copy EM_Denoising-0.0.1.jar to e:\Fiji.app\plugins
 //
 // Prerequisites:
 //    Fiji
-//    Quasar (with a license, so .q sources can be compiled at runtime)
+//    Quasar (with a license, for now - we will eventually embed the Quasar runtime in the JavaQuasarBridge jar)
 //
 // Running:
 //    e:\Fiji.app\ImageJ-win64.exe
@@ -33,12 +36,23 @@ public class DenoisingIJ2 implements Command
 	private LogService log;
     
     private Wizard wizard;
+    
+    private static String tempFolder;
 	
 	static
 	{		
-		System.out.println("About to load JavaQuasarBridge dynamic library");
-		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
-		System.out.println("JavaQuasarBridge dynamic library loaded.");
+		try
+		{
+			System.out.println("About to load JavaQuasarBridge dynamic library");
+			tempFolder = Files.createTempDirectory("vib_em_denoising_").toString();
+			boolean useEmbeddedQuasar = false;  // FIXME: should be true once we have the Quasar runtime distributions and embed them in the jar
+			JavaQuasarBridge.loadLibrary(tempFolder, useEmbeddedQuasar);
+			System.out.println("JavaQuasarBridge dynamic library loaded.");
+		}
+		catch (ClassNotFoundException | IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private Wizard createWizard()
@@ -47,7 +61,7 @@ public class DenoisingIJ2 implements Command
 		
 		Wizard wizard = new Wizard("EM Denoising");
 		
-		WizardPage pageInitialization = new WizardPageInitializeQuasar(wizard, model, "Initialization");
+		WizardPage pageInitialization = new WizardPageInitializeQuasar(wizard, model, "Initialization", tempFolder);
 		WizardPage pageROI = new WizardPageROI(wizard, model, "Select Image and ROI");
 		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Choose Denoising Algorithm");  // Later: "Choose Denoising Protocol" ?
 		WizardPage pageDenoise = new WizardPageDenoise(wizard, model, "Denoise");

@@ -1,10 +1,7 @@
 package be.vib.imagej;
 
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import be.vib.bits.QFunction;
 import be.vib.bits.QHost;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
@@ -14,46 +11,61 @@ import ij.process.ShortProcessor;
 
 public class QuasarTools
 {
-	// Returns the Quasar function object for the function with the given signature.
-	// If the function does not yet exist in the Quasar host, it will load it from filename (and compile it if needed)
-	public static QFunction loadDenoiseFunction(String filename, String signature) throws NoSuchFileException
+	public static void loadAlgorithms(String folder, String filename)
 	{
-		String functionName = extractFunctionName(signature);
+		String module = Paths.get(folder, filename).toString();
 		
-		if (!QHost.functionExists(functionName))
+		if (module.endsWith(".q"))
 		{
-			Path path = Preferences.getQuasarResourcesPath();
-			String module = Paths.get(path.toString(), filename).toString();
-			
-			// Lazy loading of the source module for this denoising function.
-			// Once it is loaded it will persist in the Quasar host
-			// until the host is released.
-			if (module.endsWith(".q"))
-			{
-				System.out.println("Loading source " + module);
-				QHost.loadSourceModule(module);
-			}
-			else
-			{
-				System.out.println("Loading binary " + module);
-				QHost.loadBinaryModule(module);
-			}
+			System.out.println("Loading source " + module);
+			QHost.loadSourceModule(module);
+		}
+		else
+		{
+			System.out.println("Loading binary " + module);
+			QHost.loadBinaryModule(module);
 		}		
-
-		
-		return new QFunction(signature);
 	}
+	
+//	// Returns the Quasar function object for the function with the given signature.
+//	// If the function does not yet exist in the Quasar host, it will load it from filename (and compile it if needed)
+//	public static QFunction loadDenoiseFunction(String filename, String signature) throws NoSuchFileException
+//	{
+//		String functionName = extractFunctionName(signature);
+//		
+//		if (!QHost.functionExists(functionName))
+//		{
+//			Path path = Preferences.getQuasarResourcesPath();
+//			String module = Paths.get(path.toString(), filename).toString();
+//			
+//			// Lazy loading of the source module for this denoising function.
+//			// Once it is loaded it will persist in the Quasar host
+//			// until the host is released.
+//			if (module.endsWith(".q"))
+//			{
+//				System.out.println("Loading source " + module);
+//				QHost.loadSourceModule(module);
+//			}
+//			else
+//			{
+//				System.out.println("Loading binary " + module);
+//				QHost.loadBinaryModule(module);
+//			}
+//		}		
+//
+//		return new QFunction(signature);
+//	}
 
-	// Extracts the function name from a Quasar function signature.
-	// For example, given the signature "gaussian_filter(mat,scalar,int,string)"
-	// it returns "gaussian_filter".
-	private static String extractFunctionName(String signature)
-	{
-		int i = signature.indexOf('(');
-		assert(i != -1);
-		
-		return signature.substring(0, i);
-	}	
+//	// Extracts the function name from a Quasar function signature.
+//	// For example, given the signature "gaussian_filter(mat,scalar,int,string)"
+//	// it returns "gaussian_filter".
+//	private static String extractFunctionName(String signature)
+//	{
+//		int i = signature.indexOf('(');
+//		assert(i != -1);
+//		
+//		return signature.substring(0, i);
+//	}	
 	
 	public static QValue newCubeFromImage(ImageProcessor image)
 	{		

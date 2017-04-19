@@ -31,7 +31,7 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	}
 	
 	@Override
-	public ImagePlus doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception - should we handle it ourselves here?
+	public ImagePlus doInBackground()
 	{
 		// doInBackground is run is a thread different from the Java Event Dispatch Thread (EDT). Do not update Java Swing components here.
 		final int width = noisyImagePlus.getWidth();
@@ -60,15 +60,22 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 				ImageProcessor noisyTileImp = tile.getImageWithMargins();
 				
 				// Denoise the tile
-				denoiser.setImage(noisyTileImp);
-				ImageProcessor denoisedTileImp = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
-								
-				// Remove tile margins
-				denoisedTileImp.setRoi(tile.getLeftMargin(), tile.getTopMargin(), tile.getWidthWithoutMargins(), tile.getHeightWithoutMargins());
-				denoisedTileImp = denoisedTileImp.crop();
-				
-				// Put denoised tile at the correct position in the result image
-				denoisedImage.insert(denoisedTileImp, tile.getXPositionWithoutMargins(), tile.getYPositionWithoutMargins());
+				try
+				{
+					denoiser.setImage(noisyTileImp);
+					ImageProcessor denoisedTileImp = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
+
+					// Remove tile margins
+					denoisedTileImp.setRoi(tile.getLeftMargin(), tile.getTopMargin(), tile.getWidthWithoutMargins(), tile.getHeightWithoutMargins());
+					denoisedTileImp = denoisedTileImp.crop();
+					
+					// Put denoised tile at the correct position in the result image
+					denoisedImage.insert(denoisedTileImp, tile.getXPositionWithoutMargins(), tile.getYPositionWithoutMargins());
+				}
+				catch (ExecutionException | InterruptedException e)
+				{
+					e.printStackTrace();
+				}
 				
 				// Progress feedback
 				tileNr++;
@@ -96,19 +103,15 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	@Override
 	public void done()  // executed on the Java EDT, we can update the UI here.
 	{
+		whenDone.run();
+		
 		try
 		{
-			whenDone.run();
-			
 			ImagePlus denoisedImagePlus = get();
 			denoisedImagePlus.show();			
 		}
-		catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ExecutionException e) {
-			// TODO Auto-generated catch block
+		catch (ExecutionException | InterruptedException e)
+		{
 			e.printStackTrace();
 		}
 	}

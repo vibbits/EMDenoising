@@ -19,8 +19,7 @@ public class GaussianDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{
-		QFunction gaussian = QuasarTools.loadDenoiseFunction("gaussian_filter.q",
-				                                             "gaussian_filter(mat,scalar,int,string)");
+		QFunction gaussian = new QFunction("gaussian_filter(mat,scalar,int,string)");
 		
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		

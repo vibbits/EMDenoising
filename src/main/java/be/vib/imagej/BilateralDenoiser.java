@@ -23,8 +23,7 @@ public class BilateralDenoiser extends Denoiser
 		//       Two obstacles: (i) I think that faster implementation may need changes to be able to deal with 16-bit imageds
 		//                      (ii) The code there mentions "the spatial distance term is currently being ignored for efficiency reasons", what does this mean, is it still bilateral then?
 		
-		QFunction applyBilateralFilter = QuasarTools.loadDenoiseFunction("bilateral_filter.q",
-				                                                         "apply_bilateral_filter(mat,cube,int,int)");
+		QFunction applyBilateralFilter = new QFunction("apply_bilateral_filter(mat,cube,int,int)");
 
 		QFunction computeBilateralFilter = new QFunction("compute_bilateral_filter(cube,int,int,scalar,scalar,scalar,scalar)");
 		

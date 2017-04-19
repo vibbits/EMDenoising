@@ -1,6 +1,7 @@
 rmdir /s /q output
 mkdir output\class
 mkdir output\jar
+mkdir output\qlib
 
 set SRC_JAVA=src\main\java\be\vib\imagej
 
@@ -69,5 +70,14 @@ src\main\java\BilateralDenoiserTest.java
 
 @if %errorlevel% neq 0 exit /b %errorlevel%
 
-jar cvfm output\jar\EM_Denoising-0.0.1.jar src\main\Manifest.txt -C output\class\ .
+rem ================================================================================
+rem TODO: delete old qlib?
+rem TODO: use --rebuild to force regenerating the .qlib
+pushd src\main\resources\quasar
+"e:\Program Files\Quasar\Quasar.exe" --make_lib --gpu vib_denoising_algorithms.q
+popd
+copy src\main\resources\quasar\vib_denoising_algorithms.qlib output\qlib
+rem ================================================================================
+
+jar cvfm output\jar\EM_Denoising-0.0.1.jar src\main\Manifest.txt -C output\class\ . -C output\ qlib
 
