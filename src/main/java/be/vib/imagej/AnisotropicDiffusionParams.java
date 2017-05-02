@@ -14,6 +14,7 @@ public class AnisotropicDiffusionParams
 	public AnisotropicDiffusionParams()
 	{
 		diffusionFactor = 80.0f;
+		// FIXME? should the number of iterations be influenced by the diffusion factor and/or step size? Sometimes from a certain value from the diffusion factor in the user interface, increasing it further has no effect. Is this because our hardcoded number of iterations is too small for the diffusion to spread out any further? 
 	}
 	
 	public AnisotropicDiffusionParams(AnisotropicDiffusionParams other)
