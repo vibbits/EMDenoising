@@ -48,7 +48,7 @@ public class ImageRange
 	
 	public ImageRange()
 	{
-		this.type = RangeType.ALL_SLICES;
+		this.type = RangeType.CURRENT_SLICE;
 		this.first = this.last = 1;
 	}
 	
