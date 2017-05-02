@@ -27,6 +27,7 @@ class GaussianParamsPanel extends DenoiseParamsPanelBase
 		sigmaField.setColumns(5);
 		
 		JLabel sigmaLabel = new JLabel("Sigma:");
+		sigmaLabel.setToolTipText("A larger sigma yields a less noisy but also a more blurry result.");
 
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);

@@ -15,6 +15,7 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		setBorder(BorderFactory.createTitledBorder("Anisotropic Diffusion Denoising Parameters"));
 		
 		JLabel diffusionFactorLabel = new JLabel("Diffusion factor:");
+		diffusionFactorLabel.setToolTipText("Use a larger diffusion factor for more denoising.");
 		
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
