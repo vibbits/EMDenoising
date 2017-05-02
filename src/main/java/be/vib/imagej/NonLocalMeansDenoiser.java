@@ -6,11 +6,11 @@ import be.vib.bits.QFunction;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
-class NonLocalMeansSCDDenoiser extends Denoiser
+class NonLocalMeansDenoiser extends Denoiser
 {
-	private final NonLocalMeansSCDParams params;
+	private final NonLocalMeansParams params;
 	
-	public NonLocalMeansSCDDenoiser(NonLocalMeansSCDParams params)
+	public NonLocalMeansDenoiser(NonLocalMeansParams params)
 	{
 		super();
 		this.params = params;
@@ -56,7 +56,7 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
-		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSigma)); 
+		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSigma)); 
 		
 		QValue denoisedImageCube = nlmeansD.apply(noisyImageCube,
   						                          blurKernel,
@@ -83,9 +83,9 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
-		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSigma)); 
+		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSigma)); 
 		
-		QValue corrFilterInv = new QValue(NonLocalMeansSCDParams.emCorrFilterInv);
+		QValue corrFilterInv = new QValue(NonLocalMeansParams.emCorrFilterInv);
 		
 		QValue denoisedImageCube = nlmeansCD.apply(noisyImageCube,
 							                       blurKernel,
@@ -113,7 +113,7 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 		
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
-		QValue corrFilterInv = new QValue(NonLocalMeansSCDParams.emCorrFilterInv);
+		QValue corrFilterInv = new QValue(NonLocalMeansParams.emCorrFilterInv);
 		
 		QValue denoisedImageCube = nlmeansSC.apply(noisyImageCube,
 							   				       new QValue(params.halfSearchSize),

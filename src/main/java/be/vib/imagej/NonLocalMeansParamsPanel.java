@@ -9,13 +9,13 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 
-class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase 
+class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase 
 {
 	private JLabel lambdaLabel;
 	private JFormattedTextField lambdaField;
 	private JSlider lambdaSlider;
 	
-	public NonLocalMeansSCDParamsPanel(NonLocalMeansSCDParams params)
+	public NonLocalMeansParamsPanel(NonLocalMeansParams params)
 	{
 		setBorder(BorderFactory.createTitledBorder("Non-Local Means Denoising Parameters"));
 		
@@ -24,7 +24,7 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		
 		// ----
 		
-		SliderFieldPair hPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansSCDParams.hMin, NonLocalMeansSCDParams.hMax);
+		SliderFieldPair hPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansParams.hMin, NonLocalMeansParams.hMax);
 		hPair.setValue(params.h);
 		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireChangeEvent(); });
 		
@@ -37,7 +37,7 @@ class NonLocalMeansSCDParamsPanel extends DenoiseParamsPanelBase
 		
 		// ----
 		
-		SliderFieldPair lambdaPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansSCDParams.DeconvolutionParams.lambdaMin, NonLocalMeansSCDParams.DeconvolutionParams.lambdaMax);
+		SliderFieldPair lambdaPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansParams.DeconvolutionParams.lambdaMin, NonLocalMeansParams.DeconvolutionParams.lambdaMax);
 		lambdaPair.setValue(params.deconvolutionParams.lambda);
 		lambdaPair.addPropertyChangeListener(e -> { params.deconvolutionParams.lambda = lambdaPair.getValue(); fireChangeEvent(); });
 		

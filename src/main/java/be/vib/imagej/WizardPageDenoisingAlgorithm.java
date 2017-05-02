@@ -34,7 +34,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private DenoisePreviewCache previewCache = new DenoisePreviewCache(100); // Assuming a 512x512 ROI and 8 bit/pixel grayscale previews, a full cache requires about 100 * (1 MB / 4) = 25 MB storage
 	
-    static final int maxPreviewSize = 256;
+    static final int maxPreviewSize = 512; //  FIXME: was 256
 
 	public WizardPageDenoisingAlgorithm(Wizard wizard, WizardModel model, String name)
 	{

@@ -1,6 +1,6 @@
 package be.vib.imagej;
 
-public class NonLocalMeansSCDParams
+public class NonLocalMeansParams
 {
 	public static final float hMin = 0.01f;
 	public static final float hMax = 250.0f;
@@ -124,7 +124,7 @@ public class NonLocalMeansSCDParams
 		}
 	};
 
-	public NonLocalMeansSCDParams()
+	public NonLocalMeansParams()
 	{
 		h = 100.0f;
 		halfBlockSize = 4;
@@ -135,7 +135,7 @@ public class NonLocalMeansSCDParams
 		deconvolutionParams = new DeconvolutionParams();
 	}
 	
-	public NonLocalMeansSCDParams(NonLocalMeansSCDParams other)
+	public NonLocalMeansParams(NonLocalMeansParams other)
 	{
 		this.h = other.h;
 		this.halfBlockSize = other.halfBlockSize;
@@ -158,9 +158,9 @@ public class NonLocalMeansSCDParams
 	@Override
 	public boolean equals(Object obj)
 	{
-		NonLocalMeansSCDParams other = (NonLocalMeansSCDParams)obj;
+		NonLocalMeansParams other = (NonLocalMeansParams)obj;
 		
-		return (obj instanceof NonLocalMeansSCDParams) && (h == other.h) && (halfBlockSize == other.halfBlockSize) && (halfSearchSize == other.halfSearchSize)
+		return (obj instanceof NonLocalMeansParams) && (h == other.h) && (halfBlockSize == other.halfBlockSize) && (halfSearchSize == other.halfSearchSize)
 				                                       && (decorrelation == other.decorrelation) && decorrelationParams.equals(other.decorrelationParams)
 				                                       && (deconvolution == other.deconvolution) && deconvolutionParams.equals(other.deconvolutionParams);
 	}

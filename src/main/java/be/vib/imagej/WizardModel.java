@@ -35,7 +35,7 @@ public class WizardModel
 		algorithms.put(Name.BLSGSM, new BLSGSMAlgorithm());
 		algorithms.put(Name.ANISOTROPIC_DIFFUSION, new AnisotropicDiffusionAlgorithm());
 		algorithms.put(Name.WAVELET_THRESHOLDING, new WaveletThresholdingAlgorithm());
-		algorithms.put(Name.NONLOCALMEANS, new NonLocalMeansSCDAlgorithm());
+		algorithms.put(Name.NONLOCALMEANS, new NonLocalMeansAlgorithm());
 		
 		range = new ImageRange();
 		
