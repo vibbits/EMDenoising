@@ -19,32 +19,82 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{	
-		return params.deconvolution ? nonLocalMeansSCD() : nonLocalMeansSC();
+		if (params.decorrelation)
+		{
+			return params.deconvolution ? nonLocalMeansCD() : nonLocalMeansC();						
+		}
+		else
+		{
+			return params.deconvolution ? nonLocalMeansD() : nonLocalMeans();			
+		}
 	}
 	
-	private ImageProcessor nonLocalMeansSCD() throws NoSuchFileException
+	public ImageProcessor nonLocalMeans() throws NoSuchFileException
+	{				
+		QFunction nlmeans = new QFunction("denoise_nlmeans(mat,int,int,scalar)");
+
+		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		
+		QValue denoisedImageCube = nlmeans.apply(noisyImageCube,
+							                     new QValue(params.halfSearchSize),
+							                     new QValue(params.halfBlockSize),
+							                     new QValue(params.h));
+		
+		noisyImageCube.dispose();
+
+		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+
+		denoisedImageCube.dispose();
+
+		return denoisedImage;
+	}
+	
+	private ImageProcessor nonLocalMeansD() throws NoSuchFileException
 	{		
-		QFunction nlmeansSCD = new QFunction("deconv_nlmeans_sc(mat,mat,scalar,int,int,int,scalar,scalar,scalar,mat)"); // TODO: rename to denoise_nlmeans_scd, the deconv prefix is easy to miss
+		QFunction nlmeansD = new QFunction("deconv_nlmeans(mat,mat,scalar,int,int,int,scalar)");
+		
+		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+
+		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
+		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSigma)); 
+		
+		QValue denoisedImageCube = nlmeansD.apply(noisyImageCube,
+  						                          blurKernel,
+							                      new QValue(params.deconvolutionParams.lambda),  // FIXME: see nlmeans.q (lambda depends on decorrelate or not)
+							                      new QValue(params.deconvolutionParams.numIterations),
+							                      new QValue(params.halfSearchSize),
+							                      new QValue(params.halfBlockSize),
+							                      new QValue(params.h));
+		
+		noisyImageCube.dispose();
+		blurKernel.dispose();
+
+		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+
+		denoisedImageCube.dispose();
+
+		return denoisedImage;
+	}
+	
+	private ImageProcessor nonLocalMeansCD() throws NoSuchFileException
+	{		
+		QFunction nlmeansCD = new QFunction("deconv_nlmeans_c(mat,mat,scalar,int,int,int,scalar,mat)");
 				
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
 		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansSCDParams.DeconvolutionParams.blurKernelSigma)); 
-
-		// FIXME: QFunctionJNI should support any number of parameters, since so does quasar_dsl.h's Function::operator()(...).	
 		
 		QValue corrFilterInv = new QValue(NonLocalMeansSCDParams.emCorrFilterInv);
 		
-		QValue denoisedImageCube = nlmeansSCD.apply(noisyImageCube,
-							                        blurKernel,
-							                        new QValue(params.deconvolutionParams.lambda),
-							                        new QValue(params.deconvolutionParams.numIterations),
-							                        new QValue(NonLocalMeansSCDParams.halfSearchSize),
-							                        new QValue(NonLocalMeansSCDParams.halfBlockSize),
-							                        new QValue(params.h),
-							                        new QValue(params.sigma0),
-							                        new QValue(NonLocalMeansSCDParams.alpha),
-						                            corrFilterInv);
+		QValue denoisedImageCube = nlmeansCD.apply(noisyImageCube,
+							                       blurKernel,
+							                       new QValue(params.deconvolutionParams.lambda),   // FIXME: see nlmeans.q (lambda depends on decorrelate or not)
+							                       new QValue(params.deconvolutionParams.numIterations),
+							                       new QValue(params.halfSearchSize),
+							                       new QValue(params.halfBlockSize),
+							                       new QValue(params.h),
+						                           corrFilterInv);
 		
 		noisyImageCube.dispose();
 		blurKernel.dispose();
@@ -57,20 +107,18 @@ class NonLocalMeansSCDDenoiser extends Denoiser
 		return denoisedImage;
 	}
 	
-	private ImageProcessor nonLocalMeansSC() throws NoSuchFileException
+	private ImageProcessor nonLocalMeansC() throws NoSuchFileException
 	{		
-		QFunction nlmeansSC = new QFunction("denoise_nlmeans_sc(mat,int,int,scalar,scalar,scalar,mat)");
-
+		QFunction nlmeansSC = new QFunction("denoise_nlmeans_c(mat,int,int,scalar,mat)");
+		
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
 		QValue corrFilterInv = new QValue(NonLocalMeansSCDParams.emCorrFilterInv);
 		
 		QValue denoisedImageCube = nlmeansSC.apply(noisyImageCube,
-							   				       new QValue(NonLocalMeansSCDParams.halfSearchSize),
-											       new QValue(NonLocalMeansSCDParams.halfBlockSize),
+							   				       new QValue(params.halfSearchSize),
+											       new QValue(params.halfBlockSize),
 											       new QValue(params.h),
-											       new QValue(params.sigma0),
-											       new QValue(NonLocalMeansSCDParams.alpha),
 											       corrFilterInv);
 		
 		noisyImageCube.dispose();

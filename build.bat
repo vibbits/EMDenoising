@@ -37,10 +37,6 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\GaussianDenoiser.java ^
 %SRC_JAVA%\GaussianParams.java ^
 %SRC_JAVA%\GaussianParamsPanel.java ^
-%SRC_JAVA%\NonLocalMeansAlgorithm.java ^
-%SRC_JAVA%\NonLocalMeansDenoiser.java ^
-%SRC_JAVA%\NonLocalMeansParams.java ^
-%SRC_JAVA%\NonLocalMeansParamsPanel.java ^
 %SRC_JAVA%\NonLocalMeansSCDAlgorithm.java ^
 %SRC_JAVA%\NonLocalMeansSCDDenoiser.java ^
 %SRC_JAVA%\NonLocalMeansSCDParams.java ^
@@ -75,6 +71,7 @@ rem TODO: delete old qlib?
 rem TODO: use --rebuild to force regenerating the .qlib
 pushd src\main\resources\quasar
 "e:\Program Files\Quasar\Quasar.exe" --make_lib --gpu vib_denoising_algorithms.q
+@if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 copy src\main\resources\quasar\vib_denoising_algorithms.qlib output\qlib
 rem ================================================================================

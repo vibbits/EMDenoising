@@ -14,9 +14,7 @@ public abstract class Algorithm
 		BLSGSM,                 // BLS-GSM (Bayesian Least Squares - Gaussian Scale Mixture)
 		WAVELET_THRESHOLDING,
 		ANISOTROPIC_DIFFUSION,
-		NLMS,                   // Non-local means filter
-		NLMS_SCD                // NLMS-SCD, an extension of the non-local means filter which deals with the fact that EM noise is correlated and signal-dependent, and, optionally does a deconvolution to try and undo blurring
-//		BM3D                    // Block-matching and 3D filtering
+		NONLOCALMEANS
 	};
 	
 	private Name name;
@@ -41,6 +39,5 @@ public abstract class Algorithm
 	// a snapshot (deep copy) is taken of the the denoising parameters as they are at this point in time.
     abstract public Denoiser getDenoiser();
     
-    // TODO
     abstract public DenoiseParamsPanelBase getPanel();
 }

@@ -7,7 +7,7 @@ public class NonLocalMeansSCDAlgorithm extends Algorithm
 	
 	public NonLocalMeansSCDAlgorithm()
 	{
-		super(Name.NLMS_SCD);
+		super(Name.NONLOCALMEANS);
 		params = new NonLocalMeansSCDParams();
 		panel = new NonLocalMeansSCDParamsPanel(params);
 	}
@@ -15,7 +15,7 @@ public class NonLocalMeansSCDAlgorithm extends Algorithm
 	@Override
     public String getReadableName()
     {
-    	return "Non-Local Means SCD";
+    	return "Non-Local Means";
     }
 	
 	@Override
