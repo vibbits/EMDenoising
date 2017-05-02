@@ -299,7 +299,7 @@ class RangeSelectionPanel extends JPanel
 
 		add(currentSliceRadioButton);
 		add(allSlicesRadioButton);
-		add(rangeRadioPanel);
+		// TODO: add(rangeRadioPanel);
 	}
 	
 	public void updateRange() // called when user selects a different range radio button
