@@ -42,7 +42,6 @@ public class Wizard extends JDialog
 	
 	private JButton backButton;
 	private JButton nextButton;
-	private JButton finishButton;
 	// No cancel button
 	
 	public Wizard(String title) //throws InterruptedException, ExecutionException
@@ -123,11 +122,9 @@ public class Wizard extends JDialog
 		
 		backButton = new JButton("Back");
 		nextButton = new JButton("Next");
-		finishButton = new JButton("Finish");
 		
 		backButton.addActionListener(this);
 		nextButton.addActionListener(this);
-		finishButton.addActionListener(this);
 		
 		buttonsPanel.setLayout(new BorderLayout());
 		
@@ -136,8 +133,6 @@ public class Wizard extends JDialog
 		buttonsBox.add(backButton);
 		buttonsBox.add(nextButton);
 		buttonsBox.add(Box.createHorizontalStrut(10));
-
-		buttonsBox.add(finishButton);
 		
 		buttonsPanel.add(buttonsBox, BorderLayout.EAST);
 		
@@ -157,7 +152,7 @@ public class Wizard extends JDialog
 	public void actionPerformed(ActionEvent event)
 	{
 		Object source = event.getSource();
-		if (source != backButton && source != nextButton && source != finishButton)
+		if (source != backButton && source != nextButton)
 			return;
 						
 		if (source == backButton)
@@ -180,19 +175,6 @@ public class Wizard extends JDialog
 			cardLayout.next(pagesPanel);
 			currentPageIdx = newPageIdx;
 		}
-		else if (source == finishButton)
-		{
-			// Be careful here. We could also call dispose() but then we need to check the WindowListener code
-			// that uses those events to clean up the Quasar host. And hiding the window sends a different event
-			// then dispose()ing it.
-			
-			// FIXME!! Need to unify the events so quasar get released consistently in all cases
-			// setVisible(false) : no WindowClosed or WindowClosing event?
-			// dispose() : WindowClosed event
-			// pressing the x in the dialog's title bar : WindowClosing event
-			
-			return;
-		}
 
 		updateButtons();
 		updateCrumbs();
@@ -211,7 +193,6 @@ public class Wizard extends JDialog
 		
 		backButton.setEnabled((currentPageIdx > 0) && currentPage.canGoToPreviousPage());
 		nextButton.setEnabled((currentPageIdx < numPages - 1) && currentPage.canGoToNextPage());		
-		finishButton.setEnabled((currentPageIdx == numPages - 1) && currentPage.canFinish());
 	}
 	
 	/*

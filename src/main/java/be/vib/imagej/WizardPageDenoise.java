@@ -67,7 +67,7 @@ public class WizardPageDenoise extends WizardPage
 		System.out.println("Denoise " + model.getRange() + " (Java thread: " + Thread.currentThread().getId() + ")");
 		
 		busyDenoising = true;
-		wizard.updateButtons();  // disable the Finish and Back buttons while we're busy denoising
+		wizard.updateButtons();  // disable the Back button while we're busy denoising
 
 		startButton.setVisible(false);
 		
@@ -112,12 +112,6 @@ public class WizardPageDenoise extends WizardPage
 		progressBar.setVisible(false);
 		
 		wizard.pack();
-	}
-
-	@Override
-	protected boolean canFinish()
-	{
-		return !busyDenoising;
 	}
 	
 	@Override

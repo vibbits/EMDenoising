@@ -40,11 +40,5 @@ public class WizardPage extends JPanel
 	{
 		return true;
 	}
-
-	// override me
-	protected boolean canFinish()
-	{
-		return true;
-	}
 }
 
