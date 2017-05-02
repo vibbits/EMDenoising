@@ -34,9 +34,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private DenoisePreviewCache previewCache = new DenoisePreviewCache(100); // Assuming a 512x512 ROI and 8 bit/pixel grayscale previews, a full cache requires about 100 * (1 MB / 4) = 25 MB storage
 	
-    static final int maxPreviewSize = 512; //  FIXME: was 256
-
-	public WizardPageDenoisingAlgorithm(Wizard wizard, WizardModel model, String name)
+ 	public WizardPageDenoisingAlgorithm(Wizard wizard, WizardModel model, String name)
 	{
 		super(wizard, model, name);
 		buildUI(model.getAlgorithms());		
@@ -211,9 +209,9 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		if (model.getImage().getRoi() != null && !model.getImage().getRoi().getBounds().isEmpty())
 			roi = model.getImage().getRoi().getBounds();
 		else 
-			roi = new Rectangle(maxPreviewSize, maxPreviewSize);   // TODO: slightly better is probably to center this default ROI on the image, instead of the top left corner 
+			roi = new Rectangle(WizardModel.maxPreviewSize, WizardModel.maxPreviewSize);   // TODO: slightly better is probably to center this default ROI on the image, instead of the top left corner 
 		
-		Dimension size = bestPreviewSize(roi, maxPreviewSize);
+		Dimension size = bestPreviewSize(roi, WizardModel.maxPreviewSize);
 		
 		// CHECKME
 		// Take a deep copy of the selected ROI of the image.

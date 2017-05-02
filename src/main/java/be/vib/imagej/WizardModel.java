@@ -25,6 +25,8 @@ public class WizardModel
 
 	private ImageProcessor noisyPreview; // a small region of interest cropped from the original noisy image
 	
+	public static final int maxPreviewSize = 512; // max size of the denoising preview windows, and thus of the ROI selected on the image
+	
 	public WizardModel()
 	{
 		currentAlgorithmName = Algorithm.Name.GAUSSIAN;

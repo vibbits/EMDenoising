@@ -32,7 +32,8 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	private JLabel roiInfoLabel;  // the ROI information for the image selected in imagesCombo
 	
 	private JLabel imageWarningLabel;
-	private JLabel roiWarningLabel;
+	private JLabel noRoiWarningLabel;
+	private JLabel roiSizeWarningLabel;
 	private JLabel bitDepthWarningLabel;
 	
 	private Component spacer;
@@ -107,7 +108,8 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			roiInfoLabel = new JLabel();
 			
 			imageWarningLabel = new JLabel(htmlAttention("Please open the image or image stack that you want to denoise."));
-			roiWarningLabel = new JLabel(htmlAttention("Please select a region of interest (ROI) on the image. The ROI will be used to preview the effect of the denoising algorithms."));
+			noRoiWarningLabel = new JLabel(htmlAttention("Please select a region of interest (ROI) on the image. The ROI will be used to preview the effect of the denoising algorithms."));
+			roiSizeWarningLabel = new JLabel(htmlAttention("The region of interest (ROI) is too large. Please select an ROI that is no larger than " + WizardModel.maxPreviewSize + " x " + WizardModel.maxPreviewSize + " pixels."));
 			bitDepthWarningLabel = new JLabel(htmlAttention("Please convert the image to grayscale 8 or 16 bit / pixel. Other bit depths are not supported."));
 			
 			spacer = Box.createRigidArea(new Dimension(0, 10));
@@ -153,7 +155,8 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			
 			imageWarningLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 			bitDepthWarningLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-			roiWarningLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+			noRoiWarningLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+			roiSizeWarningLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 			panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 			
 			setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -161,21 +164,48 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			add(spacer);
 			add(imageWarningLabel);
 			add(bitDepthWarningLabel);
-			add(roiWarningLabel);			
+			add(noRoiWarningLabel);			
+			add(roiSizeWarningLabel);			
 		}
+	}
+	
+	private boolean haveImage()
+	{
+		return model.getImage() != null;
+	}
+	
+	private boolean haveImageWithSupportedBitDepth()
+	{
+		return haveImage() && (model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
+	}
+	
+	private boolean imageHasWrongBitDepth()
+	{
+		return haveImage() && !(model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
+	}
+	
+	private boolean imageHasNoRoi()
+	{
+		return haveImage() && (model.getImage().getRoi() == null || model.getImage().getRoi().getBounds().isEmpty());
+	}
+	
+	private boolean imageRoiTooLarge()
+	{
+		return haveImage() && model.getImage().getRoi() != null && !model.getImage().getRoi().getBounds().isEmpty() && (model.getImage().getRoi().getBounds().width > WizardModel.maxPreviewSize || model.getImage().getRoi().getBounds().height > WizardModel.maxPreviewSize);
 	}
 	
 	private void updateInfo()
 	{		
 		boolean haveImages = imagesCombo.getItemCount() > 0;
 		
-		boolean haveImage = (model.getImage() != null);
-		boolean showBitDepthWarning = haveImage && !(model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
-		boolean showBitDepthInfo = haveImage && (model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
+		boolean haveSupportedImage = haveImageWithSupportedBitDepth();
+
+		boolean showBitDepthInfo = haveSupportedImage;
+		boolean showBitDepthWarning = imageHasWrongBitDepth();
 		
-		boolean haveSupportedImage = haveImage && (model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
-		boolean showRoiWarning = haveSupportedImage && (model.getImage().getRoi() == null || model.getImage().getRoi().getBounds().isEmpty());
-		boolean showRoiInfo = haveSupportedImage && !(model.getImage().getRoi() == null || model.getImage().getRoi().getBounds().isEmpty());
+		boolean showNoRoiWarning = haveSupportedImage && imageHasNoRoi();
+		boolean showRoiSizeWarning = haveSupportedImage && imageRoiTooLarge();
+		boolean showRoiInfo = haveSupportedImage && !showNoRoiWarning;
 		
 		if (showBitDepthInfo)
 		{
@@ -198,9 +228,10 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 
 		roiInfoLabel.setVisible(showRoiInfo);
 		roiLabel.setVisible(showRoiInfo);
-		roiWarningLabel.setVisible(showRoiWarning);
+		noRoiWarningLabel.setVisible(showNoRoiWarning);
+		roiSizeWarningLabel.setVisible(showRoiSizeWarning);
 		
-		spacer.setVisible(showBitDepthWarning || showRoiWarning);
+		spacer.setVisible(showBitDepthWarning || showNoRoiWarning || showRoiSizeWarning);
 	}
 	
 	@Override
@@ -310,7 +341,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	@Override
 	protected boolean canGoToNextPage()
 	{		
-		return (model.getImage() != null) &&
-			   (model.getImage().getRoi() != null && !model.getImage().getRoi().getBounds().isEmpty());
+		return haveImage() &&
+			   !imageHasWrongBitDepth() &&
+			   !imageHasNoRoi() &&
+			   !imageRoiTooLarge();
 	}
 }
