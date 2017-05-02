@@ -1,5 +1,70 @@
+%==================================================
+% Implementation of anisotropic diffusion denoising
+%==================================================
+{!author name="Joris Roels"}
+{!doc category="Image Processing/Restoration"}
 
-function img_den:mat = denoise_anisotropic_diffusion(img:mat,niter:int,dt:scalar,k:scalar,diff_function:int)
+import "estimate_noise.q"
+
+% Function: main
+% 
+% Testing function
+% 
+% Usage:
+%   : function [] = main()
+function [] = main()
+
+    % read data
+    img = imread("lena_big.tif")[:,:,0]/255
+    
+    % add noise
+    sigma = 0.05
+    img_noisy = img + sigma .* randn(size(img))
+    
+    % estimate noise level
+    sigma_est = estimate_noise_liu(img_noisy)
+    
+    % set parameters
+    niter = 5
+    dt = 0.2
+    k = 2.90186309814453*sigma_est^2 + 1.53053665161133*sigma_est + 0.00475215911865234
+    diff_type = "exp" % either "exp" or "quad"
+    
+    % denoising
+    tic()
+    img_den = denoise_anisotropic_diffusion(img_noisy,niter,dt,k,diff_type)
+    toc()
+    
+    % computation of the PSNR
+    psnr = (x, y) -> 10*log10(1/mean((x-y).^2))
+    
+    % visualization
+    hold("off")
+    fig0=imshow(img_noisy,[0,1])
+    title(sprintf("Input image - psnr=%f dB", psnr(img_noisy,img)))
+    fig1=imshow(img_den,[0,1])
+    title(sprintf("Anisotropic diffusion - psnr=%f dB", psnr(img_den,img)))
+    fig0.connect(fig1)
+    
+end
+
+% Function: anisotropic_diffusion
+% 
+% Anisotropic diffusion denoising
+% 
+% Usage:
+%   : function [img_den : mat] = denoise_anisotropic_diffusion(img : mat, niter : int = 5, dt : scalar = 0.2, k : scalar = 40, fmode : string'const = "exp")
+% 
+% Parameters:
+% img - noisy input image
+% niter - number of diffusion iterations
+% dt - time step
+% k - damping parameter for diffusion function
+% diff_type - type of diffusion function ("exp" or "quad")
+% 
+% Returns:
+% img_den - denoised image
+function img_den:mat = denoise_anisotropic_diffusion(img:mat,niter:int=5,dt:scalar=0.2,k:scalar=40,diff_type:string="exp")
     % initialization
     img_den = copy(img)
     dx = 1
@@ -40,7 +105,14 @@ function img_den:mat = denoise_anisotropic_diffusion(img:mat,niter:int,dt:scalar
         g[pos[0],pos[1]] = x[pos[0]-1,pos[1]-1] - x[pos[0],pos[1]]
     end
     
-    % iteration
+    % set diffusion function
+    match diff_type with
+    | "exp" ->  diff = x -> exp(-(x./k).^2)    % exponential difference function (default)
+    | "quad" -> diff = x -> 1./(1+(x./k).^2)   % quadratic difference function
+    | _ ->      diff = x -> exp(-(x./k).^2)
+    end
+    
+    % start iterating
     for n=0..niter-1
         % compute gradients
         parallel_do(size(img),g_n,img_den,gradN)
@@ -53,25 +125,14 @@ function img_den:mat = denoise_anisotropic_diffusion(img:mat,niter:int,dt:scalar
         parallel_do(size(img),g_nw,img_den,gradNW)
         
         % compute diffusion function
-        if diff_function==0
-            cN = exp(-(g_n/k).^2)
-            cE = exp(-(g_e/k).^2)
-            cS = exp(-(g_s/k).^2)
-            cW = exp(-(g_w/k).^2)
-            cNE = exp(-(g_ne/k).^2)
-            cSE = exp(-(g_se/k).^2)
-            cSW = exp(-(g_sw/k).^2)
-            cNW = exp(-(g_nw/k).^2)
-        else
-            cN = 1./(1+(g_n/k).^2)
-            cE = 1./(1+(g_e/k).^2)
-            cS = 1./(1+(g_s/k).^2)
-            cW = 1./(1+(g_w/k).^2)
-            cNE = 1./(1+(g_ne/k).^2)
-            cSE = 1./(1+(g_se/k).^2)
-            cSW = 1./(1+(g_sw/k).^2)
-            cNW = 1./(1+(g_nw/k).^2)
-        endif
+        cN = diff(g_n)
+        cE = diff(g_e)
+        cS = diff(g_s)
+        cW = diff(g_w)
+        cNE = diff(g_ne)
+        cSE = diff(g_se)
+        cSW = diff(g_sw)
+        cNW = diff(g_nw)
         
         % diffusion update
         img_den += dt*( (1/(dy^2))*cN.*g_n + (1/(dy^2))*cS.*g_s + _
@@ -79,36 +140,4 @@ function img_den:mat = denoise_anisotropic_diffusion(img:mat,niter:int,dt:scalar
                         (1/(dd^2))*cNE.*g_ne + (1/(dd^2))*cSE.*g_se + _
                         (1/(dd^2))*cSW.*g_sw + (1/(dd^2))*cNW.*g_nw )
     end
-end
-
-function [] = main()
-    
-    sigma = 20
-    
-    niter = 5
-    dt = 0.2
-    k = 40
-    diff_function = 0 % 0 for exponential, 1 for quadratic
-    
-    img = imread("lena_big.tif")
-    img = img[:,:,0]
-    
-    img_noisy = img + randn(size(img))*sigma
-    
-    print "Computing anisotropic diffusion ..."
-    tic()
-    img_den = denoise_anisotropic_diffusion(img_noisy,niter,dt,k,diff_function)
-    toc()
-    
-    % computation of the PSNR
-    psnr = (x, y) -> 10*log10(255^2/mean((x-y).^2))
-
-    hold("off")
-    fig1=imshow(img_noisy,[0,255])
-    title(sprintf("Noisy image - psnr=%f dB", psnr(img_noisy,img)))
-    fig2=imshow(img_den,[0,255])
-    title(sprintf("Anisotropic diffusion - psnr=%f dB", psnr(img_den,img)))
-    
-    fig1.connect(fig2)
-
 end

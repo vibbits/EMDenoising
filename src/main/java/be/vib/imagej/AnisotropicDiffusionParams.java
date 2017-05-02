@@ -7,7 +7,7 @@ public class AnisotropicDiffusionParams
 
 	public final int numIterations = 5;       // number of diffusion iterations, each iteration takes a step of size stepSize
 	public final float stepSize = 0.2f;       // sometimes called dt
-	public final int diffusionFunction = 0;   // 0 = exponential, 1 = quadratic
+	public final String diffusionFunction = "exp";   // "exp" = exponential, "quad" = quadratic
 
 	public float diffusionFactor;             // sometimes called k
 	

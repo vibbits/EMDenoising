@@ -19,8 +19,8 @@ class AnisotropicDiffusionDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{
-		QFunction diffusion = new QFunction("denoise_anisotropic_diffusion(mat,int,scalar,scalar,int)");
-
+		QFunction diffusion = new QFunction("denoise_anisotropic_diffusion(mat,int,scalar,scalar,string)");
+		
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 				
 		QValue denoisedImageCube = diffusion.apply(noisyImageCube,
