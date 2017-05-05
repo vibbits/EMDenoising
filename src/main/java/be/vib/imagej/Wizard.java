@@ -7,9 +7,6 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -18,9 +15,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
-import be.vib.bits.QHost;
-import be.vib.bits.QExecutor;
 
 /**
  * 
@@ -36,79 +30,35 @@ public class Wizard extends JDialog
 	private CardLayout cardLayout;
 	
 	private JPanel pagesPanel;  // holds all WizardPages in the Wizard
-	private int currentPageIdx;
+	private int currentPageIdx = 0;
 		
 	private JLabel crumbs;  // "bread crumbs" at the top, showing where the user is in the linear wizard
 	
 	private JButton backButton;
 	private JButton nextButton;
-	// No cancel button
+	// No cancel or finish buttons
 	
-	public Wizard(String title) //throws InterruptedException, ExecutionException
-	{				
-		currentPageIdx = 0;
-		
-		System.out.println("Wizard constructor (Java thread=" + Thread.currentThread().getId() + ")");
-
-
-		addWindowListener(new WindowAdapter(){
-//			@Override
-//			public void windowOpened(WindowEvent e)
-//			{
-//				System.out.println("Wizard window opened - about to init quasar host (Java thread=" + Thread.currentThread().getId() + ")");
-//
-//				try {
-//						QExecutor.getInstance().submit(() -> {
-//						boolean loadCompiler = true;
-//						QHost.init("cuda", loadCompiler);
-//						System.out.println("QHost.init done");
-//					}).get();
-//				} catch (InterruptedException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				} catch (ExecutionException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//				
-//				System.out.println("Wizard window opened - quasar host initialized");
-//			}
-
-			@Override
-			public void windowClosing(WindowEvent e) // TODO: or windowClosed ?
-			{
-				System.out.println("Wizard window closing - about to release quasar host (Java thread=" + Thread.currentThread().getId() + ")");
-
-					try {
-						QExecutor.getInstance().submit(() -> {
-							QHost.release();
-							System.out.println("Wizard window closing - quasar host released");
-						}).get();
-					} catch (InterruptedException | ExecutionException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e)
-			{
-				System.out.println("Wizard window closed (Java thread=" + Thread.currentThread().getId() + ")");
-			}
-		});
-		
+	public Wizard(String title)
+	{						
 		buildUI(title);
+		
 	}
 	
-	// FIXME? call aboutToShowPanel() when first panel is shown initially (without the back/next buttons being pressed)
-
 	public void addPage(WizardPage page)
 	{
 		pagesPanel.add(page);
 
 		updateButtons();
 		updateCrumbs();
+	}
+	
+	// Call start() after all pages have been added to the wizard via addPage()
+	// and before showing the wizard via setVisible(true).
+	public void start()
+	{
+		currentPageIdx = 0;
+		WizardPage firstPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
+		firstPage.aboutToShowPanel();
 	}
 	
 	private void buildUI(String title)

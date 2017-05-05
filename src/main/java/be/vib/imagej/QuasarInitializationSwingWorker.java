@@ -27,8 +27,9 @@ public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 	@Override
 	public Void doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception
 	{
+		// Initialize Quasar now
 		Callable<Void> task = () -> {
-			System.out.println("QHost.init device = " + device + " load compiler = " + loadCompiler);
+			System.out.println("QHost.init device = " + device + " load compiler = " + loadCompiler + " (Java thread=" + Thread.currentThread().getId() + ")");
 			QHost.init(device, loadCompiler);
 			
 			// QHost.enableProfiling();
@@ -43,6 +44,29 @@ public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 		};
 		
 		QExecutor.getInstance().submit(task).get();
+		
+		// Schedule Quasar release when the Java VM shuts down. This is ugly, but
+		// there doesn't seem to be any other obvious way to release Quasar "at the very end".
+		// (And Quasar can only be initialized and released a single time.)
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run()
+			{
+				Callable<Void> task = () -> {
+					System.out.println("Calling QHost.release()" + " (Java thread=" + Thread.currentThread().getId() + ")");
+					QHost.release();
+					System.out.println("Quasar host released");					
+					return null;
+				};
+				
+				try {
+					QExecutor.getInstance().submit(task).get();
+				} catch (InterruptedException | ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
+			}
+		});
 				
 		return null;
 	}

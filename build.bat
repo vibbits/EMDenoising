@@ -33,6 +33,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\DenoisePreviewSwingWorker.java ^
 %SRC_JAVA%\DenoiseSummaryPanel.java ^
 %SRC_JAVA%\DenoiseSwingWorker.java ^
+%SRC_JAVA%\DenoisingWizardSingleton.java ^
 %SRC_JAVA%\GaussianAlgorithm.java ^
 %SRC_JAVA%\GaussianDenoiser.java ^
 %SRC_JAVA%\GaussianParams.java ^
@@ -77,4 +78,6 @@ copy src\main\resources\quasar\vib_denoising_algorithms.qlib output\qlib
 rem ================================================================================
 
 jar cvfm output\jar\EM_Denoising-0.0.1.jar src\main\Manifest.txt -C output\class\ . -C output\ qlib
+
+copy output\jar\EM_Denoising-0.0.1.jar e:\Fiji.app\plugins
 
