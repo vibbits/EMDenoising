@@ -2,13 +2,13 @@ package be.vib.imagej;
 
 public class DenoisePreviewCacheKey
 {
-	Algorithm.Name name;
-	Object params;
+	private Algorithm.Name name;
+	private Object params;
 	
-	public DenoisePreviewCacheKey(Algorithm.Name name, Object params)
+	public DenoisePreviewCacheKey(Algorithm algorithm)
 	{
-		this.name = name;
-		this.params = params;
+		this.name = algorithm.getName();
+		this.params = algorithm.getParams();
 	}
 	
 	@Override

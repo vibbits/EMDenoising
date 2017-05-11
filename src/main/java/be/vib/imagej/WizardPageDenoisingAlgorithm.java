@@ -169,12 +169,11 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			{
 				// Note: we have to copy the cache key and value (the denoising parameters object and preview image object)
 				// to ensure they are not modified after we stored them in the cache.
-				DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(algorithm.getName(), algorithm.getParams());  // FIXME: pass only model.getAlgorithm(), name and params can be recovered from it
+				DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(algorithm);
 				BufferedImage image = previewCache.get(cacheKey);
 				
 				if (image != null)
 				{
-					// result found in cache
 					System.out.println("Using cached result");
 					BufferedImage imageCopy = deepCopy(image); // copy image, to avoid it losing it if it gets ejected from the cache before it was set on the denoisedImagePanel (CHECKME: copy really needed?)
 					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setImage(imageCopy); }); 
@@ -188,7 +187,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 					SwingUtilities.invokeLater(() -> { previewCache.put(cacheKey, denoisedImage);
                                                        denoisedImagePanel.setImage(denoisedImage); });
 				}
-			} catch (InterruptedException | ExecutionException e)
+			}
+			catch (InterruptedException | ExecutionException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
