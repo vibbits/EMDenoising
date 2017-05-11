@@ -7,6 +7,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 
 class BilateralParamsPanel extends DenoiseParamsPanelBase 
 {	
@@ -17,29 +18,28 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		SliderFieldPair alphaPair = new SliderFieldPair(0, 100, floatFormat, BilateralParams.alphaMin, BilateralParams.alphaMax);
-		alphaPair.setValue(params.alpha);
-		alphaPair.addPropertyChangeListener(e -> { params.alpha = alphaPair.getValue(); fireChangeEvent(); });
+		SliderFieldPair hPair = new SliderFieldPair(0, 100, floatFormat, BilateralParams.hMin, BilateralParams.hMax);
+		hPair.setValue(params.h);
+		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireChangeEvent(); });
 		
-		JSlider alphaSlider = alphaPair.getSlider();
+		JSlider hSlider = hPair.getSlider();
 		
-		JFormattedTextField alphaField = alphaPair.getFloatField();
-		alphaField.setColumns(5);
+		JFormattedTextField hField = hPair.getFloatField();
+		hField.setColumns(5);
 		
-		JLabel alphaLabel = new JLabel("Alpha:");
+		JLabel hLabel = new JLabel("h:");
 
 		//
 		
-		SliderFieldPair betaPair = new SliderFieldPair(0, 100, floatFormat, BilateralParams.betaMin, BilateralParams.betaMax);
-		betaPair.setValue(params.beta);
-		betaPair.addPropertyChangeListener(e -> { params.beta = betaPair.getValue(); fireChangeEvent(); });
+		SliderSpinnerPair rPair = new SliderSpinnerPair(BilateralParams.rMin, BilateralParams.rMax);
+		rPair.setValue(params.r);
+		rPair.addPropertyChangeListener(e -> { params.r = rPair.getValue(); fireChangeEvent(); });
 		
-		JSlider betaSlider = betaPair.getSlider();
+		JSlider rSlider = rPair.getSlider();
 		
-		JFormattedTextField betaField = betaPair.getFloatField();
-		betaField.setColumns(5);
+		JSpinner rSpinner = rPair.getSpinner();
 		
-		JLabel betaLabel = new JLabel("Beta:");
+		JLabel rLabel = new JLabel("Radius:");
 
 		//
 		
@@ -50,28 +50,28 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 		layout.setHorizontalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-		    		   .addComponent(alphaLabel)
-			           .addComponent(betaLabel))
+		    		   .addComponent(hLabel)
+			           .addComponent(rLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-		    		   .addComponent(alphaField)
-			           .addComponent(betaField))
+		    		   .addComponent(hField)
+			           .addComponent(rSpinner))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-		    		   .addComponent(alphaSlider)
-			           .addComponent(betaSlider))
+		    		   .addComponent(hSlider)
+			           .addComponent(rSlider))
 		);
 		
 		layout.setVerticalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(alphaLabel)
-		    				  .addComponent(alphaField))
-			           .addComponent(alphaSlider))
+		    				  .addComponent(hLabel)
+		    				  .addComponent(hField))
+			           .addComponent(hSlider))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(betaLabel)
-		    				  .addComponent(betaField))
-			           .addComponent(betaSlider))
+		    				  .addComponent(rLabel)
+		    				  .addComponent(rSpinner))
+			           .addComponent(rSlider))
 		      );    	
 		
 		setLayout(layout);

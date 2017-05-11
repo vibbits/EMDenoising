@@ -19,30 +19,21 @@ public class BilateralDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{
-		// TODO: Replace this bilateral filter with the newer O(1) implementation in bilateral_filter.faster.q
-		//       Two obstacles: (i) I think that faster implementation may need changes to be able to deal with 16-bit imageds
-		//                      (ii) The code there mentions "the spatial distance term is currently being ignored for efficiency reasons", what does this mean, is it still bilateral then?
+		QFunction bilateralFilter = new QFunction("bilateral_filter_denoise(cube,cube,int,scalar)");  // Fast histogram based O(1) bilateral filter
+		// FIXME: the O(1) implementation does not currently support 16 bit/pixel images.
 		
-		QFunction applyBilateralFilter = new QFunction("apply_bilateral_filter(mat,cube,int,int)");
-
-		QFunction computeBilateralFilter = new QFunction("compute_bilateral_filter(cube,int,int,scalar,scalar,scalar,scalar)");
+		QFunction zeros = new QFunction("zeros(...)");
 		
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
-		QValue bf = computeBilateralFilter.apply(noisyImageCube,
-				                                 new QValue(BilateralParams.nx),
-				                                 new QValue(BilateralParams.ny),
-				                                 new QValue(params.alpha),
-				                                 new QValue(params.beta),
-				                                 new QValue(BilateralParams.euclDist),
-				                                 new QValue(BilateralParams.normalize));
-
-		QValue denoisedImageCube = applyBilateralFilter.apply(noisyImageCube,
-    				                                          bf,
-				                                              new QValue(BilateralParams.nx),
-				                                              new QValue(BilateralParams.ny));
+		// Construct an empty result image. It will be filled in by bilateralFilter().
+		QValue denoisedImageCube = zeros.apply(noisyImageCube.size());
 		
-		bf.dispose();
+		bilateralFilter.apply(noisyImageCube,
+				              denoisedImageCube,
+				              new QValue(params.r),
+				              new QValue(-params.h));  // params.h is actually the negative of h (to avoid negative values in the user interface)
+		
 		noisyImageCube.dispose();
 
 		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);

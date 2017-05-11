@@ -2,37 +2,31 @@ package be.vib.imagej;
 
 public class BilateralParams
 {
-	public float alpha;
-	public float beta;
-	
-	public static final float alphaMin = 0.01f;
-	public static final float alphaMax = 20000.0f;
-	
-	public static final float betaMin = 0.01f;
-	public static final float betaMax = 20.0f;
-	
-	public static final int nx = 7;
-	public static final int ny = 7;
-	
-	public static final float euclDist = 0.0f;
-	public static final float normalize = 0.0f;
-	
+	public int r;
+	public float h;  // it's actually -h (because we want to avoid a negative range in the UI, and where less negative values (so a slider to the right) would mean less denoising)
+
+	public static final int rMin = 1;
+	public static final int rMax = 10;   // FIXME: check useful range
+		
+	public static final float hMin = 0;
+	public static final float hMax = 5;
+		
 	public BilateralParams()
 	{
-		alpha = 10000.0f;
-		beta = 4.0f;
+		h = 1.9f;
+		r = 6;
 	}
 	
 	public BilateralParams(BilateralParams other)
 	{
-		this.alpha = other.alpha;
-		this.beta = other.beta;
+		this.h = other.h;
+		this.r = other.r;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "alpha " + alpha + "; beta " + beta;
+		return "h " + h + "; r " + r;
 	}
 	
 	@Override
@@ -40,12 +34,12 @@ public class BilateralParams
 	{
 		BilateralParams other = (BilateralParams)obj;
 		
-		return (obj instanceof BilateralParams) && (alpha == other.alpha) && (beta == other.beta);
+		return (obj instanceof BilateralParams) && (h == other.h) && (r == other.r);
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return Float.valueOf(alpha).hashCode() ^  Float.valueOf(beta).hashCode();
+		return Float.valueOf(h).hashCode() ^  Integer.valueOf(r).hashCode();
 	}
 }

@@ -1,144 +1,194 @@
-% Bilateral filter
-% Author: Simon Donné
+%====================================================
+% Implementation of the Bilateral filter for images
+% using the fast histogram based method: 
+%   Ben Weiss. "Fast median and bilateral filtering" 
+%   in ACM SIGGRAPH 2006 Papers (SIGGRAPH '06)
+%====================================================
+{!author name="Bart Goossens"}
+{!doc category="Image Processing/Filters"}
 
-import "colortransform.q"
+import "estimate_noise.q"
 
-% Function: compute_bilateral_filter
-%
-% Computes bilateral filter coefficients
-%
-% Parameters:
-% Lab - image in LAB space
-% n_width - width of the filter window
-% n_height - height of the filter window
-% alpha - divisor for the color distance
-% beta - divisor for the spatial distance
-% eucl_dist - use the euclidian distance (1), or the square of the distance (0)
-% normalize - normalize the bilateral filter coefficients over each neighbourhood (1)
-%
-% :function bf:cube = compute_bilateral_filter(Lab:cube'safe, n_width:int, n_height:int, alpha:scalar, beta:scalar, eucl_dist:scalar, normalize:scalar)
-
-function bf:cube = compute_bilateral_filter(Lab:cube'safe, n_width:int, n_height:int, _
-                                                alpha:scalar, beta:scalar, eucl_dist:scalar, normalize:scalar)
-    nx2:int = (n_width - 1)/2
-    ny2:int = (n_height - 1)/2
-    height:int = size(Lab,0)
-    width:int  = size(Lab,1)
-    
-    bf = zeros(height, width, n_width * n_height)   % Beware of out-of-memory here - this may be a rather large cube.
-    summ = zeros(height, width)
-        
-    function [] = __kernel__ fcalcbf(pos:ivec3)
-        j = pos[0]
-        i = pos[1]
-        x = mod(pos[2], n_width)-nx2
-        y = floor(pos[2]/n_width)-ny2
-        if(j+y < 0 || j+y >= height || i+x < 0 || i+x >= width)
-            bf[pos] = 0.0
-        else
-            diffL = Lab[j+y,i+x,0] - Lab[j, i,0]
-            diffa = Lab[j+y,i+x,1] - Lab[j, i,1]
-            diffb = Lab[j+y,i+x,2] - Lab[j, i,2]
-            cdist = diffL^2 +diffa^2 +diffb^2
-            dist  = x^2 + y^2
-            bf[pos] = exp(-(cdist/alpha)-(dist/beta))
-            summ[j,i] += bf[pos]
-        endif
-    end  
-    function [] = __kernel__ fcalcbfeucl(pos:ivec3)
-        j = pos[0]
-        i = pos[1]
-        x = mod(pos[2], n_width)-nx2
-        y = floor(pos[2]/n_width)-ny2
-        if(j+y < 0 || j+y >= height || i+x < 0 || i+x >= width)
-            bf[pos] = 0.0
-        else
-            diffL = Lab[j+y,i+x,0] - Lab[j, i,0]
-            diffa = Lab[j+y,i+x,1] - Lab[j, i,1]
-            diffb = Lab[j+y,i+x,2] - Lab[j, i,2]
-            cdist = sqrt(diffL^2 +diffa^2 +diffb^2)
-            dist  = sqrt(x^2 + y^2)
-            bf[pos] = exp(-(cdist/alpha)-(dist/beta))
-            summ[j,i] += bf[pos]
-        endif
-    end
-    
-    if(eucl_dist==1)
-        parallel_do(size(bf), fcalcbfeucl)
-    else
-        parallel_do(size(bf), fcalcbf)
-    endif
-    
-    if(normalize)
-        function [] = __kernel__ fnormbl(pos:ivec3)
-            bf[pos] = bf[pos]/summ[pos[0], pos[1]]
-        end
-        parallel_do(size(bf), fnormbl)
-    endif
-end
-
-% Function: apply_bilateral_filter
-%
-% Applies the bilateral filter to an image
-%
-% Parameters:
-% bf - bilateral filter coefficients
-% n_width - width of the filter window
-% n_height - height of the filter window
-%
-% :function result:cube = apply_bilateral_filter(image:cube, bf:cube, n_width:int, n_height:int)
-function result:mat = apply_bilateral_filter(image:mat, bf:cube, n_width:int, n_height:int)
-    height:int = size(image,0)
-    width:int  = size(image,1)
-    ny2 = floor((n_height-1)/2)
-    nx2 = floor((n_width -1)/2)
-    
-    result = zeros(height, width)
-    summ = zeros(height, width)
-    
-    function [] = __kernel__ fsum(pos:ivec3)
-        xoff = mod(pos[2], n_width)-nx2
-        yoff = floor(pos[2]/n_width)-ny2
-        if(pos[0]+yoff < 0 || pos[0]+yoff >= height || pos[1]+xoff < 0 || pos[1]+xoff >= width)
-            return 
-        endif
-        result[pos[0], pos[1]] += image[pos[0]+yoff, pos[1]+xoff]*bf[pos]
-        summ[pos[0], pos[1]] += bf[pos]
-    end
-    parallel_do([height, width, n_height*n_width], fsum)
-    
-    function [] = __kernel__ fnorm(pos:ivec2)
-        x = result[pos] / summ[pos[0], pos[1]]
-        result[pos] = x
-    end
-    parallel_do(size(result), fnorm)    
-end
-
+% Function: main
+% 
+% Testing function
+% 
+% Usage:
+%   : function [] = main()
 function [] = main()
     
-    sigma = 20
+    % load image
+    img = imread("lena_big.tif")[:,:,0]/255
     
-    img = imread("lena_big.tif")
-    img = img[:,:,0]
+    % add noise
+    sigma = 0.05
+    img_noisy = img + sigma .* randn(size(img))
     
-    img_noisy = img + randn(size(img))*sigma
+    % estimate noise level
+    sigma_est = estimate_noise_liu(img_noisy)
     
-    nx = 7
-    ny = 7
-    alpha = 10000 
-    beta = 4
+    % set parameters
+    wnd_size = 6
+    damping_param = 33.7677001953125*sigma_est^2 - 20.3271179199219*sigma_est - 0.0491275787353516
     
-    bf = compute_bilateral_filter(img_noisy, nx,ny, alpha, beta, 0, 0)
-    img_den = apply_bilateral_filter(img_noisy, bf, nx, ny)
+    % denoising
+    tic()
+    img_den = zeros(size(img_noisy))
+    bilateral_filter_denoise(img_noisy.*255, img_den, wnd_size, damping_param)
+    img_den = img_den./255
+    toc()
     
     % computation of the PSNR
-    psnr = (x, y) -> 10*log10(255^2/mean((x-y).^2))
-
-    hold("off")
-    fig1=imshow(img_noisy,[0,255])
-    title(sprintf("Noisy image - psnr=%f dB", psnr(img_noisy,img)))
-    fig2=imshow(img_den,[0,255])
-    title(sprintf("Bilateral filter - psnr=%f dB", psnr(img_den,img)))
+    psnr = (x, y) -> 10*log10(1/mean((x-y).^2))
     
-    fig1.connect(fig2)
+    % visualization
+    hold("off")
+    fig0=imshow(img_noisy,[0,1])
+    title(sprintf("Input image - psnr=%f dB", psnr(img_noisy,img)))
+    fig1=imshow(img_den,[0,1])
+    title(sprintf("Bilateral filter - psnr=%f dB", psnr(img_den,img)))
+    fig0.connect(fig1)
+    
+end
+
+% Function: bilateral_filter
+%
+% Bilateral filter for images - using the fast histogram based method
+%
+% :function [] = bilateral_filter_denoise(x : cube, y : cube, r : int, h : scalar)
+%
+% Parameters:
+% x - the input image
+% y - the output image (allocated to have the same size as the input image)
+% r - the radius of the bilateral filter (r = 4 corresponds to a 9x9 window)
+% h - bandwidth parameter of the bilateral filter
+% Notes:
+% * the spatial distance term is currently being ignored for efficiency reasons
+%
+function [] = bilateral_filter_denoise(x : cube, y : cube, r : int, h : scalar)
+
+    % add_hist_row : adds one single row to the histogram
+    function [] = __device__ add_hist_row(x : cube, hist_im : cube[int]'unchecked, row : int, r : int, N : int, sgn : int, blkpos : int, blkdim : int)
+        Nhalf = int(N / 2)
+        nblocks = int((size(x,1) + blkdim - 1) / blkdim)
+
+        for blkidx = 0..nblocks-1
+            p = blkidx * blkdim + blkpos
+            n = mod(p, N)
+            p0 = p - n - r
+
+            if n < Nhalf
+                for k = -Nhalf+n..-1
+                    x1 = int(x[row, p0 + k, 0..2]/4)
+                    x2 = int(x[row, p0 + 2*r+1 + k, 0..2]/4)
+                    hist_im[x1[0], p, 0] += sgn
+                    hist_im[x1[1], p, 1] += sgn
+                    hist_im[x1[2], p, 2] += sgn
+                    hist_im[x2[0], p, 0] -= sgn
+                    hist_im[x2[1], p, 1] -= sgn
+                    hist_im[x2[2], p, 2] -= sgn
+                end
+            elseif n == Nhalf
+                % this is the most labour-intensive loop
+                for k = 0..2*r
+                    x1 = int(x[row, p0 + k, 0..2]/4)
+                    hist_im[x1[0], p, 0] += sgn
+                    hist_im[x1[1], p, 1] += sgn
+                    hist_im[x1[2], p, 2] += sgn
+                end
+            else
+                for k = 0..n-Nhalf-1
+                    x1 = int(x[row, p0 + k, 0..2]/4)
+                    x2 = int(x[row, p0 + 2*r+1 + k, 0..2]/4)
+                    hist_im[x1[0], p, 0] -= sgn
+                    hist_im[x1[1], p, 1] -= sgn
+                    hist_im[x1[2], p, 2] -= sgn
+                    hist_im[x2[0], p, 0] += sgn
+                    hist_im[x2[1], p, 1] += sgn
+                    hist_im[x2[2], p, 2] += sgn
+                end
+            endif
+        end
+    end
+
+    % compute_filter_output : computes the bilateral filter output, based on the local histograms
+    function [y : vec3] = __device__ compute_filter_output(hist_im : cube[int]'unchecked, w : vec'unchecked, input : ivec3, p : int, N : int)
+        Nhalf = int(N/2)
+        n = mod(p, N)
+        p0 = p - n
+
+        y = [0.0, 0.0, 0.0]
+        weight_sum = [0.0, 0.0, 0.0]
+        bins = size(hist_im,0)
+        for k=1..bins-1
+            if n == Nhalf
+                val = hist_im[k, p, 0..2]
+            else
+                val = hist_im[k, p, 0..2] + hist_im[k, p0 + Nhalf, 0..2]
+            endif
+            weight = [w[input[0] - k + bins] * val[0], _
+                      w[input[1] - k + bins] * val[1], _
+                      w[input[2] - k + bins] * val[2]]
+            y += weight .* [k, k, k]
+            weight_sum += weight
+        end
+
+        % the separable histogram step
+        y = [y[0] * weight_sum[1] * weight_sum[2], _
+             weight_sum[0] * y[1] * weight_sum[2], _
+             weight_sum[0] * weight_sum[1] * y[2]]
+        weight_sum = weight_sum[0] * weight_sum[1] * weight_sum[2] * [1.0,1.0,1.0]
+        y ./= weight_sum
+    end
+
+    % ARGUMENTS:
+    % x : input image
+    % y : median filtered output image
+    % hist_im : temporary memory for the histograms (one per column of the input image)
+    % w : weighting function [-256..255] - 512 entries
+    % r : the radius of the bilateral filter window (r = 4 corresponds to a 9x9 window)
+    % N : the number of columns processed simultaneously
+    % blkpos : the current position within the block
+    function [] = __kernel__ bilateral_filter_kernel(x : cube'unchecked, y : cube'unchecked, hist_im : cube[int], w : vec, r : int, N : int, blkpos : int, blkdim : int)
+
+        nblocks = int((size(x,1) + blkdim - 1) / blkdim)
+
+        % Initialization - add the first r rows
+        for m = -r..r-1
+            add_hist_row(x, hist_im, m, r, N, 1, blkpos, blkdim)
+        end
+
+        syncthreads
+
+        for m = 0..size(x,0)-1
+            % Running phase - add row (r), subtract row (r-1)
+            add_hist_row(x, hist_im, m+r, r, N, 1, blkpos, blkdim)
+            add_hist_row(x, hist_im, m-r-1, r, N, -1, blkpos, blkdim)
+            syncthreads
+
+            % At this time, we have all local histograms at row m at our disposal, so we can
+            % directly proceed by computing the median
+            for blkidx = 0..nblocks-1
+                p = blkidx * blkdim + blkpos
+                if p < size(y, 1)
+                    y[m, p, 0..2] = compute_filter_output(hist_im, w, int(x[m, p, 0..2]/4), p, N) * 4.0
+                endif
+            end
+        end
+    end
+
+    nextpow2 = x -> 2^ceil(log2(x))
+    N = floor(sqrt(r)/2)*2+1
+    bins = 64
+    w = exp(-(10^h)/(r+1)^2 * (-bins..bins-1).^2/(bins/256)^2)  % weighting function
+
+    % Compute the block size of the filter
+    blk_size = max_block_size(bilateral_filter_kernel, [1, size(x,1)])
+
+    % First - make sure the input is between 0 and 255
+    x = saturate(x/255)*255    
+
+    % Apply the filter...
+    hist_im = cube[int](bins, size(x,1)+nextpow2(N), 3)
+    parallel_do([blk_size,blk_size],x,y,hist_im,w,r,N,bilateral_filter_kernel)
 end
