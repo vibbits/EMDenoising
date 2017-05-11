@@ -1,10 +1,98 @@
+%==========================
+% Implementation of BLS-GSM
+%==========================
+{!author name="Bart Goossens"}
+{!doc category="Image Processing/Restoration/Wavelets"}
+
 import "system.q"
 import "multirestransforms.q"
 import "linalg.q"
+import "estimate_noise.q"
 import "power_of_two_extension.q"
 
-{!author name="Bart Goossens"}
-{!doc category="Image Processing/Restoration/Wavelets"}
+%
+% The main function - for testing the code
+%
+function [] = main()
+
+    % read data
+    img = imread("lena_big.tif")[:,:,0]/255
+    
+    % add noise
+    sigma = 0.05
+    img_noisy = img + sigma .* randn(size(img))
+    
+    % estimate noise level
+    sigma_est = sigma %estimate_noise_liu(img_noisy)
+    
+    % set parameters
+    J = 4
+    K = 8
+    
+    % denoising
+    tic()
+    img_den = denoise_blsgsm(img_noisy, J, K, sigma_est)
+    toc()
+    
+    % computation of the PSNR
+    psnr = (x, y) -> 10*log10(1/mean((x-y).^2))
+    
+    % visualization
+    hold("off")
+    fig0=imshow(img_noisy,[0,1])
+    title(sprintf("Input image - psnr=%f dB", psnr(img_noisy,img)))
+    fig1=imshow(img_den,[0,1])
+    title(sprintf("BLS-GSM - psnr=%f dB", psnr(img_den,img)))
+    fig0.connect(fig1)
+
+end
+
+% Function: denoise_blsgsm
+%
+% Performs BLS-GSM denoising
+%
+% :function img_den:mat = denoise_blsgsm(img_noisy:mat, J:int, K:int, sigma:scalar)
+%
+% Parameters:
+% img_noisy - noisy image
+% J - number of scales
+% K - number of orientations
+% sigma - noise standard deviation
+% 
+% Returns:
+% img_den - the denoised image
+%
+% This seems to be a special case of the more general denoise_image_blsgsm()
+% function below.
+%
+function img_den:mat = denoise_blsgsm(img_noisy:mat, J:int, K:int, sigma:scalar)
+	%print "denoise_blsgsm J=", J, " K=", K, " sigma=", sigma
+	%print "range noisy image=", min(img_noisy), " ", max(img_noisy)
+	
+    % Do power-of-two extension of the image
+    % (wavelet trf code assumes power-of-two image dimensions)
+    orig_siz = size(img_noisy)
+    [img_noisy, topleft] = power_of_two_extension(img_noisy)
+
+    % Denoise  
+    [S, S_H] = build_dtcwt(filtercoeff_farras, filtercoeff_dualfilt, J)
+    w = S(img_noisy)
+    w2 = S(randn(size(img_noisy)))
+    wnd = [3,3]
+    bands = lincell(w)
+    bands2 = lincell(w2)
+    for j=0..numel(bands)-5
+        C_n = compute_covmtx_spat_stationary(bands2[j], wnd) 
+        denoise_band_blsgsm(bands[j], wnd, C_n, sigma)
+    end
+    img_den = S_H(w)
+
+    % Remove power-of-two extension border again
+    if (any(size(img_den) != orig_siz))
+    	img_den = img_den[topleft[0]..topleft[0]+orig_siz[0]-1, topleft[1]..topleft[1]+orig_siz[1]-1]
+    endif   
+	%print "range denoised image=", min(img_den), " ", max(img_den)
+end
 
 % Function: compute_covmtx
 %
@@ -223,6 +311,12 @@ end
 % :function [S, S_inv] = symsqrt_and_inv(C)
 %
 function [S, S_inv] = symsqrt_and_inv(C)
+%    [U, Lambda:mat, V] = svd(C)
+%    %print "svd err=",sum(sum(abs(U*Lambda*transpose(V)-C)))
+%    lambda:vec = diag(Lambda)
+%    S = U*diag(sqrt(lambda))*transpose(V)
+%    S_inv = U*diag(1./sqrt(lambda))*transpose(V)
+
     [U, Lambda, V] = svd(C)
     Lambda1 = diag(Lambda)
     S = U*diag(sqrt(Lambda1))*transpose(V)
@@ -520,12 +614,7 @@ end
 % K - the number of analysis orientations for the transform (shearlet and steerable
 %     pyramids only)
 function y = denoise_image_blsgsm(img_noisy, sigma, sparsity_tf="dtcwt", J=5, K=8)
-    % Do power-of-two extension of the image
-    % (wavelet trf code assumes power-of-two image dimensions)
-    orig_size = size(img_noisy)
-    [img_noisy, topleft] = power_of_two_extension(img_noisy)
 
-    % Denoise    
     sz = size(img_noisy)
     match sparsity_tf with
     | "shearlet" -> 
@@ -544,67 +633,15 @@ function y = denoise_image_blsgsm(img_noisy, sigma, sparsity_tf="dtcwt", J=5, K=
     w2 = S(randn(size(img_noisy)))
 
     wnd = [3,3]
-    % nc = size(img_noisy, 2)
+    nc = size(img_noisy, 2)
 
     bands = lincell(w)
     bands2 = lincell(w2)
 
     for j=0..numel(bands)-5
         C_n = compute_covmtx_spat_stationary(bands2[j], wnd) 
-        denoise_band_blsgsm(bands[j], wnd, C_n, sigma, "Jeffrey (fast)")
+        denoise_band_blsgsm(bands[j], wnd, C_n, sigma)
     end
     y = S_H(w)
-
-    % Remove power-of-two extension border again
-    if (any(size(y) != orig_size))
-    	y = y[topleft[0]..topleft[0]+orig_size[0]-1, topleft[1]..topleft[1]+orig_size[1]-1]
-    endif    
-end
-
-%
-% The main function - for testing the code
-%
-function [] = main()
-
-    img = imread("lena_big.tif")[:,:,0]
-
-    sigma = 20
-    img_noisy = img + sigma .* randn(size(img))
     
-    J = 4 % number of scales
-    K = 8 % number of orientations
-
-%    tic()
-%    [S, S_H] = build_dtcwt(filtercoeff_farras, filtercoeff_dualfilt, J)
-%    
-%    w = S(img_noisy)
-%    w2 = S(randn(size(img_noisy)))
-%
-%    wnd = [3,3]
-%
-%    bands = lincell(w)
-%    bands2 = lincell(w2)
-%    
-%    for j=0..numel(bands)-5
-%        C_n = compute_covmtx_spat_stationary(bands2[j], wnd) 
-%        denoise_band_blsgsm(bands[j], wnd, C_n, sigma)
-%    end
-%    img_den = S_H(w)
-%    toc()
-    
-    tic()
-    img_den=denoise_image_blsgsm(img_noisy, sigma, "dtcwt", J, K)
-    toc()
-    
-    % computation of the PSNR
-    psnr = (x, y) -> 10*log10(255^2/mean((x-y).^2))
-
-    hold("off")
-    fig0=imshow(img_noisy)
-    title(sprintf("Input image - psnr=%f dB", psnr(img_noisy,img)))
-    fig1=imshow(img_den)
-    title(sprintf("Deconvolution with non-local prior - psnr=%f dB", psnr(img_den,img)))
-
-    % fig0.connect(fig1)
-
 end

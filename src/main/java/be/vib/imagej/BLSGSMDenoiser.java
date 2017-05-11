@@ -19,15 +19,14 @@ class BLSGSMDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{
-		QFunction blsgsm = new QFunction("denoise_image_blsgsm(mat,scalar,string,int,int)");
+		QFunction blsgsm = new QFunction("denoise_blsgsm(mat,int,int,scalar)");
 
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
 		QValue denoisedImageCube = blsgsm.apply(noisyImageCube,
-				                     new QValue(params.sigma),
-				                     new QValue(BLSGSMParams.sparsityTrf),
-				                     new QValue(BLSGSMParams.J),
-				                     new QValue(BLSGSMParams.K));
+							                    new QValue(BLSGSMParams.J),
+							                    new QValue(BLSGSMParams.K),
+							                    new QValue(params.sigma));
 		
 		noisyImageCube.dispose();
 

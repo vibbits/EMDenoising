@@ -29,6 +29,7 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 		sigmaField.setColumns(5);
 		
 		JLabel sigmaLabel = new JLabel("Sigma:");
+		sigmaLabel.setToolTipText("Larger values of sigma yield stronger denoising.");
 
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
