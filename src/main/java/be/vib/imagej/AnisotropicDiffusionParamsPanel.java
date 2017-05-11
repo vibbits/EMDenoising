@@ -7,6 +7,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 
 class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase 
 {
@@ -14,11 +15,12 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 	{
 		setBorder(BorderFactory.createTitledBorder("Anisotropic Diffusion Denoising Parameters"));
 		
-		JLabel diffusionFactorLabel = new JLabel("Diffusion factor:");
-		diffusionFactorLabel.setToolTipText("Use a larger diffusion factor for more denoising.");
-		
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
+
+		// --		
+		JLabel diffusionFactorLabel = new JLabel("Diffusion factor:");
+		diffusionFactorLabel.setToolTipText("Use a larger diffusion factor for more denoising.");
 		
 		SliderFieldPair diffusionFactorPair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.diffusionFactorMin, AnisotropicDiffusionParams.diffusionFactorMax);
 		diffusionFactorPair.setValue(params.diffusionFactor);
@@ -28,6 +30,33 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		
 		JFormattedTextField diffusionFactorField = diffusionFactorPair.getFloatField();
 		diffusionFactorField.setColumns(5);
+
+		//
+		
+		JLabel stepSizeLabel = new JLabel("Step size:");
+		
+		SliderFieldPair stepSizePair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.stepSizeMin, AnisotropicDiffusionParams.stepSizeMax);
+		stepSizePair.setValue(params.stepSize);
+		stepSizePair.addPropertyChangeListener(e -> { params.stepSize = stepSizePair.getValue(); fireChangeEvent(); });
+		
+		JSlider stepSizeSlider = stepSizePair.getSlider();
+		
+		JFormattedTextField stepSizeField = stepSizePair.getFloatField();
+		stepSizeField.setColumns(5);
+
+		//
+		
+		SliderSpinnerPair iterationsPair = new SliderSpinnerPair(AnisotropicDiffusionParams.iterationsMin, AnisotropicDiffusionParams.iterationsMax);
+		iterationsPair.setValue(params.numIterations);
+		iterationsPair.addPropertyChangeListener(e -> { params.numIterations = iterationsPair.getValue(); fireChangeEvent(); });
+		
+		JSlider iterationsSlider = iterationsPair.getSlider();
+		
+		JSpinner iterationsSpinner = iterationsPair.getSpinner();
+		
+		JLabel iterationsLabel = new JLabel("Iterations:");
+
+		//
 		
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
@@ -36,11 +65,17 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		layout.setHorizontalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-			           .addComponent(diffusionFactorLabel))
+			           .addComponent(diffusionFactorLabel)
+			           .addComponent(stepSizeLabel)
+			           .addComponent(iterationsLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-			           .addComponent(diffusionFactorField))
+			           .addComponent(diffusionFactorField)
+			           .addComponent(stepSizeField)
+			           .addComponent(iterationsSpinner))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-			           .addComponent(diffusionFactorSlider))
+			           .addComponent(diffusionFactorSlider)
+			           .addComponent(stepSizeSlider)
+			           .addComponent(iterationsSlider))
 		      );
 		
 		layout.setVerticalGroup(
@@ -50,6 +85,16 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		    				  .addComponent(diffusionFactorLabel)
 		    				  .addComponent(diffusionFactorField))
 			           .addComponent(diffusionFactorSlider))
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(stepSizeLabel)
+		    				  .addComponent(stepSizeField))
+			           .addComponent(stepSizeSlider))
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(iterationsLabel)
+		    				  .addComponent(iterationsSpinner))
+			           .addComponent(iterationsSlider))
 		      );  
 		
 		setLayout(layout);
