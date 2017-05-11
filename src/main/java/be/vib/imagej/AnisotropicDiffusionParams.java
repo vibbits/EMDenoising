@@ -6,7 +6,7 @@ public class AnisotropicDiffusionParams
 	public static final float diffusionFactorMax = 1.0f; // CHECKME: this depends on the range of image pixels e.g. [0, 255] or [0, 65535] or [0, 1]. Annoying, it probably depends on the actual range of pixel values, not the range implied by the bit depth.
 
 	public static final float stepSizeMin = 0.01f;
-	public static final float stepSizeMax = 0.4f;
+	public static final float stepSizeMax = 0.25f;  // above a stepSize of 0.25 we start seeing stipple artifacts (for 8 and 16 bit images, and for variaous diffusion factors and number of iterations)
 
 	public static final int iterationsMin = 1;
 	public static final int iterationsMax = 40;
