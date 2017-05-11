@@ -30,7 +30,6 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\DenoiseParamsPanelBase.java ^
 %SRC_JAVA%\DenoisePreviewCache.java ^
 %SRC_JAVA%\DenoisePreviewCacheKey.java ^
-%SRC_JAVA%\DenoisePreviewSwingWorker.java ^
 %SRC_JAVA%\DenoiseSummaryPanel.java ^
 %SRC_JAVA%\DenoiseSwingWorker.java ^
 %SRC_JAVA%\DenoisingWizardSingleton.java ^
@@ -50,6 +49,7 @@ e:\git\bits\bioimaging\JavaQuasarBridge\dist\JavaQuasarBridge.jar ^
 %SRC_JAVA%\QuasarInitializationSwingWorker.java ^
 %SRC_JAVA%\QuasarTools.java ^
 %SRC_JAVA%\RangeSelectionPanel.java ^
+%SRC_JAVA%\SaturatingExecutor.java ^
 %SRC_JAVA%\SliderFieldPair.java ^
 %SRC_JAVA%\SliderSpinnerPair.java ^
 %SRC_JAVA%\WaveletThresholdingAlgorithm.java ^
@@ -75,6 +75,7 @@ pushd src\main\resources\quasar
 @if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 copy src\main\resources\quasar\vib_denoising_algorithms.qlib output\qlib
+rem copy src\main\resources\quasar\*.q output\qlib
 rem ================================================================================
 
 jar cvfm output\jar\EM_Denoising-0.0.1.jar src\main\Manifest.txt -C output\class\ . -C output\ qlib

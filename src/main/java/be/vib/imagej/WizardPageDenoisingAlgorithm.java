@@ -7,7 +7,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -25,6 +25,8 @@ import ij.process.ImageProcessor;
 
 public class WizardPageDenoisingAlgorithm extends WizardPage 
 {
+	private SaturatingExecutor saturatingExecutor = new SaturatingExecutor(1, 1); // an executor that executes at most one task while holding at most one additional task in a queue; when the queue already holds a task, the new task will replace the old one in the queue. This executor is useful to avoid buildup of unfinished Quasar work.
+	
 	private JPanel algoParamsPanel;
 		
 	private ImagePanel origImagePanel;
@@ -141,39 +143,73 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		}
 	}
 	
-	private void recalculateDenoisedPreview()
+	private class DenoisingTask implements Runnable
 	{
-		// Note: we have to copy the cache key and value (the denoising parameters object and preview image object)
-		// to ensure they are not modified after we stored them in the cache.
-		DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(model.getAlgorithm().getName(), model.getAlgorithm().getParams());  // FIXME: pass only model.getAlgorithm(), name and params can be recovered from it
-		BufferedImage image = previewCache.get(cacheKey);
-		if (image != null)
+		private Algorithm algorithm;
+		private ImageProcessor image;
+				
+		public DenoisingTask(Algorithm algorithm, ImageProcessor image)
 		{
-			// Our non-cached updates must be queued on the same task queue as the cached updates, so we use QExecutor.
-			// Furthermore, GUI updates need to be performed on the Java EDT, so we use invokeLater().
-			BufferedImage imageCopy = deepCopy(image);
-			QExecutor.getInstance().execute(() -> { SwingUtilities.invokeLater( () -> { denoisedImagePanel.setImage(imageCopy); }); });
+			this.algorithm = algorithm;
+			this.image = image.duplicate(); // deep copy
+
+			// Note: we deep copy the noisy input image (since the denoising happens asynchronously
+			// and we don't want surprises if the input image gets changed meanwhile...)
+			
+			// CHECKME: is this really needed?
 		}
-		else
-		{			
-			Denoiser denoiser = model.getAlgorithm().getDenoiser();
+		
+		@Override
+		public void run()
+		{
+			Denoiser denoiser = algorithm.getDenoiser();
+			denoiser.setImage(image);
 			
-			// Deep copy of the noisy input image (since the denoising happens asynchronously and we don't want surprises if the input image gets changed meanwhile...)
-			denoiser.setImage(model.getNoisyPreview().duplicate());		
-			
-			Function<BufferedImage, Void> cacheAndShow = (BufferedImage img) -> { previewCache.put(cacheKey, img);
-											                                      denoisedImagePanel.setImage(img);
-			                                                                      return null; };
-			
-			DenoisePreviewSwingWorker worker = new DenoisePreviewSwingWorker(denoiser, cacheAndShow);
-			
-			// Run the denoising preview on a separate worker thread and return here immediately.
-			// Once denoising has completed, the worker will automatically update the denoising
-			// preview image in the Java Event Dispatch Thread (EDT).
-			worker.execute();
+			try
+			{
+				// Note: we have to copy the cache key and value (the denoising parameters object and preview image object)
+				// to ensure they are not modified after we stored them in the cache.
+				DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(algorithm.getName(), algorithm.getParams());  // FIXME: pass only model.getAlgorithm(), name and params can be recovered from it
+				BufferedImage image = previewCache.get(cacheKey);
+				
+				if (image != null)
+				{
+					// result found in cache
+					System.out.println("Using cached result");
+					BufferedImage imageCopy = deepCopy(image); // copy image, to avoid it losing it if it gets ejected from the cache before it was set on the denoisedImagePanel (CHECKME: copy really needed?)
+					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setImage(imageCopy); }); 
+				}
+				else
+				{
+					System.out.println("   QExecutor exec");
+					BufferedImage denoisedImage = QExecutor.getInstance().submit(denoiser).get().getBufferedImage();   // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.	
+					System.out.println("   QExecutor done");
+					
+					SwingUtilities.invokeLater(() -> { previewCache.put(cacheKey, denoisedImage);
+                                                       denoisedImagePanel.setImage(denoisedImage); });
+				}
+			} catch (InterruptedException | ExecutionException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
 		}
 	}
 	
+	private void recalculateDenoisedPreview()
+	{
+		// Run the denoising preview on a separate worker thread and return here immediately.
+		// Once denoising has completed, the worker will automatically update the denoising
+		// preview image in the Java Event Dispatch Thread (EDT).
+		//                                                                      
+		// Note: if Quasar is busy already, no more than 1 additional denoising task will be queued
+		// and newer tasks will replace older queued tasks. This avoids building up a Quasar work backlog
+		// but still guarantees that the denoised preview will correspond to the latest parameters chosen by the user.
+		
+		DenoisingTask task = new DenoisingTask(model.getAlgorithm(), model.getNoisyPreview());
+		saturatingExecutor.Submit(task);                                                                    	
+	}
+
 	private static JPanel addTitle(JPanel p, String title)
 	{
 		JPanel panel = new JPanel();
@@ -197,6 +233,11 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{
 		assert(model.getImage() != null);
 		
+		// -----------------------------------
+		// TODO: calculate noise estimate
+		// TODO: update default parameters based on noise estimate
+		// -----------------------------------
+		
 		// Always clear the cache, just in case the user switched to a different image or ROI.
 		// IMPROVEME: We could be more precise. We now occasionally clear the cache when it would be nice if we hadn't.
 		previewCache.clear();
@@ -208,7 +249,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		Rectangle roi = null;
 		if (model.getImage().getRoi() != null && !model.getImage().getRoi().getBounds().isEmpty())
 			roi = model.getImage().getRoi().getBounds();
-		else 
+		else // CHECKME: can we ever get here without a ROI? Maybe when moving back from the Denoise panel to the denoisingalgorithm panel?
 			roi = new Rectangle(WizardModel.maxPreviewSize, WizardModel.maxPreviewSize);   // TODO: slightly better is probably to center this default ROI on the image, instead of the top left corner 
 		
 		Dimension size = bestPreviewSize(roi, WizardModel.maxPreviewSize);

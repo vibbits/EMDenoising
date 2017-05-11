@@ -15,6 +15,8 @@ public class QuasarTools
 	{
 		String module = Paths.get(folder, filename).toString();
 		
+		// FIXME: Qhost.loadSourceModule/loadBinaryModule seems to fail silently if "module" does not exist?
+		
 		if (module.endsWith(".q"))
 		{
 			System.out.println("Loading source " + module);
@@ -83,6 +85,16 @@ public class QuasarTools
 		}
 	}
 	
+	public static int bitDepth(ImageProcessor image)
+	{
+		return image.getBitDepth();
+	}
+	
+	public static float bitRange(ImageProcessor image)
+	{
+		return (1 << bitDepth(image)) - 1;
+	}
+
 	public static ImageProcessor newImageFromCube(ImageProcessor image, QValue cube)
 	{
 		int width = image.getWidth();
@@ -103,4 +115,5 @@ public class QuasarTools
 			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
 		}
 	}
+	
 }

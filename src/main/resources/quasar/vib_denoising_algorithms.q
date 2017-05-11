@@ -11,10 +11,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%import "blsgsm.q"
+import "blsgsm.q"
 import "anisotropic_diffusion.q" 
 import "gaussian_filter.q"             
 import "nlmeans.q"                       
-
-%import "bilateral_filter.q"     
+import "bilateral_filter.q"     
 %import "wavelet_thresholding.q"
