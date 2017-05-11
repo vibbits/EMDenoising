@@ -162,6 +162,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		@Override
 		public void run()
 		{
+			// Note: this is not executed on the Java EDT.
+
 			Denoiser denoiser = algorithm.getDenoiser();
 			denoiser.setImage(image);
 			
@@ -180,12 +182,15 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				}
 				else
 				{
+					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setBusy(true); });
+					
 					System.out.println("   QExecutor exec");
 					BufferedImage denoisedImage = QExecutor.getInstance().submit(denoiser).get().getBufferedImage();   // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.	
 					System.out.println("   QExecutor done");
 					
 					SwingUtilities.invokeLater(() -> { previewCache.put(cacheKey, denoisedImage);
-                                                       denoisedImagePanel.setImage(denoisedImage); });
+                                                       denoisedImagePanel.setImage(denoisedImage);
+                                                       denoisedImagePanel.setBusy(false); });
 				}
 			}
 			catch (InterruptedException | ExecutionException e)
@@ -205,6 +210,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		// Note: if Quasar is busy already, no more than 1 additional denoising task will be queued
 		// and newer tasks will replace older queued tasks. This avoids building up a Quasar work backlog
 		// but still guarantees that the denoised preview will correspond to the latest parameters chosen by the user.
+		
+		assert(SwingUtilities.isEventDispatchThread()); // so we can't do any time consuming work here
 		
 		DenoisingTask task = new DenoisingTask(model.getAlgorithm(), model.getNoisyPreview());
 		saturatingExecutor.Submit(task);                                                                    	
