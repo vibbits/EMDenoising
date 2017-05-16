@@ -17,16 +17,16 @@ class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		SliderFieldPair alphaPair = new SliderFieldPair(0, 100, floatFormat, WaveletThresholdingParams.alphaMin, WaveletThresholdingParams.alphaMax);
-		alphaPair.setValue(params.alpha);
-		alphaPair.addPropertyChangeListener(e -> { params.alpha = alphaPair.getValue(); fireChangeEvent(); });
+		SliderFieldPair thresholdPair = new SliderFieldPair(0, 100, floatFormat, WaveletThresholdingParams.thresholdMin, WaveletThresholdingParams.thresholdMax);
+		thresholdPair.setValue(params.threshold);
+		thresholdPair.addPropertyChangeListener(e -> { params.threshold = thresholdPair.getValue(); fireChangeEvent(); });
 		
-		JSlider alphaSlider = alphaPair.getSlider();
+		JSlider thresholdSlider = thresholdPair.getSlider();
 		
-		JFormattedTextField alphaField = alphaPair.getFloatField();
-		alphaField.setColumns(5);
+		JFormattedTextField thresholdField = thresholdPair.getFloatField();
+		thresholdField.setColumns(5);
 		
-		JLabel alphaLabel = new JLabel("Alpha:");
+		JLabel thresholdLabel = new JLabel("Threshold:");
 		
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
@@ -35,20 +35,20 @@ class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 		layout.setHorizontalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-			           .addComponent(alphaLabel))
+			           .addComponent(thresholdLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-			           .addComponent(alphaField))
+			           .addComponent(thresholdField))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-			           .addComponent(alphaSlider))
+			           .addComponent(thresholdSlider))
 		);
 		
 		layout.setVerticalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(alphaLabel)
-		    				  .addComponent(alphaField))
-			           .addComponent(alphaSlider))
+		    				  .addComponent(thresholdLabel)
+		    				  .addComponent(thresholdField))
+			           .addComponent(thresholdSlider))
 		);    	
 		
 		setLayout(layout);

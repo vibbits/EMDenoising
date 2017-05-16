@@ -2,29 +2,27 @@ package be.vib.imagej;
 
 public class WaveletThresholdingParams
 {
-	public float alpha;  // multiplicative scaling factor for the theoretically optimal threshold parameter (so alpha=1 uses the theoretical optimum, not always best in practice!)
+	public float threshold;
 
-	public static final int J = 6;  // number of scales
-	public static final float sigma = 20.0f;
-	public static final String thresholding = "soft"; // use soft thresholding ("hard" is for hard thresholding)
-	
-	public static final float alphaMin = 0.01f;
-	public static final float alphaMax = 25.0f;
+	public static final int J = 3;  // number of scales
+	public static final String thresholdType = "soft"; // use soft thresholding ("hard" is for hard thresholding)
+	public static final float thresholdMin = 0.0f;
+	public static final float thresholdMax = 50.0f;
 	
 	public WaveletThresholdingParams()
 	{
-		alpha = 5.0f;
+		threshold = 5.0f;
 	}
 	
 	public WaveletThresholdingParams(WaveletThresholdingParams other)
 	{
-		this.alpha = other.alpha;
+		this.threshold = other.threshold;
 	}
 
 	@Override
 	public String toString()
 	{
-		return "alpha " + alpha;
+		return "threshold " + threshold;
 	}
 	
 	@Override
@@ -32,12 +30,12 @@ public class WaveletThresholdingParams
 	{
 		WaveletThresholdingParams other = (WaveletThresholdingParams)obj;
 		
-		return (obj instanceof WaveletThresholdingParams) && (alpha == other.alpha);
+		return (obj instanceof WaveletThresholdingParams) && (threshold == other.threshold);
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return Float.valueOf(alpha).hashCode();
+		return Float.valueOf(threshold).hashCode();
 	}
 }

@@ -19,7 +19,7 @@ class WaveletThresholdingDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{		
-		QFunction waveletThresholding = new QFunction("wav_denoise(mat,scalar,int,mat,mat,string,scalar)");
+		QFunction waveletThresholding = new QFunction("wav_denoise(mat,int,mat,mat,string,scalar)");
 				
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
@@ -27,12 +27,11 @@ class WaveletThresholdingDenoiser extends Denoiser
 		QValue w2 = QValue.readhostVariable("filtercoeff_selcw").at(3, 1);  // wavelet for the other scales (a 2x12 matrix)
 
 		QValue denoisedImageCube = waveletThresholding.apply(noisyImageCube,
-							                                 new QValue(WaveletThresholdingParams.sigma),
 							                                 new QValue(WaveletThresholdingParams.J),
 							                                 w1,
 							                                 w2,
-							                                 new QValue(WaveletThresholdingParams.thresholding),
-							                                 new QValue(params.alpha));
+							                                 new QValue(WaveletThresholdingParams.thresholdType),
+							                                 new QValue(params.threshold));
 		
 		noisyImageCube.dispose();
 
