@@ -1,0 +1,57 @@
+<project default="main">
+	
+	<property name="src.dir" value="src"/>
+	<property name="build.dir" value="build"/>
+	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="jar.dir" value="${build.dir}/jar"/>
+	<property name="qlib.dir" value="${build.dir}/qlib"/>
+	<property name="quasarbridge" value="JavaQuasarBridge.jar"/>
+	<property name="plugin.name" value="EM_Denoising-0.0.1.jar"/>
+	<property name="fiji.plugins.dir" value="e:\Fiji.app\plugins"/>
+	
+	<path id="classpath">
+		<fileset dir="e:/git/bits/bioimaging/JavaQuasarBridge/dist" includes="${quasarbridge}"/>
+		<fileset dir="e:/git/ImageJRepository" includes="ij-1.50a.jar"/>
+		<fileset dir="e:/git/ImageJRepository" includes="scijava-common-2.56.0.jar"/>
+	</path>
+	
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+			
+	<target name="quasar">
+		<!-- FIXME: make the .qlib directly in the output folder -->
+		<!-- FIXME: support for building .qlib on Linux -->
+		<mkdir dir="${qlib.dir}"/>
+		<exec executable="e:/Program Files/Quasar/Quasar.exe">
+			<arg value="--make_lib"/>
+			<arg value="--gpu"/>
+			<arg value="src/main/resources/quasar/vib_denoising_algorithms.q"/>
+		</exec>
+		<copy file="src/main/resources/quasar/vib_denoising_algorithms.qlib" tofile="${qlib.dir}/vib_denoising_algorithms.qlib"/>
+	</target>
+	
+	<target name="compile">
+		<mkdir dir="${classes.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+	</target>
+		
+	<target name="jar" depends="compile,quasar">
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${plugin.name}" basedir="${classes.dir}">
+			<manifest>
+				<attribute name="Class-Path" value="${quasarbridge}"/>
+			</manifest>
+			<fileset dir="${build.dir}" includes="qlib/*.qlib"/>
+		</jar>
+	</target>
+		
+	<target name="install" depends="jar">
+		<copy file="${jar.dir}/${plugin.name}" todir="${fiji.plugins.dir}"/>
+	</target>
+		
+	<target name="main" depends="install"/>
+	
+	<!-- TODO: run imagej -->
+		
+</project>
