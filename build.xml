@@ -12,8 +12,8 @@
 	
 	<path id="classpath">
 		<fileset dir="e:/git/bits/bioimaging/JavaQuasarBridge/dist" includes="${quasarbridge}"/>
-		<fileset dir="e:/git/ImageJRepository" includes="ij-1.50a.jar"/>
-		<fileset dir="e:/git/ImageJRepository" includes="scijava-common-2.56.0.jar"/>
+		<fileset dir="e:/git/ImageJRepository" includes="ij-1.51n.jar"/>
+		<fileset dir="e:/git/ImageJRepository" includes="scijava-common-2.62.1.jar"/>
 	</path>
 	
 	<target name="clean">
