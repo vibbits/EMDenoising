@@ -22,7 +22,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="E:/git/bits/bioimaging/JavaQuasarBridge/dist/JavaQuasarBridge.jar"/>
-	<classpathentry kind="lib" path="E:/git/ImageJRepository/ij-1.50a.jar"/>
+	<classpathentry kind="lib" path="E:/git/ImageJRepository/ij-1.50a.jar" sourcepath="C:/Users/frver/.m2/repository/net/imagej/ij/1.50a/ij-1.50a-sources.jar"/>
 	<classpathentry kind="lib" path="E:/git/ImageJRepository/ij-1.50a-sources.jar"/>
 	<classpathentry kind="lib" path="E:/git/ImageJRepository/scijava-common-2.56.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
