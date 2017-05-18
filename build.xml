@@ -27,9 +27,9 @@
 		<exec executable="${quasar.exe}">
 			<arg value="--make_lib"/>
 			<arg value="--gpu"/>
-			<arg value="src/main/resources/quasar/vib_denoising_algorithms.q"/>
+			<arg value="src/main/quasar/vib_denoising_algorithms.q"/>
 		</exec>
-		<copy file="src/main/resources/quasar/vib_denoising_algorithms.qlib" tofile="${qlib.dir}/vib_denoising_algorithms.qlib"/>
+		<copy file="src/main/quasar/vib_denoising_algorithms.qlib" tofile="${qlib.dir}/vib_denoising_algorithms.qlib"/>
 	</target>
 	
 	<target name="compile">
