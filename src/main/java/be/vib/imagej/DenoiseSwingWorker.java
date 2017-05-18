@@ -88,6 +88,12 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		
 		String title = noisyImagePlus.getTitle() + " ["+ algorithm.getReadableName() + "]";
 		ImagePlus denoisedImagePlus = new ImagePlus(title, denoisedStack);
+
+		// Make sure the display range of our denoised result is the same as the noisy input.
+		// Otherwise the denoised image may appear too dark or bright compared to the noisy version
+		// even though the pixel values themselves are correct.
+		ImageUtils.CopyDisplayRange(noisyImagePlus.getProcessor(), denoisedImagePlus.getProcessor());
+
 		return denoisedImagePlus;
 	}
 	

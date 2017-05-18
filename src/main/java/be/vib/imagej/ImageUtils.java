@@ -13,6 +13,9 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 
+import ij.ImagePlus;
+import ij.process.ImageProcessor;
+
 import java.awt.Rectangle;
 
 public class ImageUtils
@@ -96,5 +99,19 @@ public class ImageUtils
 			return deepCopy(image);
 		else
 			return deepCopy(image.getSubimage(rect.x, rect.y, rect.width, rect.height));
+	}
+	
+	/**
+	 * Copy the display range from the source to the destination image.
+	 * 
+	 * Note: the display range are the minimum and maximum values shown
+	 * in the B&C (Brightness and Contrast) window in ImageJ/Fiji. 
+	 * 
+	 * @param src The source image.
+	 * @param dst The destination image.
+	 */
+	public static void CopyDisplayRange(ImageProcessor src, ImageProcessor dst)
+	{
+		dst.setMinAndMax(src.getMin(), src.getMax());
 	}
 }

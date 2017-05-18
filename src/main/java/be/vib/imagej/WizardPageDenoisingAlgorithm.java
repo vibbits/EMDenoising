@@ -171,12 +171,12 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				// Note: we have to copy the cache key and value (the denoising parameters object and preview image object)
 				// to ensure they are not modified after we stored them in the cache.
 				DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(algorithm);
-				BufferedImage image = previewCache.get(cacheKey);
+				BufferedImage cachedImage = previewCache.get(cacheKey);
 				
-				if (image != null)
+				if (cachedImage != null)
 				{
 					//System.out.println("Using cached result");
-					BufferedImage imageCopy = deepCopy(image); // copy image, to avoid it losing it if it gets ejected from the cache before it was set on the denoisedImagePanel (CHECKME: copy really needed?)
+					BufferedImage imageCopy = deepCopy(cachedImage); // copy image, to avoid it losing it if it gets ejected from the cache before it was set on the denoisedImagePanel (CHECKME: copy really needed?)
 					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setImage(imageCopy); }); 
 				}
 				else
@@ -184,8 +184,11 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setBusy(true); });
 					
 					//System.out.println("   QExecutor exec");
-					BufferedImage denoisedImage = QExecutor.getInstance().submit(denoiser).get().getBufferedImage();   // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.	
+					ImageProcessor denoisedImageProcessor = QExecutor.getInstance().submit(denoiser).get();
+					ImageUtils.CopyDisplayRange(image, denoisedImageProcessor);
 					//System.out.println("   QExecutor done");
+					
+					BufferedImage denoisedImage = denoisedImageProcessor.getBufferedImage();   // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
 					
 					SwingUtilities.invokeLater(() -> { previewCache.put(cacheKey, denoisedImage);
                                                        denoisedImagePanel.setImage(denoisedImage);

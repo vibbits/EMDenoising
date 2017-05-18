@@ -65,11 +65,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		{
 			buildUI();
 			
-			// FIXME? The very first panel in the wizard does not get the AboutToShowPanel()
-			//        (because the wizard only calls it when the next/prev buttons are pressed...)
-			//        We probably want to fix that. When it is fixed, possibly some explicit initialization code
-			//       here would get called automatically (?).
-
 			// If there are already open images, then select the one that is currently active in ImageJ
 			// in the combo box.
 			if (imagesCombo.getItemCount() > 0)
