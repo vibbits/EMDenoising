@@ -1,6 +1,6 @@
 /target/
 /bin/
-/output/
+/build/
 /Debug/
 /archive/
-/src/main/cpp/.vscode
+/src/main/old/
