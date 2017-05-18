@@ -66,7 +66,7 @@ end
 %
 function img_den:mat = denoise_blsgsm(img_noisy:mat, J:int, sigma:scalar)
 	%print "denoise_blsgsm J=", J, " sigma=", sigma
-	print "range noisy image=", min(img_noisy), " ", max(img_noisy)
+	%print "range noisy image=", min(img_noisy), " ", max(img_noisy)
 	
     % Do power-of-two extension of the image
     % (wavelet trf code assumes power-of-two image dimensions)
@@ -90,7 +90,7 @@ function img_den:mat = denoise_blsgsm(img_noisy:mat, J:int, sigma:scalar)
     if (any(size(img_den) != orig_siz))
     	img_den = img_den[topleft[0]..topleft[0]+orig_siz[0]-1, topleft[1]..topleft[1]+orig_siz[1]-1]
     endif   
-	print "range denoised image=", min(img_den), " ", max(img_den)
+	%print "range denoised image=", min(img_den), " ", max(img_den)
 end
 
 % Function: compute_covmtx
