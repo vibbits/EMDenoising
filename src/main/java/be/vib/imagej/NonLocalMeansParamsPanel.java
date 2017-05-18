@@ -8,6 +8,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 
 class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase 
 {
@@ -67,6 +68,30 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 
 		// ----
 		
+		SliderSpinnerPair blockSizePair = new SliderSpinnerPair(NonLocalMeansParams.halfBlockSizeMin, NonLocalMeansParams.halfBlockSizeMax);
+		blockSizePair.setValue(params.halfBlockSize);
+		blockSizePair.addPropertyChangeListener(e -> { params.halfBlockSize = blockSizePair.getValue(); fireChangeEvent(); });
+		
+		JSlider blockSizeSlider = blockSizePair.getSlider();
+		
+		JSpinner blockSizeSpinner = blockSizePair.getSpinner();
+		
+		JLabel blockSizeLabel = new JLabel("Block Size:");
+
+		// ----
+		
+		SliderSpinnerPair searchSizePair = new SliderSpinnerPair(NonLocalMeansParams.halfSearchSizeMin, NonLocalMeansParams.halfSearchSizeMax);
+		searchSizePair.setValue(params.halfSearchSize);
+		searchSizePair.addPropertyChangeListener(e -> { params.halfSearchSize = searchSizePair.getValue(); fireChangeEvent(); });
+		
+		JSlider searchSizeSlider = searchSizePair.getSlider();
+		
+		JSpinner searchSizeSpinner = searchSizePair.getSpinner();
+		
+		JLabel searchSizeLabel = new JLabel("Search Window:");
+
+		// ----
+		
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
@@ -75,15 +100,21 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 		    		   .addComponent(hLabel)
-		    		   .addComponent(lambdaLabel))
+		    		   .addComponent(lambdaLabel)
+		    		   .addComponent(blockSizeLabel)
+		    		   .addComponent(searchSizeLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 		    		   .addComponent(hField)
 		    		   .addComponent(decorrelationCheckBox)
 		    		   .addComponent(deconvolutionCheckBox)
-		    		   .addComponent(lambdaField))
+		    		   .addComponent(lambdaField)
+		    		   .addComponent(blockSizeSpinner)
+		    		   .addComponent(searchSizeSpinner))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 		    		   .addComponent(hSlider)
-		    		   .addComponent(lambdaSlider))
+		    		   .addComponent(lambdaSlider)
+		    		   .addComponent(blockSizeSlider)
+		    		   .addComponent(searchSizeSlider))
 		      );
 
 		// Define top-to-bottom order
@@ -103,6 +134,18 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		    				  .addComponent(lambdaLabel)
 		    				  .addComponent(lambdaField))
 			           .addComponent(lambdaSlider))		      
+
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(blockSizeLabel)
+		    				  .addComponent(blockSizeSpinner))
+			           .addComponent(blockSizeSlider))		      
+
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(searchSizeLabel)
+		    				  .addComponent(searchSizeSpinner))
+			           .addComponent(searchSizeSlider))		      
 				);    	
 		
 		setLayout(layout);

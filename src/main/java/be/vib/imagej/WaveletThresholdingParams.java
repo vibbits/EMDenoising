@@ -4,14 +4,14 @@ public class WaveletThresholdingParams
 {
 	public float threshold;
 
-	public static final int J = 3;  // number of scales
+	public static final int J = 3;  // number of analysis scales
 	public static final String thresholdType = "soft"; // use soft thresholding ("hard" is for hard thresholding)
 	public static final float thresholdMin = 0.0f;
-	public static final float thresholdMax = 50.0f;
+	public static final float thresholdMax = 4.0f;
 	
 	public WaveletThresholdingParams()
 	{
-		threshold = 5.0f;
+		threshold = 1.0f;
 	}
 	
 	public WaveletThresholdingParams(WaveletThresholdingParams other)

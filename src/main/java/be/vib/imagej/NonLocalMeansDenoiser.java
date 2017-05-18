@@ -3,6 +3,7 @@ package be.vib.imagej;
 import java.nio.file.NoSuchFileException;
 
 import be.vib.bits.QFunction;
+import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
@@ -35,12 +36,18 @@ class NonLocalMeansDenoiser extends Denoiser
 
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
+		float r = QuasarTools.bitRange(image);
+		
+		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+
 		QValue denoisedImageCube = nlmeans.apply(noisyImageCube,
 							                     new QValue(params.halfSearchSize),
 							                     new QValue(params.halfBlockSize),
 							                     new QValue(params.h));
 		
 		noisyImageCube.dispose();
+
+		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
 
 		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
 
@@ -54,6 +61,10 @@ class NonLocalMeansDenoiser extends Denoiser
 		QFunction nlmeansD = new QFunction("deconv_nlmeans(mat,mat,scalar,int,int,int,scalar)");
 		
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+
+		float r = QuasarTools.bitRange(image);
+		
+		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
 		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSigma)); 
@@ -69,6 +80,8 @@ class NonLocalMeansDenoiser extends Denoiser
 		noisyImageCube.dispose();
 		blurKernel.dispose();
 
+		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
+
 		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
 
 		denoisedImageCube.dispose();
@@ -81,6 +94,10 @@ class NonLocalMeansDenoiser extends Denoiser
 		QFunction nlmeansCD = new QFunction("deconv_nlmeans_c(mat,mat,scalar,int,int,int,scalar,mat)");
 				
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+
+		float r = QuasarTools.bitRange(image);
+		
+		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
 		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSigma)); 
@@ -100,6 +117,8 @@ class NonLocalMeansDenoiser extends Denoiser
 		blurKernel.dispose();
 		corrFilterInv.dispose();
 
+		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
+
 		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
 
 		denoisedImageCube.dispose();
@@ -113,6 +132,10 @@ class NonLocalMeansDenoiser extends Denoiser
 		
 		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
 		
+		float r = QuasarTools.bitRange(image);
+		
+		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+
 		QValue corrFilterInv = new QValue(NonLocalMeansParams.emCorrFilterInv);
 		
 		QValue denoisedImageCube = nlmeansSC.apply(noisyImageCube,
@@ -124,6 +147,8 @@ class NonLocalMeansDenoiser extends Denoiser
 		noisyImageCube.dispose();
 		corrFilterInv.dispose();
 		
+		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
+
 		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
 		
 		denoisedImageCube.dispose();

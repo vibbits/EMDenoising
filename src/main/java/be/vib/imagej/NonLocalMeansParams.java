@@ -3,7 +3,7 @@ package be.vib.imagej;
 public class NonLocalMeansParams
 {
 	public static final float hMin = 0.01f;
-	public static final float hMax = 250.0f;
+	public static final float hMax = 5.0f;
 	
 	public static final int halfSearchSizeMin = 1;
 	public static final int halfSearchSizeMax = 20;
@@ -56,7 +56,6 @@ public class NonLocalMeansParams
 		}
 	};
 	
-	// TODO: try to move inside DecorrelationParams class
 	public static final float[] emCorrFilterInv = { 0.003548810180648f,
 										            0.006457459824059f,
 										            0.007150416544695f,
@@ -126,7 +125,7 @@ public class NonLocalMeansParams
 
 	public NonLocalMeansParams()
 	{
-		h = 100.0f;
+		h = 2.0f;
 		halfBlockSize = 4;
 		halfSearchSize = 5;
 		decorrelation = false;

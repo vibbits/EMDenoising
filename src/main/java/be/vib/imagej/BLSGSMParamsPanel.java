@@ -7,6 +7,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 
 class BLSGSMParamsPanel extends DenoiseParamsPanelBase 
 {
@@ -31,6 +32,20 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 		JLabel sigmaLabel = new JLabel("Sigma:");
 		sigmaLabel.setToolTipText("Larger values of sigma yield stronger denoising.");
 
+		//
+		
+		SliderSpinnerPair scalesPair = new SliderSpinnerPair(BLSGSMParams.scalesMin, BLSGSMParams.scalesMax);
+		scalesPair.setValue(params.scales);
+		scalesPair.addPropertyChangeListener(e -> { params.scales = scalesPair.getValue(); fireChangeEvent(); });
+		
+		JSlider scalesSlider = scalesPair.getSlider();
+		
+		JSpinner scalesSpinner = scalesPair.getSpinner();
+		
+		JLabel scalesLabel = new JLabel("Analysis scales:");
+
+		//
+		
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
@@ -38,11 +53,14 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 		layout.setHorizontalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-			           .addComponent(sigmaLabel))
+			           .addComponent(sigmaLabel)
+			           .addComponent(scalesLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-			           .addComponent(sigmaField))
+			           .addComponent(sigmaField)
+			           .addComponent(scalesSpinner))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-			           .addComponent(sigmaSlider))
+			           .addComponent(sigmaSlider)
+			           .addComponent(scalesSlider))
 		);
 		
 		layout.setVerticalGroup(
@@ -52,6 +70,11 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 		    				  .addComponent(sigmaLabel)
 		    				  .addComponent(sigmaField))
 			           .addComponent(sigmaSlider))
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(scalesLabel)
+		    				  .addComponent(scalesSpinner))
+			           .addComponent(scalesSlider))
 		);    	
 		
 		setLayout(layout);
