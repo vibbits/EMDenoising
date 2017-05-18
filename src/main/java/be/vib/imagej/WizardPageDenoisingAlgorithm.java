@@ -253,7 +253,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		//assert(model.roi != null && model.roi.getBounds() != null && model.roi.getBounds().isEmpty() == false);
 		
-		System.out.println("WizardPageDenoisingAlgorithm.aboutToShowPanel: model=" + model + " imagePlus=" + model.getImage());
+		//System.out.println("WizardPageDenoisingAlgorithm.aboutToShowPanel: model=" + model + " imagePlus=" + model.getImage());
 		
 		Rectangle roi = null;
 		if (model.getImage().getRoi() != null && !model.getImage().getRoi().getBounds().isEmpty())
