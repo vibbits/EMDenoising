@@ -32,23 +32,16 @@ public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 			System.out.println("QHost.init device = " + device + " load compiler = " + loadCompiler + " (Java thread=" + Thread.currentThread().getId() + ")");
 			QHost.init(device, loadCompiler);
 			
+			QHost.printMachineInfo();
+			
 			// QHost.enableProfiling();
 			// System.out.println("Quasar memory profiling enabled");
 			
 			System.out.println("Extracting algorithms");
 			Jar.extractResource(algorithmsFolder, "qlib/vib_denoising_algorithms.qlib");
-//			Jar.extractResource(algorithmsFolder, "qlib/vib_denoising_algorithms.q");
-//			Jar.extractResource(algorithmsFolder, "qlib/blsgsm.q");
-//			Jar.extractResource(algorithmsFolder, "qlib/estimate_noise.q");
-//			Jar.extractResource(algorithmsFolder, "qlib/power_of_two_extension.q");
-//			Jar.extractResource(algorithmsFolder, "qlib/gaussian_filter.q");
-//			Jar.extractResource(algorithmsFolder, "qlib/nlmeans.q");
-//			Jar.extractResource(algorithmsFolder, "qlib/anisotropic_diffusion.q");
-//			Jar.extractResource(algorithmsFolder, "qlib/bilateral_filter.q");
 
 			System.out.println("Loading algorithms");
 			QuasarTools.loadAlgorithms(algorithmsFolder, "vib_denoising_algorithms.qlib");
-//			QuasarTools.loadAlgorithms(algorithmsFolder, "vib_denoising_algorithms.q");
 			return null;
 		};
 		
