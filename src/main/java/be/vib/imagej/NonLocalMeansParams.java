@@ -3,7 +3,7 @@ package be.vib.imagej;
 public class NonLocalMeansParams
 {
 	public static final float hMin = 0.001f;
-	public static final float hMax = 2.0f;
+	public static final float hMax = 3.0f;
 	
 	public static final int halfSearchSizeMin = 1;
 	public static final int halfSearchSizeMax = 20;
