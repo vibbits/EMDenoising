@@ -11,7 +11,7 @@ public class BLSGSMParams
 	public static final int scalesMax = 7;
 
 	public static final float sigmaMin = 0.01f;
-	public static final float sigmaMax = 2.0f;  // FRV: 0.5f ?
+	public static final float sigmaMax = 0.5f;
 	
 	public BLSGSMParams()
 	{
