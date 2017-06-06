@@ -302,10 +302,16 @@ class RangeSelectionPanel extends JPanel
 		// TODO: add(rangeRadioPanel);
 	}
 	
-	public void updateRange() // called when user selects a different range radio button
+	public void updateRange() // called (among others) when user selects a different range radio button
 	{		
-		System.out.println("upodateRange()");
+		System.out.println("updateRange()");
 		
+		int numSlices = model.getImage() != null ? model.getImage().getNSlices() : 1;
+
+	    currentSliceRadioButton.setEnabled(true);
+	    allSlicesRadioButton.setEnabled(numSlices > 1);
+	    rangeOfSlicesRadioButton.setEnabled(numSlices > 1);
+
 		boolean rangeValid = rangeVerifier.verify(rangeField);
 		errorLabel.setVisible(rangeOfSlicesRadioButton.isSelected() && !rangeValid);
 		
