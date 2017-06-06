@@ -19,7 +19,7 @@ public class NonLocalMeansAlgorithm extends Algorithm
     }
 	
 	@Override
-	public Object getParams()
+	public DenoiseParams getParams()
 	{
 	    return new NonLocalMeansParams(params);
 	}

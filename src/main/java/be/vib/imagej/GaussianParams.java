@@ -1,6 +1,8 @@
 package be.vib.imagej;
 
-public class GaussianParams
+import java.util.Properties;
+
+public class GaussianParams extends DenoiseParams
 {
 	public float sigma;
 	
@@ -18,7 +20,17 @@ public class GaussianParams
 	}
 
 	@Override
-	public String toString() {
+    public Properties getParameterList()
+    {
+    	Properties props = new Properties();
+    	props.setProperty(PREFIX + "algorithm", "gaussian");
+    	props.setProperty(PREFIX + "gaussian.sigma", Float.toString(sigma));
+    	return props;
+    }
+	
+	@Override
+	public String toString()
+	{
 		return "sigma " + sigma;
 	}
 	

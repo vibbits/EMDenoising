@@ -1,6 +1,8 @@
 package be.vib.imagej;
 
-public class BilateralParams
+import java.util.Properties;
+
+public class BilateralParams extends DenoiseParams
 {
 	public int r;
 	public float h;  // it's actually -h (because we want to avoid a negative range in the UI, and where less negative values (so a slider to the right) would mean less denoising)
@@ -23,6 +25,16 @@ public class BilateralParams
 		this.r = other.r;
 	}
 	
+	@Override
+    public Properties getParameterList()
+    {
+    	Properties props = new Properties();
+    	props.setProperty(PREFIX + "algorithm", "bilateral");
+    	props.setProperty(PREFIX + "bilateral.h", Float.toString(h));
+    	props.setProperty(PREFIX + "bilateral.radius", Integer.toString(r));
+    	return props;
+    }
+
 	@Override
 	public String toString()
 	{

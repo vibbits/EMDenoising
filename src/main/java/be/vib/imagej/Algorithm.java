@@ -33,11 +33,12 @@ public abstract class Algorithm
     abstract public String getReadableName();
 
     // Returns a copy of the denoising parameters (so a deep copy, not a reference)
-    abstract public Object getParams();
+    abstract public DenoiseParams getParams();
 
 	// Returns an image denoiser. Since the denoiser will be used as a task that will be executed asynchronously,
 	// a snapshot (deep copy) is taken of the the denoising parameters as they are at this point in time.
     abstract public Denoiser getDenoiser();
     
     abstract public DenoiseParamsPanelBase getPanel();
+
 }

@@ -19,7 +19,7 @@ public class GaussianAlgorithm extends Algorithm
     }
 	
 	@Override
-	public Object getParams()
+	public DenoiseParams getParams()
 	{
 	    return new GaussianParams(params);
 	}

@@ -1,6 +1,7 @@
 package be.vib.imagej;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JProgressBar;
@@ -93,6 +94,10 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		// Otherwise the denoised image may appear too dark or bright compared to the noisy version
 		// even though the pixel values themselves are correct.
 		ImageUtils.CopyDisplayRange(noisyImagePlus.getProcessor(), denoisedImagePlus.getProcessor());
+		
+		// Add denoise parameters as properties to the denoised image.
+		// In the end we will probably want to store them as OME XML. For now use ordinary properties.
+		denoisedImagePlus.setProperty("Info", getConcatenatedDenoisingParameters());
 
 		return denoisedImagePlus;
 	}
@@ -120,5 +125,18 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	private String getConcatenatedDenoisingParameters()
+	{
+		Properties props = algorithm.getParams().getParameterList();
+		
+		String params = "";	
+        for (String key : props.stringPropertyNames())
+        {
+             String value = props.getProperty(key);
+             params = params + key + " = " + value + "\n";
+        }				
+        return params;
 	}
 }

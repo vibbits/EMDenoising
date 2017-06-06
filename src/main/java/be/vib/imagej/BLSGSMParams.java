@@ -1,6 +1,8 @@
 package be.vib.imagej;
 
-public class BLSGSMParams
+import java.util.Properties;
+
+public class BLSGSMParams extends DenoiseParams
 {
 	public float sigma;
 	public int scales; // =J
@@ -25,6 +27,16 @@ public class BLSGSMParams
 		this.scales = other.scales;
 	}
 	
+	@Override
+    public Properties getParameterList()
+    {
+    	Properties props = new Properties();
+    	props.setProperty(PREFIX + "algorithm", "blsgsm");
+    	props.setProperty(PREFIX + "blsgsm.sigma", Float.toString(sigma));
+    	props.setProperty(PREFIX + "blsgsm.scales", Integer.toString(scales));
+    	return props;
+    }
+
 	@Override
 	public String toString()
 	{

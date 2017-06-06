@@ -1,6 +1,8 @@
 package be.vib.imagej;
 
-public class WaveletThresholdingParams
+import java.util.Properties;
+
+public class WaveletThresholdingParams extends DenoiseParams
 {
 	public float threshold;
 
@@ -18,6 +20,15 @@ public class WaveletThresholdingParams
 	{
 		this.threshold = other.threshold;
 	}
+
+	@Override
+    public Properties getParameterList()
+    {
+    	Properties props = new Properties();
+    	props.setProperty(PREFIX + "algorithm", "waveletthresholding");
+    	props.setProperty(PREFIX + "waveletthresholding.threshold", Float.toString(threshold));
+    	return props;
+    }
 
 	@Override
 	public String toString()

@@ -1,6 +1,8 @@
 package be.vib.imagej;
 
-public class NonLocalMeansParams
+import java.util.Properties;
+
+public class NonLocalMeansParams extends DenoiseParams
 {
 	public static final float hMin = 0.001f;
 	public static final float hMax = 3.0f;
@@ -145,6 +147,31 @@ public class NonLocalMeansParams
 		this.deconvolutionParams = other.deconvolutionParams;
 	}
 	
+	@Override
+    public Properties getParameterList()
+    {
+    	Properties props = new Properties();
+    	props.setProperty(PREFIX + "algorithm", "nonlocalmeans");
+    	props.setProperty(PREFIX + "nonlocalmeans.h", Float.toString(h));
+    	props.setProperty(PREFIX + "nonlocalmeans.halfblocksize", Integer.toString(halfBlockSize));
+    	props.setProperty(PREFIX + "nonlocalmeans.halfsearchsize", Integer.toString(halfSearchSize));
+
+    	props.setProperty(PREFIX + "nonlocalmeans.decorrelation", Boolean.toString(decorrelation));
+    	if (decorrelation)
+    	{
+        	props.setProperty(PREFIX + "nonlocalmeans.decorrelation.sigma0", Float.toString(decorrelationParams.sigma0));
+    	}
+    	
+    	props.setProperty(PREFIX + "nonlocalmeans.deconvolution", Boolean.toString(deconvolution));
+    	if (deconvolution)
+    	{
+        	props.setProperty(PREFIX + "nonlocalmeans.deconvolution.lambda", Float.toString(deconvolutionParams.lambda));
+        	props.setProperty(PREFIX + "nonlocalmeans.deconvolution.numiterations", Integer.toString(deconvolutionParams.numIterations));
+    	}
+
+    	return props;
+    }
+
 	@Override
 	public String toString()
 	{

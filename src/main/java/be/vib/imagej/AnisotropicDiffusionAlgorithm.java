@@ -19,7 +19,7 @@ public class AnisotropicDiffusionAlgorithm extends Algorithm
     }
 	
 	@Override
-	public Object getParams()
+	public DenoiseParams getParams()
 	{
 	    return new AnisotropicDiffusionParams(params);
 	}

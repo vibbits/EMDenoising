@@ -1,6 +1,8 @@
 package be.vib.imagej;
 
-public class AnisotropicDiffusionParams
+import java.util.Properties;
+
+public class AnisotropicDiffusionParams extends DenoiseParams
 {
 	public static final float diffusionFactorMin = 0.01f;
 	public static final float diffusionFactorMax = 1.0f; // CHECKME: this depends on the range of image pixels e.g. [0, 255] or [0, 65535] or [0, 1]. Annoying, it probably depends on the actual range of pixel values, not the range implied by the bit depth.
@@ -35,6 +37,17 @@ public class AnisotropicDiffusionParams
 	}
 	
 	@Override
+    public Properties getParameterList()
+    {
+    	Properties props = new Properties();
+    	props.setProperty(PREFIX + "algorithm", "anisotropicdiffusion");
+    	props.setProperty(PREFIX + "anisotropicdiffusion.diffusionfactor", Float.toString(diffusionFactor));
+    	props.setProperty(PREFIX + "anisotropicdiffusion.numiterations", Integer.toString(numIterations));
+    	props.setProperty(PREFIX + "anisotropicdiffusion.stepsize", Float.toString(stepSize));
+    	return props;
+    }
+
+	@Override
 	public String toString()
 	{
 		return "diffusion factor " + diffusionFactor + "; " + numIterations + " iterations ; step size " + stepSize;
@@ -59,4 +72,5 @@ public class AnisotropicDiffusionParams
 	{
 		diffusionFactor = 2.90186309814453f * sigmaEstimate * sigmaEstimate + 1.53053665161133f * sigmaEstimate + 0.00475215911865234f;
 	}	
+	
 }

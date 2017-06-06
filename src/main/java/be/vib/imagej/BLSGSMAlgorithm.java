@@ -19,7 +19,7 @@ public class BLSGSMAlgorithm extends Algorithm
     }
 	
 	@Override
-	public Object getParams()
+	public DenoiseParams getParams()
 	{
 	    return new BLSGSMParams(params);
 	}

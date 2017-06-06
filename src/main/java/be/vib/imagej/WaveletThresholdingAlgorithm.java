@@ -19,7 +19,7 @@ public class WaveletThresholdingAlgorithm extends Algorithm
     }
 	
 	@Override
-	public Object getParams()
+	public DenoiseParams getParams()
 	{
 	    return new WaveletThresholdingParams(params);
 	}
