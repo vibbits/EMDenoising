@@ -48,4 +48,11 @@ class WaveletThresholdingDenoiser extends Denoiser
 
 		return denoisedImage;
 	}
+	
+	@Override
+	public int imageTileSize()
+	{
+		// wavelet_thresholding.q seems to be a bit memory hungry - use smaller tiles for now
+		return 512;
+	}
 }

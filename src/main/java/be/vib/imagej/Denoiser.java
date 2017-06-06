@@ -26,4 +26,15 @@ public abstract class Denoiser implements Callable<ImageProcessor>
 	{
 		return null;
 	}
+	
+	public int imageTileSize()
+	{
+		return 1024;
+	}
+	
+	public int imageMargin()
+	{
+		 // FIXME: must be dependent on algorithm parameters to avoid artifacts along tile boundaries
+		return 16;
+	}
 }

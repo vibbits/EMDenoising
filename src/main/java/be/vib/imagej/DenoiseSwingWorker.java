@@ -38,9 +38,8 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		final int width = noisyImagePlus.getWidth();
 		final int height = noisyImagePlus.getHeight();
 		
-		final int tileWidth = 1024;  // TODO: make this dependent on e.g. algorithm and its parameters
-		final int tileHeight = 1024;
-		final int margin = 16; // FIXME: must be dependent on algorithm parameters to avoid artifacts along tile boundaries
+		final int tileSize = algorithm.getDenoiser().imageTileSize();
+		final int margin = algorithm.getDenoiser().imageMargin();
 		
 		final ImageStack noisyStack = noisyImagePlus.getStack();
 		
@@ -54,7 +53,7 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 			ImageProcessor noisyImage = noisyStack.getProcessor(slice);
 			ImageProcessor denoisedImage = (noisyImage instanceof ByteProcessor) ? new ByteProcessor(width, height) : new ShortProcessor(width, height); // blank image, will be filled below
 			
-			ImageTiler tiler = new ImageTiler(noisyImage, tileWidth, tileHeight, margin);
+			ImageTiler tiler = new ImageTiler(noisyImage, tileSize, tileSize, margin);
 			for (ImageTile tile : tiler)
 			{
 				// Get a noisy tile from the original image
