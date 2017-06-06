@@ -34,7 +34,7 @@
 	
 	<target name="compile">
 		<mkdir dir="${classes.dir}"/>
-		<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false"/>
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" debug="true" debuglevel="lines,vars,source"/>
 	</target>
 		
 	<target name="jar" depends="compile,quasar">
