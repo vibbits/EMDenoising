@@ -50,12 +50,18 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		int tileNr = 0;
 		for (int slice = range.getFirst(); slice <= range.getLast(); slice++)
 		{
+			if (isCancelled())
+				continue;
+			
 			ImageProcessor noisyImage = noisyStack.getProcessor(slice);
 			ImageProcessor denoisedImage = (noisyImage instanceof ByteProcessor) ? new ByteProcessor(width, height) : new ShortProcessor(width, height); // blank image, will be filled below
 			
 			ImageTiler tiler = new ImageTiler(noisyImage, tileSize, tileSize, margin);
 			for (ImageTile tile : tiler)
 			{
+				if (isCancelled())
+					continue;
+								
 				// Get a noisy tile from the original image
 				ImageProcessor noisyTileImp = tile.getImageWithMargins();
 				
@@ -86,6 +92,9 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 			denoisedStack.addSlice("", denoisedImage);			
 		}
 		
+		if (isCancelled())
+			return null;
+		
 		String title = noisyImagePlus.getTitle() + " ["+ algorithm.getReadableName() + "]";
 		ImagePlus denoisedImagePlus = new ImagePlus(title, denoisedStack);
 
@@ -115,10 +124,14 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	{
 		whenDone.run();
 		
+		if (isCancelled())
+			return;
+		
+		// Display the denoised image.
 		try
 		{
 			ImagePlus denoisedImagePlus = get();
-			denoisedImagePlus.show();			
+			denoisedImagePlus.show();
 		}
 		catch (ExecutionException | InterruptedException e)
 		{

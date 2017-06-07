@@ -12,10 +12,12 @@ public class WizardPageDenoise extends WizardPage
 {
 	private DenoiseSummaryPanel denoiseSummaryPanel;
 	private JButton startButton;
+	private JButton cancelButton;
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
 	private RangeSelectionPanel rangeSelectionPanel;
 	private boolean busyDenoising = false;
+	private DenoiseSwingWorker worker;
 	
 	public WizardPageDenoise(Wizard wizard, WizardModel model, String name)
 	{
@@ -28,10 +30,14 @@ public class WizardPageDenoise extends WizardPage
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
 		startButton = new JButton("Start Denoising");
+		cancelButton = new JButton("Cancel Denoising");
+		
 		statusLabel = new JLabel();
 		
 		progressBar = new JProgressBar();
 		
+		startButton.setVisible(true);
+		cancelButton.setVisible(false);
 		statusLabel.setVisible(false);
 		progressBar.setVisible(false);
 
@@ -39,7 +45,10 @@ public class WizardPageDenoise extends WizardPage
 		    denoise();
 		});
 		
-		// FIXME: we need some way to cancel a long denoising tasks
+		cancelButton.addActionListener(e -> {
+		    System.out.println("User asked to cancel denoising.");
+		    worker.cancel(false);
+		});
 		
 		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
 		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
@@ -49,6 +58,7 @@ public class WizardPageDenoise extends WizardPage
 		
 		rangeSelectionPanel.setAlignmentX(CENTER_ALIGNMENT);
 		startButton.setAlignmentX(CENTER_ALIGNMENT);
+		cancelButton.setAlignmentX(CENTER_ALIGNMENT);
 		statusLabel.setAlignmentX(CENTER_ALIGNMENT);
 		
 		add(denoiseSummaryPanel);
@@ -58,6 +68,8 @@ public class WizardPageDenoise extends WizardPage
 		add(startButton);
 		add(progressBar);
 		add(statusLabel);
+		add(Box.createRigidArea(new Dimension(0, 20)));
+		add(cancelButton);
 	}
 	
     // denoise() is executed on the Java EDT, so it needs to complete ASAP.
@@ -70,6 +82,7 @@ public class WizardPageDenoise extends WizardPage
 		wizard.updateButtons();  // disable the Back button while we're busy denoising
 
 		startButton.setVisible(false);
+		cancelButton.setVisible(true);
 		
 		statusLabel.setText("Denoising...");
 		statusLabel.setVisible(true);
@@ -82,12 +95,13 @@ public class WizardPageDenoise extends WizardPage
 		
 		Runnable whenDone = () -> {
 			busyDenoising = false;
-			statusLabel.setText("Denoising done.");
+			cancelButton.setVisible(false);
+			statusLabel.setText(worker.isCancelled() ? "Denoising cancelled": "Denoising done");
 			progressBar.setVisible(false);
 			wizard.updateButtons();
 		};
 			
-		DenoiseSwingWorker worker = new DenoiseSwingWorker(model.getAlgorithm(), model.getImage(), model.getRange(), progressBar, whenDone);
+		worker = new DenoiseSwingWorker(model.getAlgorithm(), model.getImage(), model.getRange(), progressBar, whenDone);
 		
 		// Run the denoising on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the user interface
@@ -108,6 +122,7 @@ public class WizardPageDenoise extends WizardPage
 		denoiseSummaryPanel.updateText();
 
 		startButton.setVisible(true);
+		cancelButton.setVisible(false);
 		statusLabel.setVisible(false);
 		progressBar.setVisible(false);
 		
@@ -119,5 +134,4 @@ public class WizardPageDenoise extends WizardPage
 	{
 		return !busyDenoising;
 	}
-
 }
