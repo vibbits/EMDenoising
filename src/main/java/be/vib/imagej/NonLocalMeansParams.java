@@ -18,46 +18,12 @@ public class NonLocalMeansParams extends DenoiseParams
 	public int halfBlockSize;
 	public int halfSearchSize;
 	
-	public boolean decorrelation; // if true, do decorrelation (with decorrelationParams) (and take signal dependency of noise into account? CHECKME)
-	public boolean deconvolution; // if true, do deconvolution (with deconvolutionParams)
+	public boolean decorrelation; // if true, do decorrelation with decorrelationParams (signal dependency of noise is not taken into account)
+	public boolean deconvolution; // if true, do deconvolution with deconvolutionParams
 
-	public DecorrelationParams decorrelationParams;
 	public DeconvolutionParams deconvolutionParams;
-
-	public class DecorrelationParams
-	{
-		public float sigma0; // noise variance in the absence of signal
-		
-		public static final float sigma0Min = 0.01f;
-		public static final float sigma0Max = 100.0f;
-
-		public static final float alpha = 0.05f;  // "amount" of signal dependency of the noise - make it a user parameter?
-		
-		DecorrelationParams()
-		{
-			sigma0 = 20.0f;
-		}
-
-		public DecorrelationParams(DecorrelationParams other)
-		{
-			this.sigma0 = other.sigma0;
-		}
-		
-		@Override
-		public boolean equals(Object obj)
-		{
-			DecorrelationParams other = (DecorrelationParams)obj;
-			
-			return (obj instanceof DecorrelationParams) && (sigma0 == other.sigma0);
-		}
-		
-		@Override
-		public int hashCode()
-		{
-			return Float.valueOf(sigma0).hashCode();
-		}
-	};
 	
+	// Fixed correlation filter. However in theory it depends on dwell time - better would be to estimate it from the image.
 	public static final float[] emCorrFilterInv = { 0.003548810180648f,
 										            0.006457459824059f,
 										            0.007150416544695f,
@@ -132,7 +98,6 @@ public class NonLocalMeansParams extends DenoiseParams
 		halfSearchSize = 5;
 		decorrelation = false;
 		deconvolution = false;
-		decorrelationParams = new DecorrelationParams();
 		deconvolutionParams = new DeconvolutionParams();
 	}
 	
@@ -143,7 +108,6 @@ public class NonLocalMeansParams extends DenoiseParams
 		this.halfSearchSize = other.halfSearchSize;
 		this.decorrelation = other.decorrelation;
 		this.deconvolution = other.deconvolution;
-		this.decorrelationParams = other.decorrelationParams;
 		this.deconvolutionParams = other.deconvolutionParams;
 	}
 	
@@ -157,10 +121,6 @@ public class NonLocalMeansParams extends DenoiseParams
     	props.setProperty(PREFIX + "nonlocalmeans.halfsearchsize", Integer.toString(halfSearchSize));
 
     	props.setProperty(PREFIX + "nonlocalmeans.decorrelation", Boolean.toString(decorrelation));
-    	if (decorrelation)
-    	{
-        	props.setProperty(PREFIX + "nonlocalmeans.decorrelation.sigma0", Float.toString(decorrelationParams.sigma0));
-    	}
     	
     	props.setProperty(PREFIX + "nonlocalmeans.deconvolution", Boolean.toString(deconvolution));
     	if (deconvolution)
@@ -176,7 +136,7 @@ public class NonLocalMeansParams extends DenoiseParams
 	public String toString()
 	{
 		String s = "h " + h + "; half block size " + halfBlockSize + "; half search size " + halfSearchSize;
-		s = s + (decorrelation ? "; decorrelation: sigma0 " + decorrelationParams.sigma0 : "; no decorrelation");
+		s = s + (decorrelation ? "; decorrelation" : "; no decorrelation");
 		s = s + (deconvolution ? "; deconvolution: " + deconvolutionParams.numIterations + " iterations" + ", lambda " + deconvolutionParams.lambda : "; no deconvolution");
 		return s;
 	}
@@ -187,7 +147,7 @@ public class NonLocalMeansParams extends DenoiseParams
 		NonLocalMeansParams other = (NonLocalMeansParams)obj;
 		
 		return (obj instanceof NonLocalMeansParams) && (h == other.h) && (halfBlockSize == other.halfBlockSize) && (halfSearchSize == other.halfSearchSize)
-				                                       && (decorrelation == other.decorrelation) && decorrelationParams.equals(other.decorrelationParams)
+				                                       && (decorrelation == other.decorrelation)
 				                                       && (deconvolution == other.deconvolution) && deconvolutionParams.equals(other.deconvolutionParams);
 	}
 	
@@ -195,7 +155,7 @@ public class NonLocalMeansParams extends DenoiseParams
 	public int hashCode()
 	{
 		return Float.valueOf(h).hashCode() ^ Integer.valueOf(halfBlockSize).hashCode() ^ Integer.valueOf(halfSearchSize).hashCode()
-				                           ^ Boolean.valueOf(decorrelation).hashCode() ^ decorrelationParams.hashCode()
+				                           ^ Boolean.valueOf(decorrelation).hashCode()
 				                           ^ Boolean.valueOf(deconvolution).hashCode() ^ deconvolutionParams.hashCode();
 	}
 }
