@@ -96,6 +96,8 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 			return null;
 		
 		String title = noisyImagePlus.getTitle() + " ["+ algorithm.getReadableName() + "]";
+		title = ij.WindowManager.makeUniqueName(title);
+		
 		ImagePlus denoisedImagePlus = new ImagePlus(title, denoisedStack);
 
 		// Make sure the display range of our denoised result is the same as the noisy input.
