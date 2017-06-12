@@ -30,6 +30,8 @@ class SliderSpinnerPair implements ChangeListener
 		spinner = new JSpinner(spinnerModel);
 
 		slider = new JSlider(minValue, maxValue, value);
+		// TODO: it would be nice if for small integer ranges the slider knob would jump from one integer value to the next,
+		// instead of moving smoothly over fractional values that have no meaning. I don't think JSlider offers this out of the box.
 
 		slider.addChangeListener(this);
 		spinner.addChangeListener(this);
