@@ -322,12 +322,9 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	// to exist and of small enough size for a preview.
 	public static ImageProcessor cropImage(ImagePlus image, Rectangle roi)
 	{
-		System.out.println("cropImage: image=" + image);
 		int slice = image.getCurrentSlice();
 		ImageStack stack = image.getStack();
-		System.out.println("cropImage: stack=" + stack);
 		ImageProcessor imp = stack.getProcessor(slice);
-		System.out.println("cropImage: imp=" + imp);
 		
 		if (roi != null)
 		{

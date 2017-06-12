@@ -290,9 +290,11 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		ij.gui.Roi.removeRoiListener(this);
 	}
 	
+	// Guess the image that the user probably wants to denoise,
+	// or null if no image is currently open.
 	private ImagePlus getSuggestedImageForDenoising()
 	{
-		ImagePlus[] openImages = getOpenImages();
+		ImagePlus[] openImages = getOpenImages();	
 		
 		if (model.getImage() != null && Arrays.asList(openImages).contains(model.getImage()))
 			return model.getImage();
@@ -305,6 +307,10 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 		
+		// Guess likely image for denoising. Do this now, before we update the combo box
+		// which changes the model.
+		ImagePlus suggestedImage = getSuggestedImageForDenoising();
+
 		// Populate combo box
 		// printOpenImages();
 		imagesModel.removeAllElements();
@@ -315,10 +321,8 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// otherwise the one that is currently active in ImageJ in the combo box.
 		if (imagesCombo.getItemCount() > 0)
 		{
-			ImagePlus image = getSuggestedImageForDenoising();
-			assert(image != null);
-			System.out.println("suggested for denoising: " + image);
-			String imageTitle = image.getTitle();
+			assert(suggestedImage != null);
+			String imageTitle = suggestedImage.getTitle();
 			imagesCombo.setSelectedItem(imageTitle);
 			assert(imagesCombo.getSelectedItem().equals(imageTitle));  // assert that image was indeed in the list
 		}
