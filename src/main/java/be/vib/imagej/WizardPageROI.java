@@ -3,6 +3,7 @@ package be.vib.imagej;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -43,9 +44,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		super(wizard, model, name);
 		
 		buildUI();
-		
-		ImagePlus.addImageListener(this);
-		ij.gui.Roi.addRoiListener(this);
 	}
 
 	private void buildUI()
@@ -63,18 +61,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		public InfoPanel()
 		{
-			buildUI();
-			
-			// If there are already open images, then select the one that is currently active in ImageJ
-			// in the combo box.
-			if (imagesCombo.getItemCount() > 0)
-			{
-				String imageTitle = ij.WindowManager.getCurrentImage().getTitle();
-				imagesCombo.setSelectedItem(imageTitle);
-				assert(imagesCombo.getSelectedItem().equals(imageTitle));  // assert that image was indeed in the list
-			}
-			
-			updateInfo();
+			buildUI();			
 		}
 		
 		private void buildUI()
@@ -83,18 +70,26 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			
 			imageLabel = new JLabel("Image:");
 
-			imagesModel = new DefaultComboBoxModel<String>(getOpenImages());
+			imagesModel = new DefaultComboBoxModel<String>();
 
 			imagesCombo = new JComboBox<String>(imagesModel);
 			imagesCombo.addActionListener(e -> {
-				String imageTitle = (String)imagesCombo.getSelectedItem(); // image is null if no image windows are open (imagesCombo contains no elements)
-				// CHECKME: is it possible to have nothing selected, even when there are elements in the combo box?
-				System.out.println("Images combo: selected item = " + imageTitle);
-				model.setImage(ij.WindowManager.getImage(imageTitle));
+				// We get here not only if the user interacts with the combo box directly, but also when images are opened/closed.
+				// Also, the selected item string will be null if the combo box model (imagesModel) contains no images because there are no open image windows.
+				String imageTitle = (String)imagesCombo.getSelectedItem();
+
+				// Unlock the previous image, if needed.
+				if (model.getImage() != null && model.getImage().isLocked())
+					model.getImage().unlock();
 				
+				// Keep a reference to the open window (if any) in our model.
+				model.setImage(imageTitle != null ? ij.WindowManager.getImage(imageTitle) : null);
+
+				// Update the UI
 				updateInfo();
 				wizard.updateButtons();
 			});			
+		
 			
 			bitDepthLabel = new JLabel("Bit depth:");
 			bitDepthInfoLabel = new JLabel();
@@ -161,6 +156,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			add(bitDepthWarningLabel);
 			add(noRoiWarningLabel);			
 			add(roiSizeWarningLabel);			
+			
+			updateInfo();
+			wizard.updateButtons();
 		}
 	}
 	
@@ -240,9 +238,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// - File > Open Recent
 		// - ...?
 		
-		System.out.println(">>> imageOpened " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
-		printOpenImages();
-		
 		imagesModel.addElement(imp.getTitle());
 		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
 	}
@@ -251,9 +246,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	public void imageClosed(ImagePlus imp) // not called on the EDT
 	{
 		assert(imp != null);
-		
-		System.out.println(">>> imageClosed " + (imp != null ? imp.getTitle() : "null") + " EDT? " + SwingUtilities.isEventDispatchThread());
-		printOpenImages();
 		
 		imagesModel.removeElement(imp.getTitle());
 		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
@@ -268,35 +260,75 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// - opens a new image
 		// - ...
 		
-		System.out.println(">>> imageUpdated " + (imp != null ? imp.getTitle() : "null"));
-		printOpenImages();
-		
 		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
 	}
 	
 	@Override
 	public void roiModified(ImagePlus imp, int id) // called on the EDT
 	{
-//		System.out.println("roiModified " + (imp != null ? imp.getTitle() : "null") + " id:" + id);
-
 		assert(SwingUtilities.isEventDispatchThread());
 		assert(imp != null);
 		
 		if (imp != model.getImage())
-			return;  // We're not interested in ROI changes for an image that the user did not select for denoising
+			return;  // We're not interested in ROI changes for an image that is not currently chosen for denoising.
 						
 		handlePreviewChange();
 	}
 	
 	@Override
-	protected void aboutToShowPanel() // called on the EDT
+	protected void aboutToHidePanel()
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 
-		printOpenImages();		
+		// Lock the image (stack) so that if the user closes the image window,
+		// the underlying image slices remain in memory.
+		if (!model.getImage().isLocked())
+			model.getImage().lock();
 		
+		// Stop listening to changes. This avoids that if the user closes the image window we also wipe out the image from the model while it is still being used by the denoising wizard page. 
+		ImagePlus.removeImageListener(this);
+		ij.gui.Roi.removeRoiListener(this);
+	}
+	
+	private ImagePlus getSuggestedImageForDenoising()
+	{
+		ImagePlus[] openImages = getOpenImages();
+		
+		if (model.getImage() != null && Arrays.asList(openImages).contains(model.getImage()))
+			return model.getImage();
+		else
+			return ij.WindowManager.getCurrentImage();		
+	}
+	
+	@Override
+	protected void aboutToShowPanel()
+	{
+		assert(SwingUtilities.isEventDispatchThread());
+		
+		// Populate combo box
+		// printOpenImages();
+		imagesModel.removeAllElements();
+		for (ImagePlus image : getOpenImages())
+			imagesModel.addElement(image.getTitle());
+				
+		// If there are already open images, then select the one currently used in the wizard if any,
+		// otherwise the one that is currently active in ImageJ in the combo box.
+		if (imagesCombo.getItemCount() > 0)
+		{
+			ImagePlus image = getSuggestedImageForDenoising();
+			assert(image != null);
+			System.out.println("suggested for denoising: " + image);
+			String imageTitle = image.getTitle();
+			imagesCombo.setSelectedItem(imageTitle);
+			assert(imagesCombo.getSelectedItem().equals(imageTitle));  // assert that image was indeed in the list
+		}
+			
+		// Update UI		
 		updateInfo();
-		//wizard.updateButtons();
+		
+		// Listen to changes
+		ImagePlus.addImageListener(this);
+		ij.gui.Roi.addRoiListener(this);
 	}
 	
 	private void handlePreviewChange()  // must be called on the EDT
@@ -305,29 +337,31 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		wizard.updateButtons();
 	}
 	
+	// Prints the names of all open images. For debugging.
 	private static void printOpenImages()
 	{
 		System.out.println("Open images: ");
-		for (String image : getOpenImages())
+		for (ImagePlus image : getOpenImages())
 		{
-			System.out.println("   " + image);
+			System.out.println("   " + image.getTitle());
 		}	
 	}
 
-	private static String[] getOpenImages()
+	// Returns an array with the title strings of all open images.
+	private static ImagePlus[] getOpenImages()
 	{
 		int numImages = ij.WindowManager.getImageCount();
 
-		String[] images = new String[numImages];
+		ImagePlus[] images = new ImagePlus[numImages];
 		
 		for (int i = 0; i < numImages; i++)
 		{
-			ImagePlus imp = ij.WindowManager.getImage(i + 1);
-			images[i] = imp.getTitle();
+			images[i] = ij.WindowManager.getImage(i + 1);
 		}
 		return images;
 	}
 	
+	// Wraps an ordinary text string in HTML for rendering it as red text. 
 	private static String htmlAttention(String s)
 	{
 		return "<html><font color=red>" + s + "</font></html>";

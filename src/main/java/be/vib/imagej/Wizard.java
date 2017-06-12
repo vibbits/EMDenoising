@@ -109,20 +109,26 @@ public class Wizard extends JDialog
 		{
 			int newPageIdx = currentPageIdx - 1;
 
+			WizardPage curPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
 			WizardPage newPage = (WizardPage)pagesPanel.getComponent(newPageIdx);
-			newPage.aboutToShowPanel();
 			
+			curPage.aboutToHidePanel();
+			newPage.aboutToShowPanel();
 			cardLayout.previous(pagesPanel);
+			
 			currentPageIdx = newPageIdx;
 		}
 		else if (source == nextButton)
 		{
 			int newPageIdx = currentPageIdx + 1;
 
+			WizardPage curPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
 			WizardPage newPage = (WizardPage)pagesPanel.getComponent(newPageIdx);
+			
+			curPage.aboutToHidePanel();
 			newPage.aboutToShowPanel();
-
 			cardLayout.next(pagesPanel);
+			
 			currentPageIdx = newPageIdx;
 		}
 

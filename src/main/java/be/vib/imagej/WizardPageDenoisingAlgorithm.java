@@ -183,10 +183,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				{
 					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setBusy(true); });
 					
-					//System.out.println("   QExecutor exec");
 					ImageProcessor denoisedImageProcessor = QExecutor.getInstance().submit(denoiser).get();
 					ImageUtils.CopyDisplayRange(image, denoisedImageProcessor);
-					//System.out.println("   QExecutor done");
 					
 					BufferedImage denoisedImage = denoisedImageProcessor.getBufferedImage();   // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
 					
@@ -232,7 +230,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		panel.add(titleLabel);
 		panel.add(p);
-		panel.add(Box.createVerticalStrut(10)); // title label introduces some space at the top, also leave some space at the bottom for symmetry
+		panel.add(Box.createVerticalStrut(10)); // title label introduces some space at the top, also leave some space at the bottom for visual symmetry
 		
 		return panel;
 	}
@@ -241,7 +239,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	protected void aboutToShowPanel()
 	{
 		assert(model.getImage() != null);
-		
+
 		// -----------------------------------
 		// TODO: calculate noise estimate
 		// TODO: update default parameters based on noise estimate
@@ -288,7 +286,6 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private static BufferedImage deepCopy(BufferedImage image)
 	{
-		// TODO: carefully check this code
 		ColorModel colorModel = image.getColorModel();
 		boolean isAlphaPremultiplied = colorModel.isAlphaPremultiplied();
 		WritableRaster raster = image.copyData(image.getRaster().createCompatibleWritableRaster());
@@ -318,11 +315,19 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		return new Dimension(w, h);
 	}
 
-	public static ImageProcessor cropImage(ImagePlus image, Rectangle roi) // roi == null is allowed; note: image.getRoi() is ignored (the user may change it + it may be too large for a preview)
+	// Returns a new ImageProcessor representing a copy of the current slice in the given image
+	// cropped to the given roi. If the roi is null, no cropping occurs.
+	// Note that we ignore image.getRoi() because at this point in time the user may already
+	// have modified or removed the ROI interactively but we need our own ROI from the time where it was known
+	// to exist and of small enough size for a preview.
+	public static ImageProcessor cropImage(ImagePlus image, Rectangle roi)
 	{
+		System.out.println("cropImage: image=" + image);
 		int slice = image.getCurrentSlice();
 		ImageStack stack = image.getStack();
+		System.out.println("cropImage: stack=" + stack);
 		ImageProcessor imp = stack.getProcessor(slice);
+		System.out.println("cropImage: imp=" + imp);
 		
 		if (roi != null)
 		{

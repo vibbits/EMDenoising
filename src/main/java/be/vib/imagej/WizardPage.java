@@ -30,6 +30,11 @@ public class WizardPage extends JPanel
 	}
 	
 	// override me
+	protected void aboutToHidePanel()
+	{
+	}
+	
+	// override me
 	protected boolean canGoToPreviousPage()
 	{
 		return true;
