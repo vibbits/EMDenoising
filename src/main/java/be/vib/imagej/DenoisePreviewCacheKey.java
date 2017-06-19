@@ -8,7 +8,7 @@ public class DenoisePreviewCacheKey
 	public DenoisePreviewCacheKey(Algorithm algorithm)
 	{
 		this.name = algorithm.getName();
-		this.params = algorithm.getParams();
+		this.params = algorithm.getParamsCopy();
 	}
 	
 	@Override

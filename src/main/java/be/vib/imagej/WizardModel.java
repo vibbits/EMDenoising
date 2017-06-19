@@ -25,6 +25,8 @@ public class WizardModel
 
 	private ImageProcessor noisyPreview; // a small region of interest cropped from the original noisy image
 	
+	private float noiseEstimate;
+	
 	public static final int maxPreviewSize = 512; // max size of the denoising preview windows, and thus of the ROI selected on the image
 	
 	public WizardModel()
@@ -42,6 +44,7 @@ public class WizardModel
 		range = new ImageRange();
 		
 		image = null;
+		noiseEstimate = -1.0f; // < 0 means unknown
 		
 		noisyPreview = null;
 	}
@@ -84,10 +87,40 @@ public class WizardModel
 	{
 		return image;
 	}
+	
+	public float getNoiseEstimate()
+	{
+		return noiseEstimate;
+	}
+	
+	public void setNoiseEstimate(float noiseEstimate)
+	{
+		this.noiseEstimate = noiseEstimate;
+	}
 
 	public void setImage(ImagePlus image)
 	{
+		// If we've got this image in the model already
+		// then do nothing. In particular, leave the existing
+		// image noise estimation alone.
+		if (this.image == image)
+			return;
+
+		// If the old image is locked, unlock it since
+		// we don't need it anymore. We assume that only
+		// one plugin (ours) will be locking the image...
+		if (this.image != null && this.image.isLocked())
+			this.image.unlock();
+
 		this.image = image;
+		
+		// Lock the image (stack) so that if the user closes the image window,
+		// the underlying image slices remain in memory.
+		if (this.image != null && !this.image.isLocked())
+			this.image.lock();
+		
+		// Remember to re-estimate the noise level
+		this.noiseEstimate = -1.0f;
 	}
 	
 	public ImageRange getRange()

@@ -21,11 +21,17 @@ public class GaussianAlgorithm extends Algorithm
 	@Override
 	public DenoiseParams getParams()
 	{
+	    return params;
+	}
+	
+	@Override
+	public DenoiseParams getParamsCopy()
+	{
 	    return new GaussianParams(params);
 	}
 	
 	@Override
-	public Denoiser getDenoiser()
+	public Denoiser getDenoiserCopy()
 	{
 		return new GaussianDenoiser(new GaussianParams(params));
 	}
@@ -35,4 +41,5 @@ public class GaussianAlgorithm extends Algorithm
     {
 		return panel;
     }
+
 }

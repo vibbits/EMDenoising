@@ -11,16 +11,26 @@ import javax.swing.JSpinner;
 
 class BilateralParamsPanel extends DenoiseParamsPanelBase 
 {	
+	private BilateralParams params;
+	private SliderFieldPair hPair;
+	private SliderSpinnerPair rPair;
+	
 	public BilateralParamsPanel(BilateralParams params)
+	{
+		this.params = params;
+		buildUI();
+	}
+	
+	private void buildUI()
 	{
 		setBorder(BorderFactory.createTitledBorder("Bilateral Denoising Parameters"));
 		
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		SliderFieldPair hPair = new SliderFieldPair(0, 100, floatFormat, BilateralParams.hMin, BilateralParams.hMax);
+		hPair = new SliderFieldPair(0, 100, floatFormat, params.hMin, params.hMax);
 		hPair.setValue(params.h);
-		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireChangeEvent(); });
+		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider hSlider = hPair.getSlider();
 		
@@ -31,9 +41,9 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 
 		//
 		
-		SliderSpinnerPair rPair = new SliderSpinnerPair(BilateralParams.rMin, BilateralParams.rMax);
+		rPair = new SliderSpinnerPair(BilateralParams.rMin, BilateralParams.rMax);
 		rPair.setValue(params.r);
-		rPair.addPropertyChangeListener(e -> { params.r = rPair.getValue(); fireChangeEvent(); });
+		rPair.addPropertyChangeListener(e -> { params.r = rPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider rSlider = rPair.getSlider();
 		
@@ -75,5 +85,12 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 		      );    	
 		
 		setLayout(layout);
+	}
+	
+	@Override
+	public void updatePanelFromParams()
+	{
+		hPair.updateRange(params.hMin, params.hMax, params.h);	
+		rPair.setValue(params.r);		// FIXME: for generality it would be nicer to updateRange (but we know that currently for bilateral filtering the iterations range is never changed)
 	}
 }

@@ -34,16 +34,16 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	@Override
 	public ImagePlus doInBackground()
 	{
-		// doInBackground is run is a thread different from the Java Event Dispatch Thread (EDT). Do not update Java Swing components here.
+		// The method doInBackground is run is a thread different from the Java Event Dispatch Thread (EDT). Do not update Java Swing components here.
 		final int width = noisyImagePlus.getWidth();
 		final int height = noisyImagePlus.getHeight();
 		
-		final int tileSize = algorithm.getDenoiser().imageTileSize();
-		final int margin = algorithm.getDenoiser().imageMargin();
+		final int tileSize = algorithm.getDenoiserCopy().imageTileSize();
+		final int margin = algorithm.getDenoiserCopy().imageMargin();
 		
 		final ImageStack noisyStack = noisyImagePlus.getStack();
 		
-		final Denoiser denoiser = algorithm.getDenoiser();
+		final Denoiser denoiser = algorithm.getDenoiserCopy();
 				
 		ImageStack denoisedStack = new ImageStack(width, height);
 		
@@ -143,7 +143,7 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	
 	private String getConcatenatedDenoisingParameters()
 	{
-		Properties props = algorithm.getParams().getParameterList();
+		Properties props = algorithm.getParamsCopy().getParameterList();
 		
 		String params = "";	
         for (String key : props.stringPropertyNames())

@@ -10,16 +10,25 @@ import javax.swing.JSlider;
 
 class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 {			
+	private SliderFieldPair thresholdPair;
+	private WaveletThresholdingParams params;
+	
 	public WaveletThresholdingParamsPanel(WaveletThresholdingParams params)
-	{			
+	{
+		this.params = params;
+		buildUI();
+	}
+	
+	private void buildUI()
+	{	
 		setBorder(BorderFactory.createTitledBorder("Wavelet Thresholding Parameters"));
 					
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		SliderFieldPair thresholdPair = new SliderFieldPair(0, 100, floatFormat, WaveletThresholdingParams.thresholdMin, WaveletThresholdingParams.thresholdMax);
+		thresholdPair = new SliderFieldPair(0, 100, floatFormat, params.thresholdMin, params.thresholdMax);
 		thresholdPair.setValue(params.threshold);
-		thresholdPair.addPropertyChangeListener(e -> { params.threshold = thresholdPair.getValue(); fireChangeEvent(); });
+		thresholdPair.addPropertyChangeListener(e -> { params.threshold = thresholdPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider thresholdSlider = thresholdPair.getSlider();
 		
@@ -52,5 +61,11 @@ class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 		);    	
 		
 		setLayout(layout);
+	}
+	
+	@Override
+	public void updatePanelFromParams()
+	{
+		thresholdPair.updateRange(params.thresholdMin, params.thresholdMax, params.threshold);		
 	}
 }

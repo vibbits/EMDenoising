@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -16,15 +17,19 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import be.vib.bits.QExecutor;
 import ij.ImageListener;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.gui.RoiListener;
+import ij.process.ImageProcessor;
 
 public class WizardPageROI extends WizardPage implements ImageListener, RoiListener
 {		
 	private JLabel imageLabel;
 	private JComboBox<String> imagesCombo; // lists the open images in ImageJ, the one selected in this combo box will be denoised
 	private DefaultComboBoxModel<String> imagesModel; // model for imagesCombo
+	private ImagePlus image; // image currently chosen by the user for denoising, will be remembered in the WizardModel once we leave this wizard page
 	
 	private JLabel bitDepthLabel;
 	private JLabel bitDepthInfoLabel; // the bit depth info of the image selected in imagesCombo
@@ -77,19 +82,11 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				// We get here not only if the user interacts with the combo box directly, but also when images are opened/closed.
 				// Also, the selected item string will be null if the combo box model (imagesModel) contains no images because there are no open image windows.
 				String imageTitle = (String)imagesCombo.getSelectedItem();
-
-				// Unlock the previous image, if needed.
-				if (model.getImage() != null && model.getImage().isLocked())
-					model.getImage().unlock();
-				
-				// Keep a reference to the open window (if any) in our model.
-				model.setImage(imageTitle != null ? ij.WindowManager.getImage(imageTitle) : null);
+				image = (imageTitle != null) ? ij.WindowManager.getImage(imageTitle) : null;
 
 				// Update the UI
-				updateInfo();
-				wizard.updateButtons();
-			});			
-		
+				handlePreviewChange();
+			});				
 			
 			bitDepthLabel = new JLabel("Bit depth:");
 			bitDepthInfoLabel = new JLabel();
@@ -157,34 +154,33 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			add(noRoiWarningLabel);			
 			add(roiSizeWarningLabel);			
 			
-			updateInfo();
-			wizard.updateButtons();
+			handlePreviewChange();
 		}
 	}
 	
 	private boolean haveImage()
 	{
-		return model.getImage() != null;
+		return image != null;
 	}
 	
 	private boolean haveImageWithSupportedBitDepth()
 	{
-		return haveImage() && (model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
+		return haveImage() && (image.getBitDepth() == 8 || image.getBitDepth() == 16);
 	}
 	
 	private boolean imageHasWrongBitDepth()
 	{
-		return haveImage() && !(model.getImage().getBitDepth() == 8 || model.getImage().getBitDepth() == 16);
+		return haveImage() && !(image.getBitDepth() == 8 || image.getBitDepth() == 16);
 	}
 	
 	private boolean imageHasNoRoi()
 	{
-		return haveImage() && (model.getImage().getRoi() == null || model.getImage().getRoi().getBounds().isEmpty());
+		return haveImage() && (image.getRoi() == null || image.getRoi().getBounds().isEmpty());
 	}
 	
 	private boolean imageRoiTooLarge()
 	{
-		return haveImage() && model.getImage().getRoi() != null && !model.getImage().getRoi().getBounds().isEmpty() && (model.getImage().getRoi().getBounds().width > WizardModel.maxPreviewSize || model.getImage().getRoi().getBounds().height > WizardModel.maxPreviewSize);
+		return haveImage() && image.getRoi() != null && !image.getRoi().getBounds().isEmpty() && (image.getRoi().getBounds().width > WizardModel.maxPreviewSize || image.getRoi().getBounds().height > WizardModel.maxPreviewSize);
 	}
 	
 	private void updateInfo()
@@ -202,12 +198,12 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		
 		if (showBitDepthInfo)
 		{
-			bitDepthInfoLabel.setText(model.getImage().getBitDepth() + " bit / pixel");
+			bitDepthInfoLabel.setText(image.getBitDepth() + " bit / pixel");
 		}
 		
 		if (showRoiInfo)
 		{
-			Rectangle r = model.getImage().getRoi().getBounds();
+			Rectangle r = image.getRoi().getBounds();
 			roiInfoLabel.setText(r.width + " x " + r.height + " pixels, top left corner at (" + r.x + ", " + r.y + ")");
 		}	
 
@@ -236,7 +232,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// - File > New
 		// - File > Open
 		// - File > Open Recent
-		// - ...?
+		// - ...
 		
 		imagesModel.addElement(imp.getTitle());
 		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
@@ -255,7 +251,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	public void imageUpdated(ImagePlus imp) // not called on the EDT
 	{
 		// imageUpdated() is called when the user
-		// - changes the bit-depth or the type of the image via Fiji > Image > Type > ...
+		// - changes the bit-depth or the type of the image (Fiji > Image > Type > ...)
+		// - inverts the image (Fiji > Edit > Invert)
+		// - changes brightness or contrast (Fiji > Image > Adjust > Brightness/Contrast...)
 		// - moves to a different slice in an image stack
 		// - opens a new image
 		// - ...
@@ -269,7 +267,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		assert(SwingUtilities.isEventDispatchThread());
 		assert(imp != null);
 		
-		if (imp != model.getImage())
+		if (imp != image)
 			return;  // We're not interested in ROI changes for an image that is not currently chosen for denoising.
 						
 		handlePreviewChange();
@@ -279,27 +277,34 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	protected void aboutToHidePanel()
 	{
 		assert(SwingUtilities.isEventDispatchThread());
-
-		// Lock the image (stack) so that if the user closes the image window,
-		// the underlying image slices remain in memory.
-		if (!model.getImage().isLocked())
-			model.getImage().lock();
+		assert(canGoToNextPage());
 		
-		// Stop listening to changes. This avoids that if the user closes the image window we also wipe out the image from the model while it is still being used by the denoising wizard page. 
+		// Stop listening to changes. This avoids that if the user closes the image window we also wipe
+		// out the image from the model while it is still being used by the denoising wizard page. 
 		ImagePlus.removeImageListener(this);
 		ij.gui.Roi.removeRoiListener(this);
-	}
-	
-	// Guess the image that the user probably wants to denoise,
-	// or null if no image is currently open.
-	private ImagePlus getSuggestedImageForDenoising()
-	{
-		ImagePlus[] openImages = getOpenImages();	
 		
-		if (model.getImage() != null && Arrays.asList(openImages).contains(model.getImage()))
-			return model.getImage();
-		else
-			return ij.WindowManager.getCurrentImage();		
+		// Update model image
+		model.setImage(image);
+		
+		// Use the region of interest as a little preview image.
+		ImageProcessor preview = ImageUtils.cropImage(model.getImage());
+		model.setNoisyPreview(preview);
+
+		// Set default denoising parameters (and ranges) based on an estimate
+		// of the noise level of our input image.
+		float noise = model.getNoiseEstimate();
+		if (noise < 0)
+		{
+			noise = estimateNoise(model.getImage());
+			model.setNoiseEstimate(noise);
+			
+			if (noise >= 0)
+			{
+				for (Algorithm algorithm : model.getAlgorithms())
+					algorithm.setDefaultParameters(noise);
+			}
+		}		
 	}
 	
 	@Override
@@ -307,12 +312,11 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 		
-		// Guess likely image for denoising. Do this now, before we update the combo box
-		// which changes the model.
+		// Guess likely image for denoising from a set of open images.
+		// Do this now, before we update the combo box which changes the model.
 		ImagePlus suggestedImage = getSuggestedImageForDenoising();
 
 		// Populate combo box
-		// printOpenImages();
 		imagesModel.removeAllElements();
 		for (ImagePlus image : getOpenImages())
 			imagesModel.addElement(image.getTitle());
@@ -328,11 +332,45 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		}
 			
 		// Update UI		
-		updateInfo();
+		handlePreviewChange();
 		
 		// Listen to changes
 		ImagePlus.addImageListener(this);
 		ij.gui.Roi.addRoiListener(this);
+	}
+	
+	private static float estimateNoise(ImagePlus image)
+	{
+		float noise = -1.0f; // noise level unknown still
+		
+		try
+		{				
+			int slice = image.getCurrentSlice();
+			ImageStack stack = image.getStack();
+			ImageProcessor imp = stack.getProcessor(slice);
+			
+			noise = QExecutor.getInstance().submit(new NoiseEstimator(imp)).get();
+			System.out.println("Estimated (normalized) std deviation of noise in " + image.getTitle() + " = " + noise);
+		}
+		catch (InterruptedException | ExecutionException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return noise;
+	}
+
+	// Guess the image that the user probably wants to denoise
+	// (preferably the image in our model)
+	// or null if no image is currently open.
+	private ImagePlus getSuggestedImageForDenoising()
+	{
+		ImagePlus[] openImages = getOpenImages();	
+		
+		if (model.getImage() != null && Arrays.asList(openImages).contains(model.getImage()))
+			return model.getImage();
+		else
+			return ij.WindowManager.getCurrentImage();		
 	}
 	
 	private void handlePreviewChange()  // must be called on the EDT

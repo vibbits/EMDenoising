@@ -21,11 +21,17 @@ public class BilateralAlgorithm extends Algorithm
 	@Override
 	public DenoiseParams getParams()
 	{
+	    return params;
+	}
+	
+	@Override
+	public DenoiseParams getParamsCopy()
+	{
 	    return new BilateralParams(params);
 	}
 	
 	@Override
-	public Denoiser getDenoiser()
+	public Denoiser getDenoiserCopy()
 	{
 		return new BilateralDenoiser(new BilateralParams(params));
 	}

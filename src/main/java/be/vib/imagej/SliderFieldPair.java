@@ -25,16 +25,22 @@ class SliderFieldPair implements ChangeListener, PropertyChangeListener
 	
 	private boolean ignoreSlider = false;  // if set, then value changes of the slider are (temporarily) ignored
 	
-	private final Function<Float, Integer> toSlider;    // maps a floating point value to an integer position on the slider
-	private final Function<Integer, Float> fromSlider;  // maps an integer slider position to the corresponding floating point value
+	private Function<Float, Integer> toSlider;    // maps a floating point value to an integer position on the slider
+	private Function<Integer, Float> fromSlider;  // maps an integer slider position to the corresponding floating point value
+	
+	private int sliderMin;
+	private int sliderMax;
 	
 	private float value; // the shared value that is controlled by both the slider and the text field
 	
 	public SliderFieldPair(int sliderMin, int sliderMax, Format formatter, float fieldMin, float fieldMax)
 	{
+		this.sliderMin = sliderMin;
+		this.sliderMax = sliderMax;
+		
 		// Linear interpolation to map a float range to/from an integer range
-		toSlider = f -> (int)(sliderMin + (sliderMax - sliderMin) * (f - fieldMin) / (fieldMax - fieldMin)); // TODO: round to nearest integer instead of truncate
-		fromSlider = i -> fieldMin + (fieldMax - fieldMin) * (i - sliderMin) / (float)(sliderMax - sliderMin);
+		toSlider = toSliderConversion(sliderMin, sliderMax, fieldMin, fieldMax);
+		fromSlider = fromSliderConversion(sliderMin, sliderMax, fieldMin, fieldMax);
 		
 		value = fieldMin;
 		
@@ -48,15 +54,36 @@ class SliderFieldPair implements ChangeListener, PropertyChangeListener
 		slider.addChangeListener(this);
 	}
 	
-	 public void addPropertyChangeListener(PropertyChangeListener listener)
-	 {
-	     pcs.addPropertyChangeListener(listener);
-	 }
+	private Function<Float, Integer> toSliderConversion(int sliderMin, int sliderMax, float fieldMin, float fieldMax)
+	{
+		return f -> (int)(sliderMin + (sliderMax - sliderMin) * (f - fieldMin) / (fieldMax - fieldMin)); // TODO: round to nearest integer instead of truncate
+	}
 	
-	 public void removePropertyChangeListener(PropertyChangeListener listener)
-	 {
-	     pcs.removePropertyChangeListener(listener);
-	 }
+	private Function<Integer, Float> fromSliderConversion(int sliderMin, int sliderMax, float fieldMin, float fieldMax)
+	{
+		return i -> fieldMin + (fieldMax - fieldMin) * (i - sliderMin) / (float)(sliderMax - sliderMin);
+	}
+	
+	// Updates the range of (floating point) values that the slider covers, and sets a new actual value.
+	public void updateRange(float fieldMin, float fieldMax, float value)
+	{
+		// Note: we can keep on using the current JSlider object, but we will use different
+		// formulae to convert the floating point value that the slider represents
+		// to/from the slider's (fixed) integer range.
+		toSlider = toSliderConversion(sliderMin, sliderMax, fieldMin, fieldMax);
+		fromSlider = fromSliderConversion(sliderMin, sliderMax, fieldMin, fieldMax);
+		setValue(value);
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener listener)
+	{
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener)
+	{
+		pcs.removePropertyChangeListener(listener);
+	}
 	
 	public JSlider getSlider()
 	{
@@ -98,7 +125,7 @@ class SliderFieldPair implements ChangeListener, PropertyChangeListener
 	{
     	floatField.setValue(new Float(value));
 	}
-
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent e)
 	{
@@ -125,9 +152,6 @@ class SliderFieldPair implements ChangeListener, PropertyChangeListener
 		if (ignoreSlider)
 			return;
 		
-//		if (slider.getValueIsAdjusting())
-//			return;
-			    	
     	float newValue = fromSlider.apply(((Number)slider.getValue()).intValue());
     	
     	if (value == newValue)

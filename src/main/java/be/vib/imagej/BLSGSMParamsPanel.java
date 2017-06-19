@@ -11,18 +11,26 @@ import javax.swing.JSpinner;
 
 class BLSGSMParamsPanel extends DenoiseParamsPanelBase 
 {
+	private BLSGSMParams params;
 	private SliderFieldPair sigmaPair;
+	private SliderSpinnerPair scalesPair;
 	
 	public BLSGSMParamsPanel(BLSGSMParams params)
+	{
+		this.params = params;
+		buildUI();
+	}
+	
+	private void buildUI()
 	{
 		setBorder(BorderFactory.createTitledBorder("BLS-GSM Denoising Parameters"));
 		
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		sigmaPair = new SliderFieldPair(0, 100, floatFormat, BLSGSMParams.sigmaMin, BLSGSMParams.sigmaMax);
+		sigmaPair = new SliderFieldPair(0, 100, floatFormat, params.sigmaMin, params.sigmaMax);
 		sigmaPair.setValue(params.sigma);
-		sigmaPair.addPropertyChangeListener(e -> { params.sigma = sigmaPair.getValue(); fireChangeEvent(); });
+		sigmaPair.addPropertyChangeListener(e -> { params.sigma = sigmaPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider sigmaSlider = sigmaPair.getSlider();
 		
@@ -34,9 +42,9 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 
 		//
 		
-		SliderSpinnerPair scalesPair = new SliderSpinnerPair(BLSGSMParams.scalesMin, BLSGSMParams.scalesMax);
+		scalesPair = new SliderSpinnerPair(BLSGSMParams.scalesMin, BLSGSMParams.scalesMax);
 		scalesPair.setValue(params.scales);
-		scalesPair.addPropertyChangeListener(e -> { params.scales = scalesPair.getValue(); fireChangeEvent(); });
+		scalesPair.addPropertyChangeListener(e -> { params.scales = scalesPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider scalesSlider = scalesPair.getSlider();
 		
@@ -78,5 +86,12 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 		);    	
 		
 		setLayout(layout);
+	}
+	
+	@Override
+	public void updatePanelFromParams()
+	{
+		sigmaPair.updateRange(params.sigmaMin, params.sigmaMax, params.sigma);
+		scalesPair.setValue(params.scales);		// FIXME: for generality it would be nicer to updateRange (but we know that currently for BLSGSM the scales range is never changed)
 	}
 }

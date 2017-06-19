@@ -12,11 +12,23 @@ import javax.swing.JSpinner;
 
 class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase 
 {
+	private NonLocalMeansParams params;
+	private SliderFieldPair hPair;
+	private SliderSpinnerPair searchSizePair;
+	private SliderSpinnerPair blockSizePair;
+	private JCheckBox deconvolutionCheckBox;
+	private JCheckBox decorrelationCheckBox;
 	private JLabel lambdaLabel;
 	private JFormattedTextField lambdaField;
 	private JSlider lambdaSlider;
 	
 	public NonLocalMeansParamsPanel(NonLocalMeansParams params)
+	{
+		this.params = params;
+		buildUI();
+	}
+	
+	private void buildUI()
 	{
 		setBorder(BorderFactory.createTitledBorder("Non-Local Means Denoising Parameters"));
 		
@@ -25,9 +37,9 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		
 		// ----
 		
-		SliderFieldPair hPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansParams.hMin, NonLocalMeansParams.hMax);
+		hPair = new SliderFieldPair(0, 100, floatFormat, params.hMin, params.hMax);
 		hPair.setValue(params.h);
-		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireChangeEvent(); });
+		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider hSlider = hPair.getSlider();
 		
@@ -40,7 +52,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		
 		SliderFieldPair lambdaPair = new SliderFieldPair(0, 100, floatFormat, NonLocalMeansParams.DeconvolutionParams.lambdaMin, NonLocalMeansParams.DeconvolutionParams.lambdaMax);
 		lambdaPair.setValue(params.deconvolutionParams.lambda);
-		lambdaPair.addPropertyChangeListener(e -> { params.deconvolutionParams.lambda = lambdaPair.getValue(); fireChangeEvent(); });
+		lambdaPair.addPropertyChangeListener(e -> { params.deconvolutionParams.lambda = lambdaPair.getValue(); fireParamsChangeEvent(); });
 		
 		lambdaSlider = lambdaPair.getSlider();
 		
@@ -52,15 +64,15 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		
 		// ----
 		
-		JCheckBox decorrelationCheckBox = new JCheckBox("Apply decorrelation");
+		decorrelationCheckBox = new JCheckBox("Apply decorrelation");
 		decorrelationCheckBox.setSelected(params.decorrelation);
-		decorrelationCheckBox.addActionListener(e -> { params.decorrelation = decorrelationCheckBox.isSelected(); fireChangeEvent(); });
+		decorrelationCheckBox.addActionListener(e -> { params.decorrelation = decorrelationCheckBox.isSelected(); fireParamsChangeEvent(); });
 
 		// ----
 		
-		JCheckBox deconvolutionCheckBox = new JCheckBox("Apply deconvolution (slow)");
+		deconvolutionCheckBox = new JCheckBox("Apply deconvolution (slow)");
 		deconvolutionCheckBox.setSelected(params.deconvolution);
-		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); EnableDeconvolutionControls(params.deconvolution); fireChangeEvent(); });
+		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); EnableDeconvolutionControls(params.deconvolution); fireParamsChangeEvent(); });
 		deconvolutionCheckBox.setToolTipText("Sharpen the image.");
 
 		// Update controls that are dependent on whether we want deconvolution or not.
@@ -68,9 +80,9 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 
 		// ----
 		
-		SliderSpinnerPair blockSizePair = new SliderSpinnerPair(NonLocalMeansParams.halfBlockSizeMin, NonLocalMeansParams.halfBlockSizeMax);
+		blockSizePair = new SliderSpinnerPair(NonLocalMeansParams.halfBlockSizeMin, NonLocalMeansParams.halfBlockSizeMax);
 		blockSizePair.setValue(params.halfBlockSize);
-		blockSizePair.addPropertyChangeListener(e -> { params.halfBlockSize = blockSizePair.getValue(); fireChangeEvent(); });
+		blockSizePair.addPropertyChangeListener(e -> { params.halfBlockSize = blockSizePair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider blockSizeSlider = blockSizePair.getSlider();
 		
@@ -80,9 +92,9 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 
 		// ----
 		
-		SliderSpinnerPair searchSizePair = new SliderSpinnerPair(NonLocalMeansParams.halfSearchSizeMin, NonLocalMeansParams.halfSearchSizeMax);
+		searchSizePair = new SliderSpinnerPair(NonLocalMeansParams.halfSearchSizeMin, NonLocalMeansParams.halfSearchSizeMax);
 		searchSizePair.setValue(params.halfSearchSize);
-		searchSizePair.addPropertyChangeListener(e -> { params.halfSearchSize = searchSizePair.getValue(); fireChangeEvent(); });
+		searchSizePair.addPropertyChangeListener(e -> { params.halfSearchSize = searchSizePair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider searchSizeSlider = searchSizePair.getSlider();
 		
@@ -156,5 +168,17 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		lambdaLabel.setEnabled(enable);
 		lambdaField.setEnabled(enable);
 		lambdaSlider.setEnabled(enable);
+	}
+	
+	@Override
+	public void updatePanelFromParams()
+	{
+		deconvolutionCheckBox.setSelected(false);
+		decorrelationCheckBox.setSelected(false);
+
+		hPair.updateRange(params.hMin, params.hMax, params.h);		
+		
+		searchSizePair.setValue(params.halfSearchSize); 	// FIXME: for generality it would be nicer to updateRange (but we know that currently this range is never changed)
+		blockSizePair.setValue(params.halfBlockSize); 	// FIXME: for generality it would be nicer to updateRange (but we know that currently this range is never changed)
 	}
 }

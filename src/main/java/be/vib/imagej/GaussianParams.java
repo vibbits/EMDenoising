@@ -5,18 +5,21 @@ import java.util.Properties;
 public class GaussianParams extends DenoiseParams
 {
 	public float sigma;
-	
-	public static final float sigmaMin = 0.5f;
-	public static final float sigmaMax = 5.0f;
+	public float sigmaMin;
+	public float sigmaMax;
 	
 	public GaussianParams()
 	{
 		sigma = 1.5f;
+		sigmaMin = 0.5f;
+		sigmaMax = 5.0f;
 	}
 	
 	public GaussianParams(GaussianParams other)
 	{
 		this.sigma = other.sigma;
+		this.sigmaMin = other.sigmaMin;
+		this.sigmaMax = other.sigmaMax;
 	}
 
 	@Override
@@ -39,18 +42,28 @@ public class GaussianParams extends DenoiseParams
 	{
 		GaussianParams other = (GaussianParams)obj;
 		
-		return (obj instanceof GaussianParams) && (sigma == other.sigma);
+		return (obj instanceof GaussianParams) && (sigma == other.sigma) && (sigmaMin == other.sigmaMin) && (sigmaMax == other.sigmaMax);
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return Float.valueOf(sigma).hashCode();
+		return Float.valueOf(sigma).hashCode() ^ Float.valueOf(sigmaMin).hashCode() ^ Float.valueOf(sigmaMax).hashCode();
 	}
 
-	// Set default algorithm parameters based on the image noise estimate 'sigmaEstimate'.
-	public void setDefaultParameters(float sigmaEstimate)
+	@Override
+	public void setDefaultParameters(float noiseEstimate)
 	{
-		sigma = 8.06167602539063f * sigmaEstimate + 0.534878730773926f;
+		// Suggested "ideal" denoising parameter
+		sigma = 8.06167602539063f * noiseEstimate + 0.534878730773926f;
+		
+		// FIXME - manual optimization
+		sigma *= 0.75f;
+		
+		// Heuristic for useful sigma parameter range.
+		sigmaMin = 0.001f;
+		sigmaMax = sigma * 1.2f;
+		
+		System.out.println("GaussianParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma + " ["+ sigmaMin + ", " + sigmaMax + "]");
 	}
 }

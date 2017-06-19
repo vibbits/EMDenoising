@@ -8,18 +8,27 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 
-class GaussianParamsPanel extends DenoiseParamsPanelBase 
+class GaussianParamsPanel extends DenoiseParamsPanelBase
 {	
+	private SliderFieldPair sigmaPair;
+	private GaussianParams params;
+	
 	public GaussianParamsPanel(GaussianParams params)
+	{
+		this.params = params;
+		buildUI();
+	}
+
+	private void buildUI()
 	{
 		setBorder(BorderFactory.createTitledBorder("Gaussian Denoising Parameters"));
 		
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 		
-		SliderFieldPair sigmaPair = new SliderFieldPair(0, 100, floatFormat, GaussianParams.sigmaMin, GaussianParams.sigmaMax);
+		sigmaPair = new SliderFieldPair(0, 100, floatFormat, params.sigmaMin, params.sigmaMax);
 		sigmaPair.setValue(params.sigma);
-		sigmaPair.addPropertyChangeListener(e -> { params.sigma = sigmaPair.getValue(); fireChangeEvent(); });
+		sigmaPair.addPropertyChangeListener(e -> { params.sigma = sigmaPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider sigmaSlider = sigmaPair.getSlider();
 		
@@ -52,6 +61,12 @@ class GaussianParamsPanel extends DenoiseParamsPanelBase
 			           .addComponent(sigmaSlider))
 		);    	
 		
-		setLayout(layout);
+		setLayout(layout);		
+	}
+	
+	@Override
+	public void updatePanelFromParams()
+	{
+		sigmaPair.updateRange(params.sigmaMin, params.sigmaMax, params.sigma);		
 	}
 }

@@ -14,7 +14,10 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 
 import ij.ImagePlus;
+import ij.ImageStack;
+import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 
 import java.awt.Rectangle;
 
@@ -77,11 +80,23 @@ public class ImageUtils
 	
 	public static BufferedImage deepCopy(BufferedImage image)
 	{
-		// TODO: carefully chcek this code
 		ColorModel colorModel = image.getColorModel();
 		boolean isAlphaPremultiplied = colorModel.isAlphaPremultiplied();
 		WritableRaster raster = image.copyData(image.getRaster().createCompatibleWritableRaster());
 		return new BufferedImage(colorModel, raster, isAlphaPremultiplied, null);
+	}	
+
+	/** 
+	 * Returns a new ImageProcessor with a copy of the current slice in the given image or image stack,
+	 * cropped to the ROI of the given image.
+	 */
+	public static ImageProcessor cropImage(ImagePlus image)
+	{
+		int slice = image.getCurrentSlice();
+		ImageStack stack = image.getStack();
+		ImageProcessor imp = stack.getProcessor(slice);
+		imp.setRoi(image.getRoi());
+		return imp.crop();
 	}
 	
 	/**
@@ -104,8 +119,9 @@ public class ImageUtils
 	/**
 	 * Copy the display range from the source to the destination image.
 	 * 
-	 * Note: the display range are the minimum and maximum values shown
-	 * in the B&C (Brightness and Contrast) window in ImageJ/Fiji. 
+	 * The display range are the minimum and maximum values shown
+	 * in the B&C (Brightness and Contrast) window in ImageJ/Fiji.
+	 * It may be different from the minimum and maximum pixel values in the image. 
 	 * 
 	 * @param src The source image.
 	 * @param dst The destination image.
@@ -114,4 +130,46 @@ public class ImageUtils
 	{
 		dst.setMinAndMax(src.getMin(), src.getMax());
 	}
+	
+//	/**
+//	 * Returns the maximum pixel value present in the image
+//	 * (or zero for a 0x0 image). It is not necessarily the same
+//	 * as the maximum display value ImageProcessor.getMax().
+//	 * 
+//	 * @param image the image
+//	 * @throws RuntimeException if the image is not 8 or 16 bit / pixel
+//	 */
+//	public static float maxValue(ImageProcessor image)
+//	{
+//		final int n = image.getPixelCount();
+//		
+//		if (image instanceof ByteProcessor)
+//		{
+//			byte[] pixels = (byte[])image.getPixels();
+//			byte max = 0;
+//			for (int i = 0; i < n; i++)
+//			{
+//				byte v = pixels[i];
+//				if (v > max)
+//					max = v;
+//			}
+//			return max;
+//		}
+//		else if (image instanceof ShortProcessor)
+//		{
+//			short[] pixels = (short[])image.getPixels();
+//			short max = 0;
+//			for (int i = 0; i < n; i++)
+//			{
+//				short v = pixels[i];
+//				if (v > max)
+//					max = v;
+//			}
+//			return max;		
+//		}
+//		else
+//		{
+//			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
+//		}
+//	}
 }

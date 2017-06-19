@@ -29,7 +29,7 @@ public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 	{
 		// Initialize Quasar now
 		Callable<Void> task = () -> {
-			System.out.println("QHost.init device = " + device + " load compiler = " + loadCompiler + " (Java thread=" + Thread.currentThread().getId() + ")");
+			System.out.println("QHost.init(device=" + device + ", loadcompiler=" + loadCompiler + ")");
 			QHost.init(device, loadCompiler);
 			
 			QHost.printMachineInfo();
@@ -55,16 +55,19 @@ public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 			public void run()
 			{
 				Callable<Void> task = () -> {
-					System.out.println("Calling QHost.release()" + " (Java thread=" + Thread.currentThread().getId() + ")");
+					System.out.println("QHost.release()");
 					QHost.release();
 					System.out.println("Quasar host released");					
 					return null;
 				};
 				
-				try {
+				try
+				{
 					QExecutor.getInstance().submit(task).get();
-				} catch (InterruptedException | ExecutionException e) {
-					// TODO Auto-generated catch block
+				}
+				catch (InterruptedException | ExecutionException e)
+				{
+					// CHECKME
 					e.printStackTrace();
 				}				
 			}

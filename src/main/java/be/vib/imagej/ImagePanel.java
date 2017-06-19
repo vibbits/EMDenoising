@@ -33,14 +33,17 @@ public class ImagePanel extends JPanel implements ActionListener
 	// Interesting: Deven_C_Miller's answer in
 	// http://stackoverflow.com/questions/2155351/swing-jpanel-wont-repaint
 	
+	
 	public void setImage(BufferedImage image)
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 		
 		this.image = image;
 		
-		// If the image size has changed, it also implicitly modified the
-		// minimum/preferred/maximum sizes, so we must notify the layout manager.
+		Dimension size = new Dimension(image.getWidth(), image.getHeight());
+		setPreferredSize(size);
+		
+		// Image size may have changed, so we must notify the layout manager.
 		invalidate();
 		
 		// The image's content may have changed, so redraw the image.

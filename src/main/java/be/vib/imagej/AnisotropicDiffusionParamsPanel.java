@@ -11,7 +11,18 @@ import javax.swing.JSpinner;
 
 class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase 
 {
+	private AnisotropicDiffusionParams params;
+	private SliderFieldPair diffusionFactorPair;
+	private SliderFieldPair stepSizePair;
+	private SliderSpinnerPair iterationsPair;
+	
 	public AnisotropicDiffusionParamsPanel(AnisotropicDiffusionParams params)
+	{
+		this.params = params;
+		buildUI();
+	}
+	
+	private void buildUI()
 	{
 		setBorder(BorderFactory.createTitledBorder("Anisotropic Diffusion Denoising Parameters"));
 		
@@ -22,9 +33,9 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		JLabel diffusionFactorLabel = new JLabel("Diffusion factor:");
 		diffusionFactorLabel.setToolTipText("Use a larger diffusion factor for more denoising.");
 		
-		SliderFieldPair diffusionFactorPair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.diffusionFactorMin, AnisotropicDiffusionParams.diffusionFactorMax);
+		diffusionFactorPair = new SliderFieldPair(0, 100, floatFormat, params.diffusionFactorMin, params.diffusionFactorMax);
 		diffusionFactorPair.setValue(params.diffusionFactor);
-		diffusionFactorPair.addPropertyChangeListener(e -> { params.diffusionFactor = diffusionFactorPair.getValue(); fireChangeEvent(); });
+		diffusionFactorPair.addPropertyChangeListener(e -> { params.diffusionFactor = diffusionFactorPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider diffusionFactorSlider = diffusionFactorPair.getSlider();
 		
@@ -35,9 +46,9 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		
 		JLabel stepSizeLabel = new JLabel("Step size:");
 		
-		SliderFieldPair stepSizePair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.stepSizeMin, AnisotropicDiffusionParams.stepSizeMax);
+		stepSizePair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.stepSizeMin, AnisotropicDiffusionParams.stepSizeMax);
 		stepSizePair.setValue(params.stepSize);
-		stepSizePair.addPropertyChangeListener(e -> { params.stepSize = stepSizePair.getValue(); fireChangeEvent(); });
+		stepSizePair.addPropertyChangeListener(e -> { params.stepSize = stepSizePair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider stepSizeSlider = stepSizePair.getSlider();
 		
@@ -46,9 +57,9 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 
 		//
 		
-		SliderSpinnerPair iterationsPair = new SliderSpinnerPair(AnisotropicDiffusionParams.iterationsMin, AnisotropicDiffusionParams.iterationsMax);
+		iterationsPair = new SliderSpinnerPair(AnisotropicDiffusionParams.iterationsMin, AnisotropicDiffusionParams.iterationsMax);
 		iterationsPair.setValue(params.numIterations);
-		iterationsPair.addPropertyChangeListener(e -> { params.numIterations = iterationsPair.getValue(); fireChangeEvent(); });
+		iterationsPair.addPropertyChangeListener(e -> { params.numIterations = iterationsPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider iterationsSlider = iterationsPair.getSlider();
 		
@@ -98,5 +109,13 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		      );  
 		
 		setLayout(layout);
+	}
+	
+	@Override
+	public void updatePanelFromParams()
+	{
+		diffusionFactorPair.updateRange(params.diffusionFactorMin, params.diffusionFactorMax, params.diffusionFactor);		
+		stepSizePair.updateRange(AnisotropicDiffusionParams.stepSizeMin, AnisotropicDiffusionParams.stepSizeMax, params.stepSize);		
+		iterationsPair.setValue(params.numIterations);		// FIXME: for generality it would be nicer to updateRange (but we know that currently for aniso diffusion the iterations range is never changed)
 	}
 }
