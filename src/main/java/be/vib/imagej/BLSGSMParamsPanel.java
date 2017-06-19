@@ -92,6 +92,6 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 	public void updatePanelFromParams()
 	{
 		sigmaPair.updateRange(params.sigmaMin, params.sigmaMax, params.sigma);
-		scalesPair.setValue(params.scales);		// FIXME: for generality it would be nicer to updateRange (but we know that currently for BLSGSM the scales range is never changed)
+		scalesPair.updateRange(BLSGSMParams.scalesMin, BLSGSMParams.scalesMax, params.scales);
 	}
 }

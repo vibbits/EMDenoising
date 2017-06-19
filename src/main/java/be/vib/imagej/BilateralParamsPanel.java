@@ -91,6 +91,6 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 	public void updatePanelFromParams()
 	{
 		hPair.updateRange(params.hMin, params.hMax, params.h);	
-		rPair.setValue(params.r);		// FIXME: for generality it would be nicer to updateRange (but we know that currently for bilateral filtering the iterations range is never changed)
+		rPair.updateRange(BilateralParams.rMin, BilateralParams.rMax, params.r);
 	}
 }

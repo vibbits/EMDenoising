@@ -18,60 +18,76 @@ class SliderSpinnerPair implements ChangeListener
 
 	private JSlider slider;
 	private JSpinner spinner;
-	
+
 	private int value;
-			
+
 	public SliderSpinnerPair(int minValue, int maxValue)
 	{
 		value = minValue;
-		
-		int stepSize = 1;
-		SpinnerModel spinnerModel = new SpinnerNumberModel(value, minValue, maxValue, stepSize);
+
+		SpinnerModel spinnerModel = makeSpinnerModel(minValue, maxValue, value);
 		spinner = new JSpinner(spinnerModel);
 
 		slider = new JSlider(minValue, maxValue, value);
-		// TODO: it would be nice if for small integer ranges the slider knob would jump from one integer value to the next,
+		// TODO: it would be nice if for integer ranges the slider knob would jump from one integer value to the next,
 		// instead of moving smoothly over fractional values that have no meaning. I don't think JSlider offers this out of the box.
 
 		slider.addChangeListener(this);
 		spinner.addChangeListener(this);
 	}
-	
-	 public void addPropertyChangeListener(PropertyChangeListener listener)
-	 {
-	     pcs.addPropertyChangeListener(listener);
-	 }
-	
-	 public void removePropertyChangeListener(PropertyChangeListener listener)
-	 {
-	     pcs.removePropertyChangeListener(listener);
-	 }
-	
+
+	public void updateRange(int minValue, int maxValue, int value)
+	{
+		SpinnerModel spinnerModel = makeSpinnerModel(minValue, maxValue, value);
+		spinner.setModel(spinnerModel);
+
+		slider.setMinimum(minValue);
+		slider.setMaximum(maxValue);
+
+		setValue(value);
+	}
+
+	private SpinnerNumberModel makeSpinnerModel(int minValue, int maxValue, int value)
+	{
+		int stepSize = 1;
+		return new SpinnerNumberModel(value, minValue, maxValue, stepSize);
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener listener)
+	{
+		pcs.addPropertyChangeListener(listener);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener)
+	{
+		pcs.removePropertyChangeListener(listener);
+	}
+
 	public JSlider getSlider()
 	{
 		return slider;
 	}
-	
+
 	public JSpinner getSpinner()
 	{
 		return spinner;
 	}
-	
+
 	public void setValue(int newValue)
 	{
 		int oldValue = value;
-				
+
 		if (oldValue == newValue)
 			return;
-		
+
 		value = newValue;
-		
+
 		spinner.setValue(newValue);
 		slider.setValue(newValue);
-		
-        pcs.firePropertyChange("value", oldValue, newValue);
+
+		pcs.firePropertyChange("value", oldValue, newValue);
 	}
-	
+
 	public int getValue()
 	{
 		return value;
@@ -82,16 +98,13 @@ class SliderSpinnerPair implements ChangeListener
 	{
 		if (e.getSource() == slider)
 		{
-//			if (slider.getValueIsAdjusting())
-//			return;
-			
 			int newValue = ((Number)slider.getValue()).intValue();
 			if (newValue == value)
 				return;
-			
+
 			int oldValue = value;
 			value = newValue;
-			
+
 			spinner.setValue(newValue);
 			pcs.firePropertyChange("value", oldValue, newValue);
 		}
@@ -100,13 +113,13 @@ class SliderSpinnerPair implements ChangeListener
 			int newValue = ((Number)spinner.getValue()).intValue();
 			if (newValue == value)
 				return;
-			
+
 			int oldValue = value;
 			value = newValue;
-			
+
 			slider.setValue(newValue);
 			pcs.firePropertyChange("value", oldValue, newValue);
-			
+
 		}
 	}
 }

@@ -175,10 +175,8 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 	{
 		deconvolutionCheckBox.setSelected(false);
 		decorrelationCheckBox.setSelected(false);
-
-		hPair.updateRange(params.hMin, params.hMax, params.h);		
-		
-		searchSizePair.setValue(params.halfSearchSize); 	// FIXME: for generality it would be nicer to updateRange (but we know that currently this range is never changed)
-		blockSizePair.setValue(params.halfBlockSize); 	// FIXME: for generality it would be nicer to updateRange (but we know that currently this range is never changed)
+		hPair.updateRange(params.hMin, params.hMax, params.h);				
+		searchSizePair.updateRange(NonLocalMeansParams.halfSearchSizeMin, NonLocalMeansParams.halfSearchSizeMax, params.halfSearchSize);
+		blockSizePair.updateRange(NonLocalMeansParams.halfBlockSizeMin, NonLocalMeansParams.halfBlockSizeMax, params.halfBlockSize);
 	}
 }

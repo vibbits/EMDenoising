@@ -116,6 +116,6 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 	{
 		diffusionFactorPair.updateRange(params.diffusionFactorMin, params.diffusionFactorMax, params.diffusionFactor);		
 		stepSizePair.updateRange(AnisotropicDiffusionParams.stepSizeMin, AnisotropicDiffusionParams.stepSizeMax, params.stepSize);		
-		iterationsPair.setValue(params.numIterations);		// FIXME: for generality it would be nicer to updateRange (but we know that currently for aniso diffusion the iterations range is never changed)
+		iterationsPair.updateRange(AnisotropicDiffusionParams.iterationsMin, AnisotropicDiffusionParams.iterationsMax, params.numIterations);
 	}
 }
