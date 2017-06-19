@@ -19,7 +19,6 @@ public class WizardModel
 	private Map<Name, Algorithm> algorithms;
 
 	private ImagePlus image; // original image or image stack (a reference not a copy). Can be null iff. the wizard shows the WizardPageROI; is non-null otherwise.
- 	                         //                                                         FIXME: can also be null if the user closes the image window, and we move from the denoising panel back to the algorithm selection panel
     
 	private ImageRange range; // the range of image slices that need to be denoised
 
