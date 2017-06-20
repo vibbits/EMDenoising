@@ -34,7 +34,8 @@ public abstract class Denoiser implements Callable<ImageProcessor>
 	
 	public int imageMargin()
 	{
-		 // FIXME: must be dependent on algorithm parameters to avoid artifacts along tile boundaries
+		 // FIXME: Must be dependent on algorithm parameters to avoid artifacts along tile boundaries.
+		//         For example, in case of the GaussianDenoiser with sigma=30 tile boundaries are visible.
 		return 16;
 	}
 }

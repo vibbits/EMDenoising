@@ -7,7 +7,7 @@ import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
-class BLSGSMDenoiser extends Denoiser
+public class BLSGSMDenoiser extends Denoiser
 {
 	private final BLSGSMParams params;
 	

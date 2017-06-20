@@ -7,7 +7,7 @@ import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
-class NonLocalMeansDenoiser extends Denoiser
+public class NonLocalMeansDenoiser extends Denoiser
 {
 	private final NonLocalMeansParams params;
 	

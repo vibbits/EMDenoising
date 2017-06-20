@@ -7,7 +7,7 @@ import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
-class AnisotropicDiffusionDenoiser extends Denoiser
+public class AnisotropicDiffusionDenoiser extends Denoiser
 {
 	private final AnisotropicDiffusionParams params;
 	
