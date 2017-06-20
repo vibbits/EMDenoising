@@ -304,7 +304,7 @@ class RangeSelectionPanel extends JPanel
 	
 	public void updateRange() // called (among others) when user selects a different range radio button
 	{		
-		System.out.println("updateRange()");
+		// System.out.println("updateRange()");
 		
 		int numSlices = model.getImage() != null ? model.getImage().getNSlices() : 1;
 
