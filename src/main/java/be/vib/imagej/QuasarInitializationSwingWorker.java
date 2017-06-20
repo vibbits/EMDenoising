@@ -1,13 +1,8 @@
 package be.vib.imagej;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.SwingWorker;
-
-import be.vib.bits.QExecutor;
-import be.vib.bits.QHost;
-import be.vib.bits.jartools.Jar;
 
 public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 {
@@ -26,53 +21,8 @@ public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 	
 	@Override
 	public Void doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception
-	{
-		// Initialize Quasar now
-		Callable<Void> task = () -> {
-			System.out.println("QHost.init(device=" + device + ", loadcompiler=" + loadCompiler + ")");
-			QHost.init(device, loadCompiler);
-			
-			QHost.printMachineInfo();
-			
-			// QHost.enableProfiling();
-			// System.out.println("Quasar memory profiling enabled");
-			
-			System.out.println("Extracting algorithms");
-			Jar.extractResource(algorithmsFolder, "qlib/vib_denoising_algorithms.qlib");
-
-			System.out.println("Loading algorithms");
-			QuasarTools.loadAlgorithms(algorithmsFolder, "vib_denoising_algorithms.qlib");
-			return null;
-		};
-		
-		QExecutor.getInstance().submit(task).get();
-		
-		// Schedule Quasar release for later, when the Java VM shuts down. This is ugly, but
-		// there doesn't seem to be any other obvious way to release Quasar "at the very end".
-		// (And Quasar can only be initialized and released a single time.)
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run()
-			{
-				Callable<Void> task = () -> {
-					System.out.println("QHost.release()");
-					QHost.release();
-					System.out.println("Quasar host released");					
-					return null;
-				};
-				
-				try
-				{
-					QExecutor.getInstance().submit(task).get();
-				}
-				catch (InterruptedException | ExecutionException e)
-				{
-					// CHECKME
-					e.printStackTrace();
-				}				
-			}
-		});
-				
+	{	
+		QuasarTools.startQuasar(device, algorithmsFolder, loadCompiler);			
 		return null;
 	}
 	

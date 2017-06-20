@@ -1,28 +1,13 @@
 package be.vib.imagej;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import be.vib.bits.JavaQuasarBridge;
-
 // A Bill Pugh singleton for the denoising wizard.
 public class DenoisingWizardSingleton
 {
     private static String tempFolder;
 	
 	static
-	{		
-		try
-		{
-			System.out.println("About to load JavaQuasarBridge dynamic library");
-			tempFolder = Files.createTempDirectory("vib_em_denoising_").toString();
-			boolean useEmbeddedQuasar = false;  // FIXME: should be true once we have the Quasar runtime distributions and embed them in the jar
-			JavaQuasarBridge.loadLibrary(tempFolder, useEmbeddedQuasar);
-			System.out.println("JavaQuasarBridge dynamic library loaded.");
-		}
-		catch (ClassNotFoundException | IOException e)
-		{
-			e.printStackTrace();
-		}
+	{
+		tempFolder = QuasarTools.loadQuasarBridge();
 	}
 	
 	private DenoisingWizardSingleton()

@@ -1,16 +1,90 @@
 package be.vib.imagej;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
+import be.vib.bits.JavaQuasarBridge;
+import be.vib.bits.QExecutor;
 import be.vib.bits.QHost;
 import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
+import be.vib.bits.jartools.Jar;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
 
 public class QuasarTools
 {
+	public static String loadQuasarBridge()
+	{
+		String tempFolder = null;
+		try
+		{
+			System.out.println("About to load JavaQuasarBridge dynamic library");
+			tempFolder = Files.createTempDirectory("vib_em_denoising_").toString();
+			boolean useEmbeddedQuasar = false;  // TODO: should be true once we have the Quasar runtime distributions and embed them in the JAR
+			JavaQuasarBridge.loadLibrary(tempFolder, useEmbeddedQuasar);
+			System.out.println("JavaQuasarBridge dynamic library loaded.");
+		}
+		catch (ClassNotFoundException | IOException e)
+		{
+			e.printStackTrace();
+		}
+		return tempFolder;
+	}
+	
+	public static void startQuasar(String device, String algorithmsFolder, boolean loadCompiler) throws InterruptedException, ExecutionException
+	{
+		// Initialize Quasar now
+		Callable<Void> task = () -> {
+			System.out.println("QHost.init(device=" + device + ", loadcompiler=" + loadCompiler + ")");
+			QHost.init(device, loadCompiler);
+			
+			QHost.printMachineInfo();
+			
+			// QHost.enableProfiling();
+			// System.out.println("Quasar memory profiling enabled");
+			
+			System.out.println("Extracting algorithms");
+			Jar.extractResource(algorithmsFolder, "qlib/vib_denoising_algorithms.qlib");
+
+			System.out.println("Loading algorithms");
+			QuasarTools.loadAlgorithms(algorithmsFolder, "vib_denoising_algorithms.qlib");
+			return null;
+		};
+		
+		QExecutor.getInstance().submit(task).get();
+		
+		// Schedule Quasar release for later, when the Java VM shuts down. This is ugly, but
+		// there doesn't seem to be any other obvious way to release Quasar "at the very end".
+		// (And Quasar can only be initialized and released a single time.)
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run()
+			{
+				Callable<Void> task = () -> {
+					System.out.println("QHost.release()");
+					QHost.release();
+					System.out.println("Quasar host released");					
+					return null;
+				};
+				
+				try
+				{
+					QExecutor.getInstance().submit(task).get();
+				}
+				catch (InterruptedException | ExecutionException e)
+				{
+					// CHECKME
+					e.printStackTrace();
+				}				
+			}
+		});	
+	}
+
 	public static void loadAlgorithms(String folder, String filename)
 	{
 		String module = Paths.get(folder, filename).toString();
@@ -28,46 +102,6 @@ public class QuasarTools
 			QHost.loadBinaryModule(module);
 		}		
 	}
-	
-//	// Returns the Quasar function object for the function with the given signature.
-//	// If the function does not yet exist in the Quasar host, it will load it from filename (and compile it if needed)
-//	public static QFunction loadDenoiseFunction(String filename, String signature) throws NoSuchFileException
-//	{
-//		String functionName = extractFunctionName(signature);
-//		
-//		if (!QHost.functionExists(functionName))
-//		{
-//			Path path = Preferences.getQuasarResourcesPath();
-//			String module = Paths.get(path.toString(), filename).toString();
-//			
-//			// Lazy loading of the source module for this denoising function.
-//			// Once it is loaded it will persist in the Quasar host
-//			// until the host is released.
-//			if (module.endsWith(".q"))
-//			{
-//				System.out.println("Loading source " + module);
-//				QHost.loadSourceModule(module);
-//			}
-//			else
-//			{
-//				System.out.println("Loading binary " + module);
-//				QHost.loadBinaryModule(module);
-//			}
-//		}		
-//
-//		return new QFunction(signature);
-//	}
-
-//	// Extracts the function name from a Quasar function signature.
-//	// For example, given the signature "gaussian_filter(mat,scalar,int,string)"
-//	// it returns "gaussian_filter".
-//	private static String extractFunctionName(String signature)
-//	{
-//		int i = signature.indexOf('(');
-//		assert(i != -1);
-//		
-//		return signature.substring(0, i);
-//	}	
 	
 	public static QValue newCubeFromImage(ImageProcessor image)
 	{		
