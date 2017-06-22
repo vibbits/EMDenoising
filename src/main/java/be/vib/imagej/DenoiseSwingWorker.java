@@ -1,26 +1,49 @@
 package be.vib.imagej;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
-import be.vib.bits.QExecutor;
 import ij.ImagePlus;
-import ij.ImageStack;
-import ij.process.ByteProcessor;
-import ij.process.ImageProcessor;
-import ij.process.ShortProcessor;
 
-class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
+// The DenoiseSwingWorker class is a wrapper around the DenoiseEngine class.
+// Its main task is to provide denoising progress feedback to the
+// user interface, and to allow the user to cancel the denoising calculations.
+public class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 {
 	private Algorithm algorithm;
 	private ImagePlus noisyImagePlus;
 	private ImageRange range;
 	private JProgressBar progressBar;
 	private Runnable whenDone;  // Will be run on the EDT as soon as the DenoiseSwingWorker is done denoising. Can be used to indicate in the UI that we are done.
+	
+	private class SwingDenoiseEngine extends DenoiseEngine
+	{
+		SwingDenoiseEngine(Algorithm algorithm)
+		{
+			super(algorithm.getDenoiserCopy(), algorithm.getParamsCopy());
+		}
+		
+		@Override 
+		public void publish(Integer... chunks )
+		{
+			DenoiseSwingWorker.this.publish(chunks);
+		}
+		
+		@Override 
+		public void process(List<Integer> chunks)
+		{
+			DenoiseSwingWorker.this.process(chunks);
+		}
+		
+		@Override 
+		public boolean isCancelled()
+		{
+			return DenoiseSwingWorker.this.isCancelled();
+		}
+	}
 	
 	public DenoiseSwingWorker(Algorithm algorithm, ImagePlus noisyImagePlus, ImageRange range, JProgressBar progressBar, Runnable whenDone)
 	{
@@ -34,87 +57,20 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	@Override
 	public ImagePlus doInBackground()
 	{
-		// The method doInBackground is run is a thread different from the Java Event Dispatch Thread (EDT). Do not update Java Swing components here.
-		final int width = noisyImagePlus.getWidth();
-		final int height = noisyImagePlus.getHeight();
+		// The method doInBackground is run is a thread different from the Java Event Dispatch Thread (EDT).
+		// Do not update Java Swing components here.
 		
-		final int tileSize = algorithm.getDenoiserCopy().imageTileSize();
-		final int margin = algorithm.getDenoiserCopy().imageMargin();
-		
-		final ImageStack noisyStack = noisyImagePlus.getStack();
-		
-		final Denoiser denoiser = algorithm.getDenoiserCopy();
-				
-		ImageStack denoisedStack = new ImageStack(width, height);
-		
-		int tileNr = 0;
-		for (int slice = range.getFirst(); slice <= range.getLast(); slice++)
-		{
-			if (isCancelled())
-				continue;
-			
-			ImageProcessor noisyImage = noisyStack.getProcessor(slice);
-			ImageProcessor denoisedImage = (noisyImage instanceof ByteProcessor) ? new ByteProcessor(width, height) : new ShortProcessor(width, height); // blank image, will be filled below
-			
-			ImageTiler tiler = new ImageTiler(noisyImage, tileSize, tileSize, margin);
-			for (ImageTile tile : tiler)
-			{
-				if (isCancelled())
-					continue;
-								
-				// Get a noisy tile from the original image
-				ImageProcessor noisyTileImp = tile.getImageWithMargins();
-				
-				// Denoise the tile
-				try
-				{
-					denoiser.setImage(noisyTileImp);
-					ImageProcessor denoisedTileImp = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
+		DenoiseEngine engine = new SwingDenoiseEngine(algorithm);
 
-					// Remove tile margins
-					denoisedTileImp.setRoi(tile.getLeftMargin(), tile.getTopMargin(), tile.getWidthWithoutMargins(), tile.getHeightWithoutMargins());
-					denoisedTileImp = denoisedTileImp.crop();
-					
-					// Put denoised tile at the correct position in the result image
-					denoisedImage.insert(denoisedTileImp, tile.getXPositionWithoutMargins(), tile.getYPositionWithoutMargins());
-				}
-				catch (ExecutionException | InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				
-				// Progress feedback
-				tileNr++;
-				final int numTiles = tiler.getNumTiles() * (range.getLast() - range.getFirst() + 1);
-				publish((100 * tileNr) / numTiles);
-			}
-
-			denoisedStack.addSlice("", denoisedImage);			
-		}
-		
-		if (isCancelled())
-			return null;
-		
 		String title = noisyImagePlus.getTitle() + " ["+ algorithm.getReadableName() + "]";
-		title = ij.WindowManager.makeUniqueName(title);
-		
-		ImagePlus denoisedImagePlus = new ImagePlus(title, denoisedStack);
-
-		// Make sure the display range of our denoised result is the same as the noisy input.
-		// Otherwise the denoised image may appear too dark or bright compared to the noisy version
-		// even though the pixel values themselves are correct.
-		ImageUtils.CopyDisplayRange(noisyImagePlus.getProcessor(), denoisedImagePlus.getProcessor());
-		
-		// Add denoise parameters as properties to the denoised image.
-		// In the end we will probably want to store them as OME XML. For now use ordinary properties.
-		denoisedImagePlus.setProperty("Info", getConcatenatedDenoisingParameters());
-
-		return denoisedImagePlus;
+		return engine.denoise(noisyImagePlus, range, title);
 	}
 	
 	@Override
-	protected void process(List<Integer> chunks)  // executed on the Java EDT, so we can update the UI here
+	protected void process(List<Integer> chunks)
 	{
+		// Method process() is executed on the Java EDT, so we can update the UI here.
+		
 		for (Integer slice : chunks)
 		{
 			progressBar.setValue(slice);
@@ -122,8 +78,10 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	}
 	
 	@Override
-	public void done()  // executed on the Java EDT, we can update the UI here.
+	public void done()  
 	{
+		// Method done() is executed on the Java EDT, we can update the UI here.
+		
 		whenDone.run();
 		
 		if (isCancelled())
@@ -139,18 +97,5 @@ class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		{
 			e.printStackTrace();
 		}
-	}
-	
-	private String getConcatenatedDenoisingParameters()
-	{
-		Properties props = algorithm.getParamsCopy().getParameterList();
-		
-		String params = "";	
-        for (String key : props.stringPropertyNames())
-        {
-             String value = props.getProperty(key);
-             params = params + key + " = " + value + "\n";
-        }				
-        return params;
 	}
 }
