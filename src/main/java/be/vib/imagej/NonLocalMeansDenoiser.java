@@ -8,18 +8,17 @@ import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
 public class NonLocalMeansDenoiser extends Denoiser
-{
-	private final NonLocalMeansParams params;
-	
+{	
 	public NonLocalMeansDenoiser(NonLocalMeansParams params)
 	{
-		super();
-		this.params = params;
+		super(params);
 	}
 	
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{	
+		NonLocalMeansParams params = (NonLocalMeansParams)this.params;
+
 		if (params.decorrelation)
 		{
 			return params.deconvolution ? nonLocalMeansCD() : nonLocalMeansC();						
@@ -39,6 +38,8 @@ public class NonLocalMeansDenoiser extends Denoiser
 		float r = QuasarTools.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+
+		NonLocalMeansParams params = (NonLocalMeansParams)this.params;
 
 		QValue denoisedImageCube = nlmeans.apply(noisyImageCube,
 							                     new QValue(params.halfSearchSize),
@@ -69,6 +70,8 @@ public class NonLocalMeansDenoiser extends Denoiser
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
 		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSigma)); 
 		
+		NonLocalMeansParams params = (NonLocalMeansParams)this.params;
+
 		QValue denoisedImageCube = nlmeansD.apply(noisyImageCube,
   						                          blurKernel,
 							                      new QValue(params.deconvolutionParams.lambda),  // FIXME: see nlmeans.q (lambda depends on decorrelate or not)
@@ -104,6 +107,8 @@ public class NonLocalMeansDenoiser extends Denoiser
 		
 		QValue corrFilterInv = new QValue(NonLocalMeansParams.emCorrFilterInv);
 		
+		NonLocalMeansParams params = (NonLocalMeansParams)this.params;
+
 		QValue denoisedImageCube = nlmeansCD.apply(noisyImageCube,
 							                       blurKernel,
 							                       new QValue(params.deconvolutionParams.lambda),   // FIXME: see nlmeans.q (lambda depends on decorrelate or not)
@@ -138,6 +143,8 @@ public class NonLocalMeansDenoiser extends Denoiser
 
 		QValue corrFilterInv = new QValue(NonLocalMeansParams.emCorrFilterInv);
 		
+		NonLocalMeansParams params = (NonLocalMeansParams)this.params;
+
 		QValue denoisedImageCube = nlmeansSC.apply(noisyImageCube,
 							   				       new QValue(params.halfSearchSize),
 											       new QValue(params.halfBlockSize),

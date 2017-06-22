@@ -9,12 +9,9 @@ import ij.process.ImageProcessor;
 
 public class AnisotropicDiffusionDenoiser extends Denoiser
 {
-	private final AnisotropicDiffusionParams params;
-	
 	public AnisotropicDiffusionDenoiser(AnisotropicDiffusionParams params)
 	{
-		super();
-		this.params = params;
+		super(params);
 	}
 
 	@Override
@@ -28,6 +25,8 @@ public class AnisotropicDiffusionDenoiser extends Denoiser
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 				
+		AnisotropicDiffusionParams params = (AnisotropicDiffusionParams)this.params;
+		
 		QValue denoisedImageCube = diffusion.apply(noisyImageCube,
 				                                   new QValue(params.numIterations),
 				                                   new QValue(params.stepSize),

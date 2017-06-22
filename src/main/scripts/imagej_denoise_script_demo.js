@@ -48,7 +48,7 @@ params.h = 1.5;
 var denoiser = new NonLocalMeansDenoiser(params);
 
 // Denoise the image using the GPU
-var engine = new DenoiseEngine(denoiser, params);
+var engine = new DenoiseEngine(denoiser);
 var denoisedImage =	engine.denoise(noisyImage, range, noisyImage.getTitle() + " [denoised]");
 
 // Show the denoised image

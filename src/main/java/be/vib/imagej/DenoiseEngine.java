@@ -26,12 +26,10 @@ import ij.process.ShortProcessor;
 public class DenoiseEngine
 {
 	private Denoiser denoiser;
-	private DenoiseParams params;
 	
-	public DenoiseEngine(Denoiser denoiser, DenoiseParams params)
+	public DenoiseEngine(Denoiser denoiser)
 	{
 		this.denoiser = denoiser;
-		this.params = params;
 	}
 	
 	public ImagePlus denoise(ImagePlus noisyImagePlus, ImageRange range, String title)
@@ -106,7 +104,8 @@ public class DenoiseEngine
 		// Add denoise parameters as properties to the denoised image.
 		// In the end we will probably want to store them as OME XML.
 		// For now use ordinary properties.
-		denoisedImagePlus.setProperty("Info", getConcatenatedDenoisingParameters(params));
+		String info = getConcatenatedDenoisingParameters(denoiser.getParams());
+		denoisedImagePlus.setProperty("Info", info);
 
 		return denoisedImagePlus;
 	}

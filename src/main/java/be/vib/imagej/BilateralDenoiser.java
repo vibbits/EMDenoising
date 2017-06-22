@@ -8,13 +8,10 @@ import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
 public class BilateralDenoiser extends Denoiser
-{
-	private final BilateralParams params;
-	
+{	
 	public BilateralDenoiser(BilateralParams params)
 	{
-		super();
-		this.params = params;
+		super(params);
 	}
 	
 	@Override
@@ -38,6 +35,8 @@ public class BilateralDenoiser extends Denoiser
 
 		// Construct an empty result image. It will be filled in by bilateralFilter().
 		QValue denoisedImageCube = zeros.apply(noisyImageCube.size());
+		
+		BilateralParams params = (BilateralParams)this.params;
 		
 		bilateralFilter.apply(noisyImageCube,
 				              denoisedImageCube,

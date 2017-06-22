@@ -7,10 +7,17 @@ import ij.process.ImageProcessor;
 public abstract class Denoiser implements Callable<ImageProcessor>
 {
 	protected ImageProcessor image; // original, noisy source image
+	protected DenoiseParams params;
 	
-	public Denoiser()
+	public Denoiser(DenoiseParams params)
 	{
 		this.image = null;
+		this.params = params;
+	}
+	
+	public DenoiseParams getParams()
+	{
+		return params;
 	}
 	
 	public void setImage(ImageProcessor image)

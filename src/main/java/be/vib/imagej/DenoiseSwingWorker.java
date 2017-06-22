@@ -23,7 +23,7 @@ public class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 	{
 		SwingDenoiseEngine(Algorithm algorithm)
 		{
-			super(algorithm.getDenoiserCopy(), algorithm.getParamsCopy());
+			super(algorithm.getDenoiserCopy());
 		}
 		
 		@Override 

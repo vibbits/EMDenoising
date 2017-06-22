@@ -9,12 +9,9 @@ import ij.process.ImageProcessor;
 
 public class BLSGSMDenoiser extends Denoiser
 {
-	private final BLSGSMParams params;
-	
 	public BLSGSMDenoiser(BLSGSMParams params)
 	{
-		super();
-		this.params = params;
+		super(params);
 	}
 	
 	@Override
@@ -28,6 +25,8 @@ public class BLSGSMDenoiser extends Denoiser
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 				
+		BLSGSMParams params = (BLSGSMParams)this.params;
+		
 		QValue denoisedImageCube = blsgsm.apply(noisyImageCube,
 							                    new QValue(params.scales),
 							                    new QValue(params.sigma));

@@ -9,12 +9,9 @@ import ij.process.ImageProcessor;
 
 public class GaussianDenoiser extends Denoiser
 {
-	private final GaussianParams params;
-	
 	public GaussianDenoiser(GaussianParams params)
 	{
-		super();
-		this.params = params;
+		super(params);
 	}
 	
 	@Override
@@ -27,6 +24,8 @@ public class GaussianDenoiser extends Denoiser
 		float r = QuasarTools.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+
+		GaussianParams params = (GaussianParams)this.params;
 
 		QValue denoisedImageCube = gaussian.apply(noisyImageCube,
 							                      new QValue(params.sigma),

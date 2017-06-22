@@ -8,13 +8,10 @@ import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
 public class WaveletThresholdingDenoiser extends Denoiser
-{
-	private final WaveletThresholdingParams params;
-	
+{	
 	public WaveletThresholdingDenoiser(WaveletThresholdingParams params)
 	{
-		super();
-		this.params = params;
+		super(params);
 	}
 	
 	@Override
@@ -30,6 +27,8 @@ public class WaveletThresholdingDenoiser extends Denoiser
 		float r = QuasarTools.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+
+		WaveletThresholdingParams params = (WaveletThresholdingParams)this.params;
 
 		QValue denoisedImageCube = waveletThresholding.apply(noisyImageCube,
 							                                 new QValue(WaveletThresholdingParams.J),
