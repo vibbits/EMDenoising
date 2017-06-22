@@ -184,7 +184,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	}
 	
 	private void updateInfo()
-	{		
+	{	
 		boolean haveImages = imagesCombo.getItemCount() > 0;
 		
 		boolean haveSupportedImage = haveImageWithSupportedBitDepth();
@@ -262,15 +262,22 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	}
 	
 	@Override
-	public void roiModified(ImagePlus imp, int id) // called on the EDT
+	public void roiModified(ImagePlus img, int id) // called on the EDT
 	{
-		assert(SwingUtilities.isEventDispatchThread());
-		assert(imp != null);
+		// Note: - For a simple rectangular ROI we have img != null.
+		//       - When creating a ROI that is the union of rectangles, imp != null while shift-dragging a second rectangle,
+		//         but imp == null when we stop dragging and we are notified about the creation of this second rectangle.
+		//         However, we never get a notificaion of the creation of the composition ROI consisting of the union
+		//         of both rectangles?! As a workaround we call handlePreviewChange() via invokeLater(), so it gets
+		//         executed after ImageJ eventually sets the composite ROI on the image. Our UI will then correctly
+		//         show the bounding box of the union ROI.
 		
-		if (imp != image)
+		assert(SwingUtilities.isEventDispatchThread());
+		
+		if (img != null && img != image)
 			return;  // We're not interested in ROI changes for an image that is not currently chosen for denoising.
 						
-		handlePreviewChange();
+		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
 	}
 	
 	@Override
