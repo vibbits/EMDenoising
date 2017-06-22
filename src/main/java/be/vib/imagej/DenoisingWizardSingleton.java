@@ -3,13 +3,6 @@ package be.vib.imagej;
 // A Bill Pugh singleton for the denoising wizard.
 public class DenoisingWizardSingleton
 {
-    private static String tempFolder;
-	
-	static
-	{
-		tempFolder = QuasarTools.loadQuasarBridge();
-	}
-	
 	private DenoisingWizardSingleton()
 	{
 	}
@@ -30,7 +23,7 @@ public class DenoisingWizardSingleton
 		
 		Wizard wizard = new Wizard("EM Denoising");
 		
-		WizardPage pageInitialization = new WizardPageInitializeQuasar(wizard, model, "Initialization", tempFolder);
+		WizardPage pageInitialization = new WizardPageInitializeQuasar(wizard, model, "Initialization");
 		WizardPage pageROI = new WizardPageROI(wizard, model, "Select Image and ROI");
 		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Choose Denoising Algorithm");  // Later: "Choose Denoising Protocol" ?
 		WizardPage pageDenoise = new WizardPageDenoise(wizard, model, "Denoise");

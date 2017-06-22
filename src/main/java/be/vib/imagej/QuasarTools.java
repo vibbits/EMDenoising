@@ -18,27 +18,32 @@ import ij.process.ShortProcessor;
 
 public class QuasarTools
 {
-	public static String loadQuasarBridge()
+    private static String quasarTempFolder; // the .qlib (embedded in the plugin jar) with the denoising algorithms will be extracted here
+    private static boolean quasarStarted = false;
+
+	static
 	{
-		String tempFolder = null;
 		try
 		{
 			System.out.println("About to load JavaQuasarBridge dynamic library");
-			tempFolder = Files.createTempDirectory("vib_em_denoising_").toString();
+			quasarTempFolder = Files.createTempDirectory("vib_em_denoising_").toString();
 			boolean useEmbeddedQuasar = false;  // TODO: should be true once we have the Quasar runtime distributions and embed them in the JAR
-			JavaQuasarBridge.loadLibrary(tempFolder, useEmbeddedQuasar);
+			JavaQuasarBridge.loadLibrary(quasarTempFolder, useEmbeddedQuasar);
 			System.out.println("JavaQuasarBridge dynamic library loaded.");
 		}
 		catch (ClassNotFoundException | IOException e)
 		{
 			e.printStackTrace();
 		}
-		return tempFolder;
 	}
 	
-	public static void startQuasar(String device, String algorithmsFolder, boolean loadCompiler) throws InterruptedException, ExecutionException
+	public static void startQuasar(String device, boolean loadCompiler) throws InterruptedException, ExecutionException
 	{
-		// Initialize Quasar now
+		// FIXME: this naive flag avoids repeated initialization from the same thread, but we still need to fix
+		// concurrent initialization from different threads (e.g. via the ImageJ plugin menu and via the an ImageJ script)
+		if (quasarStarted)
+			return;
+		
 		Callable<Void> task = () -> {
 			System.out.println("QHost.init(device=" + device + ", loadcompiler=" + loadCompiler + ")");
 			QHost.init(device, loadCompiler);
@@ -49,13 +54,14 @@ public class QuasarTools
 			// System.out.println("Quasar memory profiling enabled");
 			
 			System.out.println("Extracting algorithms");
-			Jar.extractResource(algorithmsFolder, "qlib/vib_denoising_algorithms.qlib");
+			Jar.extractResource(quasarTempFolder, "qlib/vib_denoising_algorithms.qlib");
 
 			System.out.println("Loading algorithms");
-			QuasarTools.loadAlgorithms(algorithmsFolder, "vib_denoising_algorithms.qlib");
+			QuasarTools.loadAlgorithms(quasarTempFolder, "vib_denoising_algorithms.qlib");
 			return null;
 		};
 		
+		// Initialize Quasar now and wait for it to complete.
 		QExecutor.getInstance().submit(task).get();
 		
 		// Schedule Quasar release for later, when the Java VM shuts down. This is ugly, but
@@ -83,9 +89,11 @@ public class QuasarTools
 				}				
 			}
 		});	
+		
+		quasarStarted = true;
 	}
 
-	public static void loadAlgorithms(String folder, String filename)
+	private static void loadAlgorithms(String folder, String filename)
 	{
 		String module = Paths.get(folder, filename).toString();
 		
@@ -103,6 +111,8 @@ public class QuasarTools
 		}		
 	}
 	
+	
+	// TODO: move code below to a different Java class.
 	public static QValue newCubeFromImage(ImageProcessor image)
 	{		
 		if (image instanceof ByteProcessor)

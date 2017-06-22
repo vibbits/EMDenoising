@@ -6,14 +6,12 @@ public class WizardPageInitializeQuasar extends WizardPage
 {
 	private boolean initialized = false;
 	private JLabel statusLabel;
-	private String algorithmsFolder;
 	
-	public WizardPageInitializeQuasar(Wizard wizard, WizardModel model, String name, String algorithmsFolder)
+	public WizardPageInitializeQuasar(Wizard wizard, WizardModel model, String name)
 	{
 		// Note: it seems this constructor is not run in the Java Event Dispatch Thread.
 
 		super(wizard, model, name);
-		this.algorithmsFolder = algorithmsFolder;
 		buildUI();
 	}
 	
@@ -33,7 +31,7 @@ public class WizardPageInitializeQuasar extends WizardPage
 
 		String engine = Preferences.getQuasarEngine();
 		boolean loadCompiler = false;
-		QuasarInitializationSwingWorker worker = new QuasarInitializationSwingWorker(engine, algorithmsFolder, loadCompiler, whenDone);
+		QuasarInitializationSwingWorker worker = new QuasarInitializationSwingWorker(engine, loadCompiler, whenDone);
 		worker.execute();		
 	}
 	
