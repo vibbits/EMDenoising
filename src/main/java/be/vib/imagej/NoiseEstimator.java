@@ -35,12 +35,12 @@ public class NoiseEstimator implements Callable<Float>
 	@Override
 	public Float call() throws Exception
 	{
-		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		
 //		QFunction imwrite = new QFunction("imwrite(string,cube)");
 //		imwrite.apply(new QValue("e:\\noisy.tif"), noisyImageCube);
 
-		float r = QuasarTools.bitRange(image);
+		float r = ImageUtils.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 		

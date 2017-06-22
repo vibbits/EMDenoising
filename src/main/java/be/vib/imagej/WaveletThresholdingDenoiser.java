@@ -19,12 +19,12 @@ public class WaveletThresholdingDenoiser extends Denoiser
 	{		
 		QFunction waveletThresholding = new QFunction("wav_denoise(mat,int,mat,mat,string,scalar)");
 				
-		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		
 		QValue w1 = QValue.readhostVariable("filtercoeff_farras");          // wavelet for the first scale (a 2x10 matrix)
 		QValue w2 = QValue.readhostVariable("filtercoeff_selcw").at(3, 1);  // wavelet for the other scales (a 2x12 matrix)
 
-		float r = QuasarTools.bitRange(image);
+		float r = ImageUtils.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 
@@ -41,7 +41,7 @@ public class WaveletThresholdingDenoiser extends Denoiser
 
 		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
 
-		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
 
 		denoisedImageCube.dispose();
 

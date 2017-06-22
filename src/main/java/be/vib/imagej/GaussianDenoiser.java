@@ -19,9 +19,9 @@ public class GaussianDenoiser extends Denoiser
 	{		
 		QFunction gaussian = new QFunction("gaussian_filter(mat,scalar,int,string)");
 		
-		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		
-		float r = QuasarTools.bitRange(image);
+		float r = ImageUtils.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 
@@ -36,7 +36,7 @@ public class GaussianDenoiser extends Denoiser
 
 		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
 
-		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
 
 		denoisedImageCube.dispose();
 

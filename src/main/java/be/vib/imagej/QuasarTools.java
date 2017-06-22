@@ -9,12 +9,7 @@ import java.util.concurrent.ExecutionException;
 import be.vib.bits.JavaQuasarBridge;
 import be.vib.bits.QExecutor;
 import be.vib.bits.QHost;
-import be.vib.bits.QUtils;
-import be.vib.bits.QValue;
 import be.vib.bits.jartools.Jar;
-import ij.process.ByteProcessor;
-import ij.process.ImageProcessor;
-import ij.process.ShortProcessor;
 
 public class QuasarTools
 {
@@ -110,54 +105,4 @@ public class QuasarTools
 			QHost.loadBinaryModule(module);
 		}		
 	}
-	
-	
-	// TODO: move code below to a different Java class.
-	public static QValue newCubeFromImage(ImageProcessor image)
-	{		
-		if (image instanceof ByteProcessor)
-		{
-			return QUtils.newCubeFromGrayscaleByteArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
-		}
-		else if (image instanceof ShortProcessor)
-		{
-			return QUtils.newCubeFromGrayscaleShortArray(image.getWidth(), image.getHeight(), (short[])image.getPixels());			
-		}
-		else
-		{
-			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
-		}
-	}
-	
-	public static int bitDepth(ImageProcessor image)
-	{
-		return image.getBitDepth();
-	}
-	
-	public static float bitRange(ImageProcessor image)
-	{
-		return (1 << bitDepth(image)) - 1;
-	}
-
-	public static ImageProcessor newImageFromCube(ImageProcessor image, QValue cube)
-	{
-		int width = image.getWidth();
-		int height = image.getHeight();
-		
-		if (image instanceof ByteProcessor)
-		{
-			byte[] pixels = QUtils.newGrayscaleByteArrayFromCube(width, height, cube);
-			return new ByteProcessor(width, height, pixels);
-		}
-		else if (image instanceof ShortProcessor)
-		{
-			short[] pixels = QUtils.newGrayscaleShortArrayFromCube(width, height, cube);
-			return new ShortProcessor(width, height, pixels, null);
-		}
-		else
-		{
-			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
-		}
-	}
-	
 }

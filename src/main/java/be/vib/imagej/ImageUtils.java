@@ -13,6 +13,8 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 
+import be.vib.bits.QUtils;
+import be.vib.bits.QValue;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ByteProcessor;
@@ -130,6 +132,53 @@ public class ImageUtils
 	{
 		dst.setMinAndMax(src.getMin(), src.getMax());
 	}
+
+	public static QValue newCubeFromImage(ImageProcessor image)
+	{		
+		if (image instanceof ByteProcessor)
+		{
+			return QUtils.newCubeFromGrayscaleByteArray(image.getWidth(), image.getHeight(), (byte[])image.getPixels());
+		}
+		else if (image instanceof ShortProcessor)
+		{
+			return QUtils.newCubeFromGrayscaleShortArray(image.getWidth(), image.getHeight(), (short[])image.getPixels());			
+		}
+		else
+		{
+			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
+		}
+	}
+
+	public static int bitDepth(ImageProcessor image)
+	{
+		return image.getBitDepth();
+	}
+
+	public static float bitRange(ImageProcessor image)
+	{
+		return (1 << bitDepth(image)) - 1;
+	}
+
+	public static ImageProcessor newImageFromCube(ImageProcessor image, QValue cube)
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		if (image instanceof ByteProcessor)
+		{
+			byte[] pixels = QUtils.newGrayscaleByteArrayFromCube(width, height, cube);
+			return new ByteProcessor(width, height, pixels);
+		}
+		else if (image instanceof ShortProcessor)
+		{
+			short[] pixels = QUtils.newGrayscaleShortArrayFromCube(width, height, cube);
+			return new ShortProcessor(width, height, pixels, null);
+		}
+		else
+		{
+			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
+		}
+	}
 	
 //	/**
 //	 * Returns the maximum pixel value present in the image
@@ -172,4 +221,6 @@ public class ImageUtils
 //			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
 //		}
 //	}
+
+	
 }

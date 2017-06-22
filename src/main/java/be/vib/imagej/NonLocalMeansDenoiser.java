@@ -33,9 +33,9 @@ public class NonLocalMeansDenoiser extends Denoiser
 	{				
 		QFunction nlmeans = new QFunction("denoise_nlmeans(mat,int,int,scalar)");
 
-		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		
-		float r = QuasarTools.bitRange(image);
+		float r = ImageUtils.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 
@@ -50,7 +50,7 @@ public class NonLocalMeansDenoiser extends Denoiser
 
 		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
 
-		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
 
 		denoisedImageCube.dispose();
 
@@ -61,9 +61,9 @@ public class NonLocalMeansDenoiser extends Denoiser
 	{		
 		QFunction nlmeansD = new QFunction("deconv_nlmeans(mat,mat,scalar,int,int,int,scalar)");
 		
-		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 
-		float r = QuasarTools.bitRange(image);
+		float r = ImageUtils.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 
@@ -85,7 +85,7 @@ public class NonLocalMeansDenoiser extends Denoiser
 
 		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
 
-		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
 
 		denoisedImageCube.dispose();
 
@@ -96,9 +96,9 @@ public class NonLocalMeansDenoiser extends Denoiser
 	{		
 		QFunction nlmeansCD = new QFunction("deconv_nlmeans_c(mat,mat,scalar,int,int,int,scalar,mat)");
 				
-		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 
-		float r = QuasarTools.bitRange(image);
+		float r = ImageUtils.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 
@@ -124,7 +124,7 @@ public class NonLocalMeansDenoiser extends Denoiser
 
 		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
 
-		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
 
 		denoisedImageCube.dispose();
 
@@ -135,9 +135,9 @@ public class NonLocalMeansDenoiser extends Denoiser
 	{		
 		QFunction nlmeansSC = new QFunction("denoise_nlmeans_c(mat,int,int,scalar,mat)");
 		
-		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		
-		float r = QuasarTools.bitRange(image);
+		float r = ImageUtils.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
 
@@ -156,7 +156,7 @@ public class NonLocalMeansDenoiser extends Denoiser
 		
 		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
 
-		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
 		
 		denoisedImageCube.dispose();
 		

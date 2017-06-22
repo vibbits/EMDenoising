@@ -21,9 +21,9 @@ public class BilateralDenoiser extends Denoiser
 		
 		QFunction zeros = new QFunction("zeros(...)");
 		
-		QValue noisyImageCube = QuasarTools.newCubeFromImage(image);
+		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		
-		float r = QuasarTools.bitRange(image);
+		float r = ImageUtils.bitRange(image);
 		
 		// The histogram based bilateral filter code in Quasar expects pixel values in the [0, 255] range.
 		// If we have a 16-bit image, we scale the values down to 8-bit for now - this probably loses precision.
@@ -50,7 +50,7 @@ public class BilateralDenoiser extends Denoiser
 			QUtils.inplaceMultiply(denoisedImageCube, r / 255.0f);
 		}
 
-		ImageProcessor denoisedImage = QuasarTools.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
 
 		denoisedImageCube.dispose();
 
