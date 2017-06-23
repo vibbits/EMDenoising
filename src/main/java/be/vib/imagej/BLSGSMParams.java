@@ -72,6 +72,6 @@ public class BLSGSMParams extends DenoiseParams
 		sigmaMin = 0.0f;
 		sigmaMax = sigma * 2f;
 		
-		System.out.println("BLSGSMParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma +" ["+ sigmaMin + ", " + sigmaMax + "]");
+//		System.out.println("BLSGSMParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma +" ["+ sigmaMin + ", " + sigmaMax + "]");
 	}
 }

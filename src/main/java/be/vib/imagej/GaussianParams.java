@@ -64,6 +64,6 @@ public class GaussianParams extends DenoiseParams
 		sigmaMin = 0.001f;
 		sigmaMax = sigma * 1.2f;
 		
-		System.out.println("GaussianParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma + " ["+ sigmaMin + ", " + sigmaMax + "]");
+//		System.out.println("GaussianParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma + " ["+ sigmaMin + ", " + sigmaMax + "]");
 	}
 }

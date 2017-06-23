@@ -76,7 +76,7 @@ public class BilateralParams extends DenoiseParams
 		hMin = 0.001f;
 		hMax = h * 2.0f;
 		
-		System.out.println("BilateralParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
+//		System.out.println("BilateralParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
 
 	}
 }

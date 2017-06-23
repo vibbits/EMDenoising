@@ -188,7 +188,7 @@ public class NonLocalMeansParams extends DenoiseParams
 		hMin = 0.0001f;
 		hMax = h * 2.0f;
 
-		System.out.println("NonLocalMeansParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
+//		System.out.println("NonLocalMeansParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
 	}
 	
 	/*
