@@ -6,6 +6,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,6 +59,14 @@ class RangeSelectionPanel extends JPanel
 	private JLabel errorLabel;
 	private HintedTextField rangeField;
 	private RangeVerifier rangeVerifier;
+	private ArrayList<ImageRangeChangeEventListener> listeners = new ArrayList<ImageRangeChangeEventListener>();
+	
+   	private enum RangeStatus
+	{
+		VALID_RANGE,
+		INVALID_RANGE,
+		OUT_OF_BOUNDS_RANGE
+	};
 	
 	public RangeSelectionPanel(WizardModel model)
 	{
@@ -64,14 +74,34 @@ class RangeSelectionPanel extends JPanel
 		buildUI();
 	}
 		
-   	private enum RangeStatus
+	public void enable(boolean e)
 	{
-		VALID_RANGE,
-		INVALID_RANGE,
-		OUT_OF_BOUNDS_RANGE
-	};
+		allSlicesRadioButton.setEnabled(e);
+		currentSliceRadioButton.setEnabled(e);
+		rangeOfSlicesRadioButton.setEnabled(e);
+	}
+	
+	public synchronized void addEventListener(ImageRangeChangeEventListener listener)
+	{
+		listeners.add(listener);
+	}
 
+	public synchronized void removeEventListener(ImageRangeChangeEventListener listener)
+	{
+		listeners.remove(listener);
+	}
 
+	private synchronized void fireRangeChangeEvent()
+	{
+		ImageRangeChangeEvent event = new ImageRangeChangeEvent(this);
+
+		Iterator<ImageRangeChangeEventListener> i = listeners.iterator();
+		while (i.hasNext())
+		{
+			((ImageRangeChangeEventListener)i.next()).handleImageRangeChangeEvent(event);
+		}
+	}
+	
 	class HintedTextField extends JTextField implements FocusListener
 	{
 		private final String hint;
@@ -327,5 +357,7 @@ class RangeSelectionPanel extends JPanel
 		{
 			model.setRange(rangeVerifier.getRange(rangeField));
 		}
+		
+		fireRangeChangeEvent();
 	}
 }

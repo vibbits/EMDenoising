@@ -8,7 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
-public class WizardPageDenoise extends WizardPage
+public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEventListener
 {
 	private DenoiseSummaryPanel denoiseSummaryPanel;
 	private JButton startButton;
@@ -55,6 +55,7 @@ public class WizardPageDenoise extends WizardPage
 		
 		rangeSelectionPanel = new RangeSelectionPanel(model);
 		rangeSelectionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, rangeSelectionPanel.getMaximumSize().height));
+		rangeSelectionPanel.addEventListener(this);
 		
 		rangeSelectionPanel.setAlignmentX(CENTER_ALIGNMENT);
 		startButton.setAlignmentX(CENTER_ALIGNMENT);
@@ -75,14 +76,14 @@ public class WizardPageDenoise extends WizardPage
     // denoise() is executed on the Java EDT, so it needs to complete ASAP.
 	// Off-load calculations to a separate thread and return immediately.
 	private void denoise() 
-	{
-		System.out.println("Denoise " + model.getRange() + " (Java thread: " + Thread.currentThread().getId() + ")");
-		
+	{		
 		busyDenoising = true;
 		wizard.updateButtons();  // disable the Back button while we're busy denoising
 
 		startButton.setVisible(false);
 		cancelButton.setVisible(true);
+		
+		rangeSelectionPanel.enable(false);
 		
 		statusLabel.setText("Denoising...");
 		statusLabel.setVisible(true);
@@ -96,6 +97,7 @@ public class WizardPageDenoise extends WizardPage
 		Runnable whenDone = () -> {
 			busyDenoising = false;
 			cancelButton.setVisible(false);
+			rangeSelectionPanel.enable(true);
 			statusLabel.setText(worker.isCancelled() ? "Denoising cancelled": "Denoising done");
 			progressBar.setVisible(false);
 			wizard.updateButtons();
@@ -133,5 +135,15 @@ public class WizardPageDenoise extends WizardPage
 	protected boolean canGoToPreviousPage()
 	{
 		return !busyDenoising;
+	}
+
+	@Override
+	public void handleImageRangeChangeEvent(ImageRangeChangeEvent e)
+	{
+		assert(busyDenoising == false);
+		startButton.setVisible(true);
+		cancelButton.setVisible(false);
+		progressBar.setVisible(false);
+		statusLabel.setVisible(false);
 	}
 }
