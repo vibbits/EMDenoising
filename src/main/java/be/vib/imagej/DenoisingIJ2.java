@@ -1,13 +1,9 @@
 package be.vib.imagej;
 
-import java.util.concurrent.ExecutionException;
-
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-
-import ij.plugin.frame.Recorder;
 
 // Windows 10
 // ----------
