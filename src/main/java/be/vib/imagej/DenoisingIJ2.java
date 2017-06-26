@@ -1,5 +1,7 @@
 package be.vib.imagej;
 
+import java.util.concurrent.ExecutionException;
+
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
@@ -34,16 +36,18 @@ public class DenoisingIJ2 implements Command
 	@Override
 	public void run() 
 	{
-		System.out.println("DenoisingIJ2.run() begin");
 		log.info("VIB Electron Microscopy Image Restoration plugin v1.0.0");
 
 		// A little experiment with the macro recorder 
-		// TODO: read http://imagej.net/PlugIn_Design_Guidelines
-		if (Recorder.record)
-		{
-			String command = "// This is the EM Denoising plugin trying out the macro recorder...\n";
-			Recorder.recordString(command);
-		}
+		// See e.g. http://imagej.net/PlugIn_Design_Guidelines
+//		if (Recorder.record)
+//		{
+//			Recorder.recordString("// Start the machinery for GPU-acceleration\n");			
+//			Recorder.recordString("call('be.vib.imagej.DenoisingIJ2.startQuasar', 'cuda');\n");
+//			
+//			Recorder.recordString("// Test\n");			
+//			Recorder.recordString("call('be.vib.imagej.DenoisingIJ2.testMethod2', '2', '3');\n");
+//		}
 		
 		Wizard wizard = DenoisingWizardSingleton.getInstance();
 		wizard.pack();
@@ -52,7 +56,28 @@ public class DenoisingIJ2 implements Command
 		
 		// After displaying the denoising wizard the ImageJ plugin run() method finishes immediately,
 		// but the wizard is still visible and active.
-		System.out.println("DenoisingIJ2.run() end");
 	}
+	
+//	public static String startQuasar(String engine)
+//	{
+//		System.out.println("startQuasar");
+//		try
+//		{
+//			QuasarTools.startQuasar(engine, false);
+//			System.out.println("  startQuasar OK");
+//			return "1";
+//		}
+//		catch (InterruptedException | ExecutionException e)
+//		{
+//			System.out.println("  startQuasar exception");
+//			return "0";
+//		}
+//	}
+//
+//	public static String testMethod2(String arg1, String arg2)
+//	{
+//		System.out.println("testMethod2 received argument arg1=" + arg1 + " arg2="+ arg2 + "and will return the string 123.");
+//		return "123";
+//	}
 }
 	
