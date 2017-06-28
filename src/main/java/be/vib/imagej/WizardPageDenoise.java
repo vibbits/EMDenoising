@@ -36,25 +36,23 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		
 		progressBar = new JProgressBar();
 		
-		startButton.setVisible(true);
-		cancelButton.setVisible(false);
-		statusLabel.setVisible(false);
-		progressBar.setVisible(false);
+		setButtonsReadyToDenoise();
 
 		startButton.addActionListener(e -> {
+			ImageRange range = rangeSelectionPanel.getRange();
+			model.setRange(range);
 		    denoise();
 		});
 		
 		cancelButton.addActionListener(e -> {
-		    System.out.println("User asked to cancel denoising.");
 		    worker.cancel(false);
 		});
 		
 		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
 		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
 		
-		rangeSelectionPanel = new RangeSelectionPanel(model);
-		rangeSelectionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, rangeSelectionPanel.getMaximumSize().height));
+		rangeSelectionPanel = new RangeSelectionPanel(model, startButton);
+		rangeSelectionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, rangeSelectionPanel.getPreferredSize().height));
 		rangeSelectionPanel.addEventListener(this);
 		
 		rangeSelectionPanel.setAlignmentX(CENTER_ALIGNMENT);
@@ -71,6 +69,7 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		add(statusLabel);
 		add(Box.createRigidArea(new Dimension(0, 20)));
 		add(cancelButton);
+		add(Box.createVerticalGlue());
 	}
 	
     // denoise() is executed on the Java EDT, so it needs to complete ASAP.
@@ -83,7 +82,7 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		startButton.setVisible(false);
 		cancelButton.setVisible(true);
 		
-		rangeSelectionPanel.enable(false);
+		rangeSelectionPanel.setEnabled(false);
 		
 		statusLabel.setText("Denoising...");
 		statusLabel.setVisible(true);
@@ -97,7 +96,7 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		Runnable whenDone = () -> {
 			busyDenoising = false;
 			cancelButton.setVisible(false);
-			rangeSelectionPanel.enable(true);
+			rangeSelectionPanel.setEnabled(true);
 			statusLabel.setText(worker.isCancelled() ? "Denoising cancelled": "Denoising done");
 			progressBar.setVisible(false);
 			wizard.updateButtons();
@@ -119,14 +118,11 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		
 		busyDenoising = false;
 		
-		rangeSelectionPanel.updateRange();
+		rangeSelectionPanel.aboutToShow();
 		
 		denoiseSummaryPanel.updateText();
 
-		startButton.setVisible(true);
-		cancelButton.setVisible(false);
-		statusLabel.setVisible(false);
-		progressBar.setVisible(false);
+		setButtonsReadyToDenoise();
 		
 		wizard.pack();
 	}
@@ -141,6 +137,11 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 	public void handleImageRangeChangeEvent(ImageRangeChangeEvent e)
 	{
 		assert(busyDenoising == false);
+		setButtonsReadyToDenoise();
+	}
+	
+	private void setButtonsReadyToDenoise()
+	{
 		startButton.setVisible(true);
 		cancelButton.setVisible(false);
 		progressBar.setVisible(false);
