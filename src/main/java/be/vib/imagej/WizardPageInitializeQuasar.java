@@ -42,6 +42,12 @@ public class WizardPageInitializeQuasar extends WizardPage
 		{
 			initializeQuasar();
 		}
+		
+		// IMPROVEME
+		// Workaround to ensure that while on this page our plugin
+		// does not lock any images. This might otherwise happen 
+		// if we move backwards from a later wizard page to this one.
+		model.setImage(null);
 	}
 	
 	@Override

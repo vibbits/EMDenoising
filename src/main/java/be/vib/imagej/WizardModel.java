@@ -114,7 +114,10 @@ public class WizardModel
 		this.image = image;
 		
 		// Lock the image (stack) so that if the user closes the image window,
-		// the underlying image slices remain in memory.
+		// the underlying image slices remain in memory. Unfortunately locked
+		// image stacks are not very user friendly in ImageJ: it is not obvious that 
+		// the image is locked, the image window allows moving the current slice slider
+		// in a locked stack but does not actually show the correct slice, etc.
 		if (this.image != null && !this.image.isLocked())
 			this.image.lock();
 		
