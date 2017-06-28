@@ -25,7 +25,7 @@ public class WizardPageInitializeQuasar extends WizardPage
 	{
 		Runnable whenDone = () -> {
 			initialized = true;
-			statusLabel.setText("The graphics card is ready for denoising calculations!");
+			statusLabel.setText("The graphics card is ready for denoising calculations.");
 			wizard.updateButtons();
 		};
 
