@@ -66,4 +66,12 @@ public class ImageRange
 	{
 		return last;
 	}
+	
+	@Override
+	public String toString()
+	{
+		String t = (type == RangeType.CURRENT_SLICE) ? "CURRENT_SLICE" : (type == RangeType.ALL_SLICES) ? "ALL_SLICES" : "NUMERIC_SLICE_RANGE";
+		
+		return t + " (first=" + getFirst() + ", last=" + getLast() +")";
+	}
 }
