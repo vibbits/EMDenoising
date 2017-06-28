@@ -284,7 +284,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	protected void aboutToHidePanel()
 	{
 		assert(SwingUtilities.isEventDispatchThread());
-		assert(canGoToNextPage());
 		
 		// Stop listening to changes. This avoids that if the user closes the image window we also wipe
 		// out the image from the model while it is still being used by the denoising wizard page. 
