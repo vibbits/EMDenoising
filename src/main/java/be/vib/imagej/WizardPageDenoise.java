@@ -1,6 +1,7 @@
 package be.vib.imagej;
 
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -111,7 +112,29 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 	}
 	
 	@Override
-	protected void aboutToShowPanel()
+	public void goingToNextPage() 
+	{
+		// We're the last page in the wizard.
+		assert(false);
+	}
+	
+	@Override
+	public void goingToPreviousPage()
+	{
+		assert(canGoToPreviousPage());
+		
+		// Nothing to be done
+	}
+
+	@Override
+	public void arriveFromNextPage() 
+	{
+		// We're the last page in the wizard.
+		assert(false);
+	}
+	
+	@Override
+	public void arriveFromPreviousPage()
 	{
 		// After denoising was complete, we may have gone back, chosen another image or image stack, 
 		// and returned to the denoising panel. So some status messages or buttons may need to be updated.
@@ -125,10 +148,10 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		setButtonsReadyToDenoise();
 		
 		wizard.pack();
-	}
-	
+	}	
+
 	@Override
-	protected boolean canGoToPreviousPage()
+	public boolean canGoToPreviousPage()
 	{
 		return !busyDenoising;
 	}

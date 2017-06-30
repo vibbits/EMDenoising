@@ -25,7 +25,7 @@ public class DenoisingWizardSingleton
 		
 		WizardPage pageInitialization = new WizardPageInitializeQuasar(wizard, model, "Initialization");
 		WizardPage pageROI = new WizardPageROI(wizard, model, "Select Image and ROI");
-		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Choose Denoising Algorithm");  // Later: "Choose Denoising Protocol" ?
+		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, model, "Choose Denoising Algorithm");
 		WizardPage pageDenoise = new WizardPageDenoise(wizard, model, "Denoise");
 		
 		wizard.addPage(pageInitialization);

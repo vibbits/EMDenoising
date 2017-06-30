@@ -23,25 +23,35 @@ public class WizardPage extends JPanel
 	{
 		return name;
 	}
-	
+
 	// override me
-	protected void aboutToShowPanel()
+	public void goingToNextPage() 
 	{
 	}
 	
 	// override me
-	protected void aboutToHidePanel()
+	public void goingToPreviousPage()
+	{
+	}
+
+	// override me
+	public void arriveFromNextPage() 
 	{
 	}
 	
 	// override me
-	protected boolean canGoToPreviousPage()
+	public void arriveFromPreviousPage()
+	{
+	}	
+	
+	// override me
+	public boolean canGoToPreviousPage()
 	{
 		return true;
 	}
 
 	// override me
-	protected boolean canGoToNextPage()
+	public boolean canGoToNextPage()
 	{
 		return true;
 	}

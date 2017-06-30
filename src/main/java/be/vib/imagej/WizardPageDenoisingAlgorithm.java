@@ -236,7 +236,26 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	}
 	
 	@Override
-	protected void aboutToShowPanel()
+	public void goingToNextPage() 
+	{
+		// Nothing to be done.
+		// Model contains required denoising parameters for use in next page.
+	}
+	
+	@Override
+	public void goingToPreviousPage()
+	{
+		// Nothing to be done
+	}
+
+	@Override
+	public void arriveFromNextPage() 
+	{
+		// Nothing to be done
+	}
+	
+	@Override
+	public void arriveFromPreviousPage()
 	{
 		assert(model.getImage() != null);
 
@@ -253,6 +272,5 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		// Ask layout manager to resize the dialog so it looks nice
 		wizard.pack();
-	}
-	
+	}	
 }

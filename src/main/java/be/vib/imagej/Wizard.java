@@ -7,6 +7,8 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -20,12 +22,11 @@ import javax.swing.border.EmptyBorder;
  * 
  * A simple wizard consisting of a number of pages that can be traversed forward and backward in a linear fashion.
  * 
- * The wizard has no cancel button - user needs to close the dialog via the window's close button to cancel
- * (probably we better pop up a confirmation dialog first).
+ * The wizard has no cancel button - user can close the dialog via the window's close button to cancel.
  *
  */
 public class Wizard extends JDialog
-                    implements ActionListener 
+                    implements ActionListener
 {		
 	private CardLayout cardLayout;
 	
@@ -36,12 +37,11 @@ public class Wizard extends JDialog
 	
 	private JButton backButton;
 	private JButton nextButton;
-	// No cancel or finish buttons
+	// No cancel or finish buttons for now
 	
 	public Wizard(String title)
 	{						
-		buildUI(title);
-		
+		buildUI(title);	
 	}
 	
 	public void addPage(WizardPage page)
@@ -58,7 +58,7 @@ public class Wizard extends JDialog
 	{
 		currentPageIdx = 0;
 		WizardPage firstPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
-		firstPage.aboutToShowPanel();
+		firstPage.arriveFromPreviousPage();
 	}
 	
 	private void buildUI(String title)
@@ -102,38 +102,34 @@ public class Wizard extends JDialog
 	public void actionPerformed(ActionEvent event)
 	{
 		Object source = event.getSource();
+		
 		if (source != backButton && source != nextButton)
 			return;
 						
+		int newPageIdx = (source == backButton) ? currentPageIdx - 1 : currentPageIdx + 1;
+
 		if (source == backButton)
 		{
-			int newPageIdx = currentPageIdx - 1;
-
-			WizardPage curPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
-			WizardPage newPage = (WizardPage)pagesPanel.getComponent(newPageIdx);
-			
-			curPage.aboutToHidePanel();
-			newPage.aboutToShowPanel();
+			getPage(currentPageIdx).goingToPreviousPage();
+			getPage(newPageIdx).arriveFromNextPage();
 			cardLayout.previous(pagesPanel);
-			
-			currentPageIdx = newPageIdx;
 		}
-		else if (source == nextButton)
+		else
 		{
-			int newPageIdx = currentPageIdx + 1;
-
-			WizardPage curPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
-			WizardPage newPage = (WizardPage)pagesPanel.getComponent(newPageIdx);
-			
-			curPage.aboutToHidePanel();
-			newPage.aboutToShowPanel();
+			getPage(currentPageIdx).goingToNextPage();
+			getPage(newPageIdx).arriveFromPreviousPage();
 			cardLayout.next(pagesPanel);
-			
-			currentPageIdx = newPageIdx;
 		}
+		
+		currentPageIdx = newPageIdx;
 
 		updateButtons();
 		updateCrumbs();
+	}
+	
+	private WizardPage getPage(int idx)
+	{
+		return (WizardPage)pagesPanel.getComponent(idx);
 	}
 	
 	/**
@@ -141,17 +137,17 @@ public class Wizard extends JDialog
 	 */
 	public void updateButtons()
 	{
-		final int numPages = pagesPanel.getComponentCount();
+		int numPages = pagesPanel.getComponentCount();
 		if (numPages == 0)
 			return;
 		
-		final WizardPage currentPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
+		WizardPage currentPage = getPage(currentPageIdx);
 		
 		backButton.setEnabled((currentPageIdx > 0) && currentPage.canGoToPreviousPage());
 		nextButton.setEnabled((currentPageIdx < numPages - 1) && currentPage.canGoToNextPage());		
 	}
 	
-	/*
+	/**
 	 * Position the wizard horizontally in the center of the screen,
 	 * and vertically somewhat above center.
 	 */

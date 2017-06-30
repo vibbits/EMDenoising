@@ -279,9 +279,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 						
 		SwingUtilities.invokeLater(() -> { handlePreviewChange(); });
 	}
-	
+
 	@Override
-	protected void aboutToHidePanel()
+	public void goingToNextPage() 
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 		
@@ -310,11 +310,28 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 				for (Algorithm algorithm : model.getAlgorithms())
 					algorithm.setDefaultParameters(noise);
 			}
-		}		
+		}	
 	}
 	
 	@Override
-	protected void aboutToShowPanel()
+	public void goingToPreviousPage()
+	{
+		// Going to back to the Quasar initialization page - nothing to be done
+	}
+
+	@Override
+	public void arriveFromNextPage() 
+	{
+		setupPage();
+	}
+	
+	@Override
+	public void arriveFromPreviousPage()
+	{
+		setupPage();
+	}	
+	
+	private void setupPage()
 	{
 		assert(SwingUtilities.isEventDispatchThread());
 		
@@ -422,7 +439,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	}
 	
 	@Override
-	protected boolean canGoToNextPage()
+	public boolean canGoToNextPage()
 	{		
 		return haveImage() &&
 			   !imageHasWrongBitDepth() &&

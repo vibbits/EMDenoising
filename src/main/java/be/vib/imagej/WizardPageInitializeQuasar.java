@@ -35,22 +35,34 @@ public class WizardPageInitializeQuasar extends WizardPage
 	}
 	
 	@Override
-	protected void aboutToShowPanel()
+	public void goingToNextPage() 
+	{
+		assert(initialized);
+	}
+	
+	@Override
+	public void goingToPreviousPage()
+	{
+		assert(false);
+	}
+
+	@Override
+	public void arriveFromNextPage() 
+	{
+		assert(initialized);
+	}
+	
+	@Override
+	public void arriveFromPreviousPage()
 	{
 		if (!initialized)
 		{
 			initializeQuasar();
 		}
-		
-		// IMPROVEME
-		// Workaround to ensure that while on this page our plugin
-		// does not lock any images. This might otherwise happen 
-		// if we move backwards from a later wizard page to this one.
-		model.setImage(null);
-	}
+	}	
 	
 	@Override
-	protected boolean canGoToNextPage()
+	public boolean canGoToNextPage()
 	{
 		return initialized;
 	}
