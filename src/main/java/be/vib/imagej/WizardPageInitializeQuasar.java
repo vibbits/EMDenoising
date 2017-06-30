@@ -30,8 +30,7 @@ public class WizardPageInitializeQuasar extends WizardPage
 		};
 
 		String engine = Preferences.getQuasarEngine();
-		boolean loadCompiler = false;
-		QuasarInitializationSwingWorker worker = new QuasarInitializationSwingWorker(engine, loadCompiler, whenDone);
+		QuasarInitializationSwingWorker worker = new QuasarInitializationSwingWorker(engine, whenDone);
 		worker.execute();		
 	}
 	

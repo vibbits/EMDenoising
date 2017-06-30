@@ -7,7 +7,7 @@
 
 // TODO: In another example, show how to use Bioformats to denoise a large image stack
 //       without loading it in memory completely first.
-// TODO: look at the bioformats plugin to see how they implemented scriptability
+// TODO: look at the bioformats plugin to see how they implemented scripting
 // TODO: Make an example script using the ImageJ1 *macro* language
 // TODO: Try to make our plugin recordable
 // TODO: Check if input image stays locked inadvertently. Should we lock it?

@@ -7,19 +7,18 @@ import javax.swing.SwingWorker;
 public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 {
 	private String device;
-	private boolean loadCompiler;
 	private Runnable whenDone;
 	
-	public QuasarInitializationSwingWorker(String device, boolean loadCompiler, Runnable whenDone) 
+	public QuasarInitializationSwingWorker(String device, Runnable whenDone) 
 	{
 		this.device = device;
-		this.loadCompiler = loadCompiler;
 		this.whenDone = whenDone;
 	}
 	
 	@Override
 	public Void doInBackground() throws InterruptedException, ExecutionException  // TODO: check what happens with exception
 	{	
+		boolean loadCompiler = false;
 		QuasarTools.startQuasar(device, loadCompiler);			
 		return null;
 	}
