@@ -7,11 +7,11 @@ public class WizardPageInitializeQuasar extends WizardPage
 	private boolean initialized = false;
 	private JLabel statusLabel;
 	
-	public WizardPageInitializeQuasar(Wizard wizard, WizardModel model, String name)
+	public WizardPageInitializeQuasar(Wizard wizard, String name)
 	{
 		// Note: it seems this constructor is not run in the Java Event Dispatch Thread.
 
-		super(wizard, model, name);
+		super(wizard, name);
 		buildUI();
 	}
 	

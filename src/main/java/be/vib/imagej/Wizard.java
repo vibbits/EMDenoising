@@ -39,9 +39,18 @@ public class Wizard extends JDialog
 	private JButton nextButton;
 	// No cancel or finish buttons for now
 	
-	public Wizard(String title)
+	private WizardModel model;
+	
+	public Wizard(String title, WizardModel model)
 	{						
+		this.model = model;
+		
 		buildUI(title);	
+	}
+	
+	public WizardModel getModel()
+	{
+		return model;
 	}
 	
 	public void addPage(WizardPage page)

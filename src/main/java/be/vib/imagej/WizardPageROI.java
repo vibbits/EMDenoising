@@ -44,9 +44,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	
 	private Component spacer;
 		
-	public WizardPageROI(Wizard wizard, WizardModel model, String name)
+	public WizardPageROI(Wizard wizard, String name)
 	{
-		super(wizard, model, name);
+		super(wizard, name);
 		
 		buildUI();
 	}
@@ -290,6 +290,8 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		ImagePlus.removeImageListener(this);
 		ij.gui.Roi.removeRoiListener(this);
 		
+		WizardModel model = wizard.getModel();
+		
 		// Update model image
 		model.setImage(image);
 		
@@ -339,7 +341,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// since we're about to select a new one (possibly).
 		// At least in this unlocked state the user can
 		// modify (crop, select a different slice,...) the image stack.
-		model.setImage(null);
+		wizard.getModel().setImage(null);
 
 		// Guess likely image for denoising from a set of open images.
 		// Do this now, before we update the combo box which changes the model.
@@ -396,6 +398,8 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 	{
 		ImagePlus[] openImages = getOpenImages();	
 		
+		WizardModel model = wizard.getModel();
+
 		if (model.getImage() != null && Arrays.asList(openImages).contains(model.getImage()))
 			return model.getImage();
 		else

@@ -1,7 +1,6 @@
 package be.vib.imagej;
 
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -20,9 +19,9 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 	private boolean busyDenoising = false;
 	private DenoiseSwingWorker worker;
 	
-	public WizardPageDenoise(Wizard wizard, WizardModel model, String name)
+	public WizardPageDenoise(Wizard wizard, String name)
 	{
-		super(wizard, model, name);
+		super(wizard, name);
 		buildUI();
 	}
 	
@@ -41,7 +40,7 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 
 		startButton.addActionListener(e -> {
 			ImageRange range = rangeSelectionPanel.getRange();
-			model.setRange(range);
+			wizard.getModel().setRange(range);
 		    denoise();
 		});
 		
@@ -49,10 +48,10 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		    worker.cancel(false);
 		});
 		
-		denoiseSummaryPanel = new DenoiseSummaryPanel(model);
+		denoiseSummaryPanel = new DenoiseSummaryPanel(wizard.getModel());
 		denoiseSummaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, denoiseSummaryPanel.getMaximumSize().height));
 		
-		rangeSelectionPanel = new RangeSelectionPanel(model, startButton);
+		rangeSelectionPanel = new RangeSelectionPanel(wizard.getModel(), startButton);
 		rangeSelectionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, rangeSelectionPanel.getPreferredSize().height));
 		rangeSelectionPanel.addEventListener(this);
 		
@@ -103,6 +102,8 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 			wizard.updateButtons();
 		};
 			
+		WizardModel model = wizard.getModel();
+
 		worker = new DenoiseSwingWorker(model.getAlgorithm(), model.getImage(), model.getRange(), progressBar, whenDone);
 		
 		// Run the denoising on a separate worker thread and return here immediately.
@@ -110,6 +111,8 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		// and show the denoised image in a new ImageJ window.
 		worker.execute();
 	}
+	
+	// TODO? should we forbid closing the wizard (via the x button) when Quasar is busy denoising?
 	
 	@Override
 	public void goingToNextPage() 

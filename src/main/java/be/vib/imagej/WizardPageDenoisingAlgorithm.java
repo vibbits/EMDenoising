@@ -37,14 +37,16 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	// about 100 * (1 MB / 4) = 25 MB storage. This seems acceptable.
 	private DenoisePreviewCache previewCache = new DenoisePreviewCache(100);
 	
- 	public WizardPageDenoisingAlgorithm(Wizard wizard, WizardModel model, String name)
+ 	public WizardPageDenoisingAlgorithm(Wizard wizard, String name)
 	{
-		super(wizard, model, name);
-		buildUI(model.getAlgorithms());		
+		super(wizard, name);
+		buildUI();		
 	}
 	
-	private void buildUI(Algorithm[] algorithms)
+	private void buildUI()
 	{
+		Algorithm[] algorithms = wizard.getModel().getAlgorithms();
+		
 		JPanel algoChoicePanel = createAlgorithmChoicePanel(algorithms);
 
 		algoParamsPanel = createAlgorithmParametersPanel(algorithms);
@@ -104,16 +106,17 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			panel.add(algorithm.getPanel(), algorithm.getName().name());
 		}
 		
-		cardLayout.show(panel, model.getAlgorithm().getName().name());
+		cardLayout.show(panel, wizard.getModel().getAlgorithm().getName().name());
 		return panel;
 	}
 
 	private JRadioButton createAlgorithmRadioButton(Algorithm algorithm)
 	{
 	    JRadioButton button = new JRadioButton(algorithm.getReadableName());
-	    button.setSelected(algorithm.getName() == model.getAlgorithm().getName());
+	    button.setSelected(algorithm.getName() == wizard.getModel().getAlgorithm().getName());
 		
 	    button.addActionListener(e -> {
+	    	WizardModel model = wizard.getModel();
 	    	if (model.getAlgorithm().getName() == algorithm.getName()) return;
     		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.getName().name());
 			model.setAlgorithm(algorithm.getName());
@@ -213,6 +216,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		assert(SwingUtilities.isEventDispatchThread()); // so we can't do any time consuming work here
 		
+		WizardModel model = wizard.getModel();
 		DenoisingTask task = new DenoisingTask(model.getAlgorithm(), model.getNoisyPreview());
 		saturatingExecutor.Submit(task);                                                                    	
 	}
@@ -257,13 +261,13 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	@Override
 	public void arriveFromPreviousPage()
 	{
-		assert(model.getImage() != null);
+		assert(wizard.getModel().getImage() != null);
 
 		// Always clear the cache, just in case the user switched to a different image or ROI.
 		// IMPROVEME: We could be more precise. We now occasionally clear the cache when it's not needed.
 		previewCache.clear();
 		
-		BufferedImage noisyPreview = model.getNoisyPreview().getBufferedImage();
+		BufferedImage noisyPreview = wizard.getModel().getNoisyPreview().getBufferedImage();
 				
 		origImagePanel.setImage(noisyPreview);
 		denoisedImagePanel.setImage(noisyPreview);  // To avoid an ugly empty image, temporarily show the noisy preview until we've calculated the denoised one
