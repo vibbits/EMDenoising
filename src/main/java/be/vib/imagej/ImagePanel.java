@@ -27,13 +27,6 @@ public class ImagePanel extends JPanel implements ActionListener
 		this.timer = new Timer(busyIndicationDelay, this); // timer to switch on the busy indication after a little delay
 	}
 	
-	// For layout debugging:
-	// this.setBorder(BorderFactory.createDashedBorder(null));
-	
-	// Interesting: Deven_C_Miller's answer in
-	// http://stackoverflow.com/questions/2155351/swing-jpanel-wont-repaint
-	
-	
 	public void setImage(BufferedImage image)
 	{
 		assert(SwingUtilities.isEventDispatchThread());
@@ -53,7 +46,6 @@ public class ImagePanel extends JPanel implements ActionListener
 		parent.validate();
 	}
 
-	
 	public void setBusy(boolean busy)
 	{
 		assert(SwingUtilities.isEventDispatchThread());
@@ -72,7 +64,6 @@ public class ImagePanel extends JPanel implements ActionListener
 				repaint();
 			}
 		}
-	
 	}
 	
 	@Override
