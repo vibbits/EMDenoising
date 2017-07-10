@@ -14,13 +14,11 @@ public class WizardDemo
 		
 		Wizard wizard = new Wizard("EM Denoising wizard", model);
 
-		WizardPage pageROI = new WizardPageROI(wizard, "Select ROI");
-		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard, "Select Denoising Algorithm");
-		WizardPage pageDenoise = new WizardPageDenoise(wizard, "Denoise");
+		WizardPage[] pages = { new WizardPageROI(wizard, "Select ROI"),
+		                       new WizardPageDenoisingAlgorithm(wizard, "Select Denoising Algorithm"),
+		                       new WizardPageDenoise(wizard, "Denoise") };
 		
-		wizard.addPage(pageROI);
-		wizard.addPage(pageAlgorithm);
-		wizard.addPage(pageDenoise);;
+		wizard.build(pages);
 		
 		System.out.println("Wizard - about to set visible");
 		wizard.setVisible(true);

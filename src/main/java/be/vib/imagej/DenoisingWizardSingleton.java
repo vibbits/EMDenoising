@@ -19,22 +19,17 @@ public class DenoisingWizardSingleton
 	
 	private static Wizard createWizard()
 	{
-		WizardModel model = new WizardModel();
+		Wizard wizard = new Wizard("EM Denoising", new WizardModel());
+
+		WizardPage[] pages = { new WizardPageInitializeQuasar(wizard, "Initialization"),
+		                       new WizardPageROI(wizard, "Select Image and ROI"),
+		                       new WizardPageDenoisingAlgorithm(wizard, "Choose Denoising Algorithm"),
+	                           new WizardPageDenoise(wizard, "Denoise") };
 		
-		Wizard wizard = new Wizard("EM Denoising", model);
-		
-		WizardPage pageInitialization = new WizardPageInitializeQuasar(wizard, "Initialization");
-		WizardPage pageROI = new WizardPageROI(wizard, "Select Image and ROI");
-		WizardPage pageAlgorithm = new WizardPageDenoisingAlgorithm(wizard,"Choose Denoising Algorithm");
-		WizardPage pageDenoise = new WizardPageDenoise(wizard, "Denoise");
-		
-		wizard.addPage(pageInitialization);
-		wizard.addPage(pageROI);
-		wizard.addPage(pageAlgorithm);
-		wizard.addPage(pageDenoise);
-		
-		wizard.start();
-		
+		wizard.build(pages);
+		wizard.pack();
+		wizard.moveToMiddleOfScreen();
+				
 		return wizard;
 	}	
 }

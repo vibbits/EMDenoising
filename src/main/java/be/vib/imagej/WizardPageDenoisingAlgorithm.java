@@ -4,7 +4,9 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
@@ -31,6 +33,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	private ImagePanel denoisedImagePanel;
 	
 	private PreviewPanel previewPanel;
+	
+	private Map<Algorithm.Name, JRadioButton> buttonsMap;
 	
 	// We maintain a cache of 100 denoised results for different parameter settings.
 	// Assuming a 512x512 ROI and 8 bit/pixel grayscale previews, a full cache requires
@@ -67,10 +71,13 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private JPanel createAlgorithmChoicePanel(Algorithm[] algorithms)
 	{
-		List<JRadioButton> buttons = new ArrayList<JRadioButton>();
+		List<JRadioButton>buttons = new ArrayList<JRadioButton>();
+		buttonsMap = new HashMap<Algorithm.Name, JRadioButton>();
 		for (Algorithm algorithm : algorithms)
 		{
-			buttons.add(createAlgorithmRadioButton(algorithm));
+			JRadioButton button = createAlgorithmRadioButton(algorithm); 
+			buttons.add(button);
+			buttonsMap.put(algorithm.getName(), button);
 		}
 		
 	    // Add radio buttons to group so they are mutually exclusive
@@ -103,22 +110,21 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		JPanel panel = new JPanel(cardLayout);
 		for (Algorithm algorithm : algorithms)
 		{
-			panel.add(algorithm.getPanel(), algorithm.getName().name());
+			panel.add(algorithm.getPanel(), algorithm.getName().toString());
 		}
 		
-		cardLayout.show(panel, wizard.getModel().getAlgorithm().getName().name());
+		cardLayout.show(panel, wizard.getModel().getAlgorithm().getName().toString());
 		return panel;
 	}
 
 	private JRadioButton createAlgorithmRadioButton(Algorithm algorithm)
 	{
 	    JRadioButton button = new JRadioButton(algorithm.getReadableName());
-	    button.setSelected(algorithm.getName() == wizard.getModel().getAlgorithm().getName());
 		
 	    button.addActionListener(e -> {
 	    	WizardModel model = wizard.getModel();
 	    	if (model.getAlgorithm().getName() == algorithm.getName()) return;
-    		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.getName().name());
+    		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.getName().toString());
 			model.setAlgorithm(algorithm.getName());
 			recalculateDenoisedPreview();
 	    });
@@ -261,13 +267,19 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	@Override
 	public void arriveFromPreviousPage()
 	{
-		assert(wizard.getModel().getImage() != null);
-
+		WizardModel model = wizard.getModel();
+		
+		assert(model.getImage() != null);
+				
 		// Always clear the cache, just in case the user switched to a different image or ROI.
 		// IMPROVEME: We could be more precise. We now occasionally clear the cache when it's not needed.
 		previewCache.clear();
 		
-		BufferedImage noisyPreview = wizard.getModel().getNoisyPreview().getBufferedImage();
+		JRadioButton button = buttonsMap.get(model.getAlgorithm().getName());
+		button.setSelected(true);
+		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, model.getAlgorithm().getName().toString());
+
+		BufferedImage noisyPreview = model.getNoisyPreview().getBufferedImage();
 				
 		origImagePanel.setImage(noisyPreview);
 		denoisedImagePanel.setImage(noisyPreview);  // To avoid an ugly empty image, temporarily show the noisy preview until we've calculated the denoised one

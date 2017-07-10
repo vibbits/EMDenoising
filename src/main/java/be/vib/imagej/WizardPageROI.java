@@ -153,8 +153,6 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 			add(bitDepthWarningLabel);
 			add(noRoiWarningLabel);			
 			add(roiSizeWarningLabel);			
-			
-			handlePreviewChange();
 		}
 	}
 	
@@ -291,8 +289,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		ij.gui.Roi.removeRoiListener(this);
 		
 		WizardModel model = wizard.getModel();
-		
+				
 		// Update model image
+		assert(image != null);
 		model.setImage(image);
 		
 		// Use the region of interest as a little preview image.

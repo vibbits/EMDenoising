@@ -24,7 +24,7 @@ public class WizardModel
 
 	private ImageProcessor noisyPreview; // a small region of interest cropped from the original noisy image
 	
-	private float noiseEstimate;
+	private float noiseEstimate;  // estimated standard deviation of the noise in the noisy input image (< 0 means noise not estimated yet)
 	
 	public static final int maxPreviewSize = 512; // max size of the denoising preview windows, and thus of the ROI selected on the image
 	
@@ -43,9 +43,19 @@ public class WizardModel
 		range = new ImageRange();
 		
 		image = null;
-		noiseEstimate = -1.0f; // < 0 means unknown
+		noiseEstimate = -1.0f;
 		
 		noisyPreview = null;
+	}
+	
+	public void reset()
+	{
+		currentAlgorithmName = Algorithm.Name.GAUSSIAN;
+		range = new ImageRange();
+		noisyPreview = null;
+		
+		// Make sure we're not keeping any images locked anymore.
+		setImage(null);
 	}
 	
 	// Returns the currently active algorithm.

@@ -79,9 +79,4 @@ class DenoiseSummaryPanel extends JPanel
 	{
 		return "<i>" + text + "</i>";  
 	}
-	
-//		private static String color(String text, String color)
-//		{
-//			return "<font color=" + color + ">" + text + "</html>";  
-//		}
 }

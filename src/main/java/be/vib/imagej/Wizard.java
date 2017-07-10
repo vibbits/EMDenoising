@@ -40,12 +40,13 @@ public class Wizard extends JDialog
 	// No cancel or finish buttons for now
 	
 	private WizardModel model;
-	
+
 	public Wizard(String title, WizardModel model)
 	{						
 		this.model = model;
-		
-		buildUI(title);	
+
+		buildUI(title);
+		setWindowCloseHandler();
 	}
 	
 	public WizardModel getModel()
@@ -53,21 +54,45 @@ public class Wizard extends JDialog
 		return model;
 	}
 	
-	public void addPage(WizardPage page)
+	public void build(WizardPage[] pages)
 	{
-		pagesPanel.add(page);
-
-		updateButtons();
-		updateCrumbs();
+		for (WizardPage page : pages)
+		{
+			this.pagesPanel.add(page);
+		}
+		goToFirstPage();
 	}
 	
-	// Call start() after all pages have been added to the wizard via addPage()
-	// and before showing the wizard via setVisible(true).
-	public void start()
+	private void goToFirstPage()
 	{
+		assert(pagesPanel.getComponentCount() > 0);
+		
+		cardLayout.first(pagesPanel);
 		currentPageIdx = 0;
+
 		WizardPage firstPage = (WizardPage)pagesPanel.getComponent(currentPageIdx);
 		firstPage.arriveFromPreviousPage();
+		
+		updateButtons();
+		updateCrumbs();		
+	}
+	
+	private void setWindowCloseHandler()
+	{
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+		    public void windowClosing(WindowEvent e)
+			{ 
+				setVisible(false);
+				
+				// Start with a clean slate next time we display the wizard.
+				model.reset();
+				
+				goToFirstPage();
+			}
+		});		
 	}
 	
 	private void buildUI(String title)
@@ -114,7 +139,7 @@ public class Wizard extends JDialog
 		
 		if (source != backButton && source != nextButton)
 			return;
-						
+								
 		int newPageIdx = (source == backButton) ? currentPageIdx - 1 : currentPageIdx + 1;
 
 		if (source == backButton)

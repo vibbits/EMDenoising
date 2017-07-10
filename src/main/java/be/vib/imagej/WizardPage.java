@@ -11,8 +11,7 @@ public class WizardPage extends JPanel
 	public WizardPage(Wizard wizard, String name)
 	{
 		this.wizard = wizard;
-		this.name = name;
-		
+		this.name = name;	
 		this.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 	}
 	

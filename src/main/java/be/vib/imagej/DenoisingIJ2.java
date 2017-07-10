@@ -46,8 +46,6 @@ public class DenoisingIJ2 implements Command
 //		}
 		
 		Wizard wizard = DenoisingWizardSingleton.getInstance();
-		wizard.pack();
-		wizard.moveToMiddleOfScreen();
 		wizard.setVisible(true);
 		
 		// After displaying the denoising wizard the ImageJ plugin run() method finishes immediately,
