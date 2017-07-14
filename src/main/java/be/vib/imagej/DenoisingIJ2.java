@@ -23,7 +23,7 @@ import org.scijava.plugin.Plugin;
 //    "e:\Program Files\Quasar\Quasar.exe" --make_lib (--optimize) --gpu nlmeans_denoising_stillimages.q
 
 
-@Plugin(type = Command.class, menuPath = "Plugins>EM Denoising")
+@Plugin(type = Command.class, menuPath = "Plugins>EM Denoising>Denoise")
 public class DenoisingIJ2 implements Command
 {
 	@Parameter
@@ -32,7 +32,7 @@ public class DenoisingIJ2 implements Command
 	@Override
 	public void run() 
 	{
-		log.info("VIB Electron Microscopy Image Restoration plugin v1.0.0");
+		log.info("VIB EM Denoising plugin");
 
 		// A little experiment with the macro recorder 
 		// See e.g. http://imagej.net/PlugIn_Design_Guidelines

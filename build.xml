@@ -44,6 +44,7 @@
 				<attribute name="Class-Path" value="${quasarbridge}"/>
 			</manifest>
 			<fileset dir="${build.dir}" includes="qlib/*.qlib"/>
+			<fileset dir="${src.dir}/main/resources" includes="**/images/*"/>
 		</jar>
 	</target>
 		
