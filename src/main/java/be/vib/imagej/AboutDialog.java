@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -15,12 +16,13 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.scijava.command.Command;
 import org.scijava.plugin.Plugin;
+
+import ij.IJ;
 
 @Plugin(type = Command.class, menuPath = "Plugins>EM Denoising>About")
 public class AboutDialog implements Command
@@ -29,13 +31,12 @@ public class AboutDialog implements Command
 	public void run() 
 	{		
 		boolean modal = true;  // do not return from the run() method before the user closes the modal dialog
-		JFrame parent = null; // CHECKME: use Fiji as parent? What's the effect of have a null parent?
-		
+		Frame parent = IJ.getInstance();		
 		JDialog dialog = new JDialog(parent, "About EM Denoising", modal);
-		dialog.setResizable(false);
 		dialog.add(new AboutPanel());
 		dialog.pack();
 		dialog.setLocationRelativeTo(null); // center the dialog on the screen
+		dialog.setResizable(false);
 		dialog.setVisible(true);
 	}
 	
