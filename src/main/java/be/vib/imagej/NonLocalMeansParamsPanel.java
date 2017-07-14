@@ -112,21 +112,21 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 		    		   .addComponent(hLabel)
-		    		   .addComponent(lambdaLabel)
 		    		   .addComponent(blockSizeLabel)
-		    		   .addComponent(searchSizeLabel))
+		    		   .addComponent(searchSizeLabel)
+		    		   .addComponent(lambdaLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 		    		   .addComponent(hField)
+		    		   .addComponent(blockSizeSpinner)
+		    		   .addComponent(searchSizeSpinner)
 		    		   .addComponent(decorrelationCheckBox)
 		    		   .addComponent(deconvolutionCheckBox)
-		    		   .addComponent(lambdaField)
-		    		   .addComponent(blockSizeSpinner)
-		    		   .addComponent(searchSizeSpinner))
+		    		   .addComponent(lambdaField))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 		    		   .addComponent(hSlider)
-		    		   .addComponent(lambdaSlider)
 		    		   .addComponent(blockSizeSlider)
-		    		   .addComponent(searchSizeSlider))
+		    		   .addComponent(searchSizeSlider)
+		    		   .addComponent(lambdaSlider))
 		      );
 
 		// Define top-to-bottom order
@@ -138,15 +138,6 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		    				  .addComponent(hField))
 			           .addComponent(hSlider))
 
-		      .addComponent(decorrelationCheckBox)
-		      .addComponent(deconvolutionCheckBox)
-	      
-		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(lambdaLabel)
-		    				  .addComponent(lambdaField))
-			           .addComponent(lambdaSlider))		      
-
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		    				  .addComponent(blockSizeLabel)
@@ -157,7 +148,17 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		    				  .addComponent(searchSizeLabel)
 		    				  .addComponent(searchSizeSpinner))
-			           .addComponent(searchSizeSlider))		      
+			           .addComponent(searchSizeSlider))	
+		      
+		      .addComponent(decorrelationCheckBox)
+		      .addComponent(deconvolutionCheckBox)
+	      
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(lambdaLabel)
+		    				  .addComponent(lambdaField))
+			           .addComponent(lambdaSlider))		      
+	      
 				);    	
 		
 		setLayout(layout);
