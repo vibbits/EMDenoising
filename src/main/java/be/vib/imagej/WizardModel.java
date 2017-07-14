@@ -106,9 +106,9 @@ public class WizardModel
 	{
 		this.noiseEstimate = noiseEstimate;
 	}
-
+	
 	public void setImage(ImagePlus image)
-	{
+	{		
 		// If we've got this image in the model already
 		// then do nothing. In particular, leave the existing
 		// image noise estimation alone.
@@ -118,8 +118,7 @@ public class WizardModel
 		// If the old image is locked, unlock it since
 		// we don't need it anymore. We assume that only
 		// one plugin (ours) will be locking the image...
-		if (this.image != null && this.image.isLocked())
-			this.image.unlock();
+		lockImage(false);
 
 		this.image = image;
 		
@@ -128,13 +127,23 @@ public class WizardModel
 		// image stacks are not very user friendly in ImageJ: it is not obvious that 
 		// the image is locked, the image window allows moving the current slice slider
 		// in a locked stack but does not actually show the correct slice, etc.
-		if (this.image != null && !this.image.isLocked())
-			this.image.lock();
+		lockImage(true);
 		
 		// Remember to re-estimate the noise level
 		this.noiseEstimate = -1.0f;
 	}
 	
+	public void lockImage(boolean lock)
+	{
+		if (image == null)
+			return;
+		
+		if (lock && !image.isLocked())
+			image.lock();
+		else if (!lock && image.isLocked())
+			image.unlock();
+	}
+
 	public ImageRange getRange()
 	{
 		return range;

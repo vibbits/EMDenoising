@@ -340,7 +340,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		// since we're about to select a new one (possibly).
 		// At least in this unlocked state the user can
 		// modify (crop, select a different slice,...) the image stack.
-		wizard.getModel().setImage(null);
+		wizard.getModel().lockImage(false);
 
 		// Guess likely image for denoising from a set of open images.
 		// Do this now, before we update the combo box which changes the model.
