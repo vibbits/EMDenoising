@@ -4,6 +4,8 @@
 	<property name="build.dir" value="build"/>
 	<property name="classes.dir" value="${build.dir}/classes"/>
 	<property name="jar.dir" value="${build.dir}/jar"/>
+	<property name="q.file" value="src/main/quasar/vib_denoising_algorithms.q"/>
+	<property name="qlib.file" value="${qlib.dir}/vib_denoising_algorithms.qlib"/>
 	<property name="qlib.dir" value="${build.dir}/qlib"/>
 	<property name="quasarbridge" value="JavaQuasarBridge-0.0.1.jar"/>
 	<property name="plugin.name" value="EM_Denoising-0.0.1.jar"/>
@@ -19,17 +21,24 @@
 	<target name="clean">
 		<delete dir="${build.dir}"/>
 	</target>
+	
+	<target name="checkqlib">
+		<!-- IMPROVEME? should we also check if the .q files in the Quasar installation folder have changed (Quasar got upgraded) -->
+		<uptodate targetfile="${qlib.file}" property="nochanges">
+			<srcfiles dir="src/main/quasar/" includes="**/*.q"/>
+		</uptodate>
+	</target>
 			
-	<target name="quasar">
-		<!-- FIXME: make the .qlib directly in the output folder -->
-		<!-- FIXME: support for building .qlib on Linux -->
+	<target name="quasar" depends="checkqlib" unless="nochanges">
+		<!-- IMPROVEME: make the .qlib directly in the output folder -->
+		<!-- IMPROVEME: support for building .qlib on Linux -->
 		<mkdir dir="${qlib.dir}"/>
 		<exec executable="${quasar.exe}">
 			<arg value="--make_lib"/>
 			<arg value="--gpu"/>
-			<arg value="src/main/quasar/vib_denoising_algorithms.q"/>
+			<arg value="${q.file}"/>
 		</exec>
-		<copy file="src/main/quasar/vib_denoising_algorithms.qlib" tofile="${qlib.dir}/vib_denoising_algorithms.qlib"/>
+		<copy file="src/main/quasar/vib_denoising_algorithms.qlib" tofile="${qlib.file}"/>
 	</target>
 	
 	<target name="compile">
