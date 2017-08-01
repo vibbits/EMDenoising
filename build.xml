@@ -24,6 +24,7 @@
 	
 	<target name="checkqlib">
 		<!-- IMPROVEME? should we also check if the .q files in the Quasar installation folder have changed (Quasar got upgraded) -->
+		<!-- FIXME: after a clean build, the qlib does not exist and is not regenerated -->
 		<uptodate targetfile="${qlib.file}" property="nochanges">
 			<srcfiles dir="src/main/quasar/" includes="**/*.q"/>
 		</uptodate>
