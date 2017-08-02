@@ -5,8 +5,8 @@
 	<property name="classes.dir" value="${build.dir}/classes"/>
 	<property name="jar.dir" value="${build.dir}/jar"/>
 	<property name="q.file" value="src/main/quasar/vib_denoising_algorithms.q"/>
-	<property name="qlib.file" value="${qlib.dir}/vib_denoising_algorithms.qlib"/>
 	<property name="qlib.dir" value="${build.dir}/qlib"/>
+	<property name="qlib.file" value="${qlib.dir}/vib_denoising_algorithms.qlib"/>
 	<property name="quasarbridge" value="JavaQuasarBridge-0.0.1.jar"/>
 	<property name="plugin.name" value="EM_Denoising-0.0.1.jar"/>
 	<property name="fiji.plugins.dir" value="e:/Fiji.app/plugins"/>
@@ -20,19 +20,18 @@
 	
 	<target name="clean">
 		<delete dir="${build.dir}"/>
+		<delete file="src/main/quasar/vib_denoising_algorithms.qlib"/>
 	</target>
-	
-	<target name="checkqlib">
+
+	<target name="check.qlib">
 		<!-- IMPROVEME? should we also check if the .q files in the Quasar installation folder have changed (Quasar got upgraded) -->
-		<!-- FIXME: after a clean build, the qlib does not exist and is not regenerated -->
-		<uptodate targetfile="${qlib.file}" property="nochanges">
+		<echo message="Checking if qlib needs to be rebuilt"/>
+		<uptodate targetfile="${qlib.file}" property="qlib.uptodate">
 			<srcfiles dir="src/main/quasar/" includes="**/*.q"/>
 		</uptodate>
 	</target>
-			
-	<target name="quasar" depends="checkqlib" unless="nochanges">
-		<!-- IMPROVEME: make the .qlib directly in the output folder -->
-		<!-- IMPROVEME: support for building .qlib on Linux -->
+		
+	<target name="make.qlib" depends="check.qlib" unless="qlib.uptodate">
 		<mkdir dir="${qlib.dir}"/>
 		<exec executable="${quasar.exe}">
 			<arg value="--make_lib"/>
@@ -47,7 +46,7 @@
 		<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" debug="true" debuglevel="lines,vars,source"/>
 	</target>
 		
-	<target name="jar" depends="compile,quasar">
+	<target name="jar" depends="compile,make.qlib">
 		<mkdir dir="${jar.dir}"/>
 		<jar destfile="${jar.dir}/${plugin.name}" basedir="${classes.dir}">
 			<manifest>
