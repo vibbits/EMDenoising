@@ -22,8 +22,7 @@ public class QuasarTools
 		{
 			System.out.println("About to load JavaQuasarBridge dynamic library");
 			quasarTempFolder = Files.createTempDirectory("vib_em_denoising_").toString();
-			boolean useEmbeddedQuasar = false;  // TODO: should be true once we have the Quasar runtime distributions and embed them in the JAR
-			JavaQuasarBridge.loadLibrary(quasarTempFolder, useEmbeddedQuasar);
+			JavaQuasarBridge.loadLibrary(quasarTempFolder);
 			System.out.println("JavaQuasarBridge dynamic library loaded.");
 		}
 		catch (ClassNotFoundException | IOException e)
@@ -45,8 +44,12 @@ public class QuasarTools
 			
 			QHost.printMachineInfo();
 			
-			// QHost.enableProfiling();
-			// System.out.println("Quasar memory profiling enabled");
+			// if (loadCompiler)
+			// {
+            //   // memleaks profiling needs a host with functional compiler
+			//	 QHost.enableProfiling(QHost.ProfilingMode.MEMLEAKS);
+			//	 System.out.println("Quasar memory profiling enabled");
+			// }
 			
 			System.out.println("Extracting algorithms");
 			Jar.extractResource(quasarTempFolder, "qlib/vib_denoising_algorithms.qlib");
@@ -79,7 +82,6 @@ public class QuasarTools
 				}
 				catch (InterruptedException | ExecutionException e)
 				{
-					// CHECKME
 					e.printStackTrace();
 				}				
 			}
@@ -91,8 +93,6 @@ public class QuasarTools
 	private static void loadAlgorithms(String folder, String filename)
 	{
 		String module = Paths.get(folder, filename).toString();
-		
-		// FIXME: Qhost.loadSourceModule/loadBinaryModule seems to fail silently if "module" does not exist?
 		
 		if (module.endsWith(".q"))
 		{
