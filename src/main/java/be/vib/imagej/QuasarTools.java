@@ -44,12 +44,12 @@ public class QuasarTools
 			
 			QHost.printMachineInfo();
 			
-			// if (loadCompiler)
-			// {
-            //   // memleaks profiling needs a host with functional compiler
-			//	 QHost.enableProfiling(QHost.ProfilingMode.MEMLEAKS);
-			//	 System.out.println("Quasar memory profiling enabled");
-			// }
+//			 if (loadCompiler)
+//			 {
+//				 // Profiling needs a host with functional compiler
+//				 QHost.enableProfiling(QHost.ProfilingMode.MEMLEAKS);
+//				 System.out.println("Quasar memory profiling enabled");
+//			 }
 			
 			System.out.println("Extracting algorithms");
 			Jar.extractResource(quasarTempFolder, "qlib/vib_denoising_algorithms.qlib");
