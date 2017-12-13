@@ -36,6 +36,12 @@ public abstract class Denoiser implements Callable<ImageProcessor>
 	
 	public int imageTileSize()
 	{
+		// Bigger tiles lead to significant performance improvements on the Quasar side,
+		// but this needs to be balanced against graphics card memory constraints.
+		// For each pixel in a tile some denoising algorithms allocate a significant
+		// amount of memory on the Quasar side.
+		// We may want to make the tile size dependent on amount of free graphics memory
+		// as well as on the memory requirements of the particular denoising algorithm.
 		return 1024;
 	}
 	
