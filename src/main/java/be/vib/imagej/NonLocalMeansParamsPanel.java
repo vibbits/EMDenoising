@@ -17,7 +17,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 	private SliderSpinnerPair searchSizePair;
 	private SliderSpinnerPair blockSizePair;
 	private JCheckBox deconvolutionCheckBox;
-	private JCheckBox decorrelationCheckBox;
+ // private JCheckBox decorrelationCheckBox;
 	private JLabel lambdaLabel;
 	private JFormattedTextField lambdaField;
 	private JSlider lambdaSlider;
@@ -64,9 +64,9 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		
 		// ----
 		
-		decorrelationCheckBox = new JCheckBox("Apply decorrelation");
-		decorrelationCheckBox.setSelected(params.decorrelation);
-		decorrelationCheckBox.addActionListener(e -> { params.decorrelation = decorrelationCheckBox.isSelected(); fireParamsChangeEvent(); });
+		// decorrelationCheckBox = new JCheckBox("Apply decorrelation");
+		// decorrelationCheckBox.setSelected(params.decorrelation);
+		// decorrelationCheckBox.addActionListener(e -> { params.decorrelation = decorrelationCheckBox.isSelected(); fireParamsChangeEvent(); });
 
 		// ----
 		
@@ -119,7 +119,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		    		   .addComponent(hField)
 		    		   .addComponent(blockSizeSpinner)
 		    		   .addComponent(searchSizeSpinner)
-		    		   .addComponent(decorrelationCheckBox)
+		    		 //.addComponent(decorrelationCheckBox)
 		    		   .addComponent(deconvolutionCheckBox)
 		    		   .addComponent(lambdaField))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
@@ -150,7 +150,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		    				  .addComponent(searchSizeSpinner))
 			           .addComponent(searchSizeSlider))	
 		      
-		      .addComponent(decorrelationCheckBox)
+		    //.addComponent(decorrelationCheckBox)
 		      .addComponent(deconvolutionCheckBox)
 	      
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
@@ -175,7 +175,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 	public void updatePanelFromParams()
 	{
 		deconvolutionCheckBox.setSelected(false);
-		decorrelationCheckBox.setSelected(false);
+	  //decorrelationCheckBox.setSelected(false);
 		hPair.updateRange(params.hMin, params.hMax, params.h);				
 		searchSizePair.updateRange(NonLocalMeansParams.halfSearchSizeMin, NonLocalMeansParams.halfSearchSizeMax, params.halfSearchSize);
 		blockSizePair.updateRange(NonLocalMeansParams.halfBlockSizeMin, NonLocalMeansParams.halfBlockSizeMax, params.halfBlockSize);

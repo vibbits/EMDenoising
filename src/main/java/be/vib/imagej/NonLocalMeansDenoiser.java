@@ -94,6 +94,8 @@ public class NonLocalMeansDenoiser extends Denoiser
 	
 	private ImageProcessor nonLocalMeansCD() throws NoSuchFileException
 	{		
+		assert(false); // decorrelation is not currently supported
+		
 		QFunction nlmeansCD = new QFunction("deconv_nlmeans_c(mat,mat,scalar,int,int,int,scalar,mat)");
 				
 		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
@@ -133,6 +135,8 @@ public class NonLocalMeansDenoiser extends Denoiser
 	
 	private ImageProcessor nonLocalMeansC() throws NoSuchFileException
 	{		
+		assert(false); // decorrelation is not currently supported
+		
 		QFunction nlmeansSC = new QFunction("denoise_nlmeans_c(mat,int,int,scalar,mat)");
 		
 		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);

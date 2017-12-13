@@ -19,11 +19,18 @@ public class NonLocalMeansParams extends DenoiseParams
 	public int halfSearchSize;
 	
 	public boolean decorrelation; // if true, do decorrelation with decorrelationParams (signal dependency of noise is not taken into account)
+	                              
+	
 	public boolean deconvolution; // if true, do deconvolution with deconvolutionParams
 
 	public DeconvolutionParams deconvolutionParams;
 	
 	// Fixed correlation filter. However in theory it depends on dwell time - better would be to estimate it from the image.
+	// Note:
+	// Decorrelation is not currently used anymore - decorrelation is still present in the code, but commented out in the user interface.
+	// To make decorrelation user friendly, we would somehow need to obtain the correlation kernel that correctly models the precise correlation.
+	// This depends on hardware and acquisition settings used to obtain the images. So either the user needs to be able to
+	// specify this kernel, or we derive it from meta-data parameters in the image. We decided to leave out this advanced functionality for now.
 	public static final float[] emCorrFilterInv = { 0.003548810180648f,
 										            0.006457459824059f,
 										            0.007150416544695f,
@@ -124,7 +131,8 @@ public class NonLocalMeansParams extends DenoiseParams
     	props.setProperty(PREFIX + "nonlocalmeans.halfblocksize", Integer.toString(halfBlockSize));
     	props.setProperty(PREFIX + "nonlocalmeans.halfsearchsize", Integer.toString(halfSearchSize));
 
-    	props.setProperty(PREFIX + "nonlocalmeans.decorrelation", Boolean.toString(decorrelation));
+    	assert(decorrelation == false);
+      //props.setProperty(PREFIX + "nonlocalmeans.decorrelation", Boolean.toString(decorrelation));
     	
     	props.setProperty(PREFIX + "nonlocalmeans.deconvolution", Boolean.toString(deconvolution));
     	if (deconvolution)
@@ -139,8 +147,10 @@ public class NonLocalMeansParams extends DenoiseParams
 	@Override
 	public String toString()
 	{
+		assert(decorrelation == false);
+		
 		String s = "h " + h + "; half block size " + halfBlockSize + "; half search size " + halfSearchSize;
-		s = s + (decorrelation ? "; decorrelation" : "; no decorrelation");
+      //s = s + (decorrelation ? "; decorrelation" : "; no decorrelation");
 		s = s + (deconvolution ? "; deconvolution: " + deconvolutionParams.numIterations + " iterations" + ", lambda " + deconvolutionParams.lambda : "; no deconvolution");
 		return s;
 	}
