@@ -14,7 +14,8 @@ public abstract class Algorithm
 		BLSGSM,                 // BLS-GSM (Bayesian Least Squares - Gaussian Scale Mixture)
 		WAVELET_THRESHOLDING,
 		ANISOTROPIC_DIFFUSION,
-		NONLOCALMEANS
+		NONLOCALMEANS,
+		TIKHONOV
 	};
 	
 	private Name name;

@@ -39,6 +39,7 @@ public class WizardModel
 		algorithms.put(Name.ANISOTROPIC_DIFFUSION, new AnisotropicDiffusionAlgorithm());
 		algorithms.put(Name.WAVELET_THRESHOLDING, new WaveletThresholdingAlgorithm());
 		algorithms.put(Name.NONLOCALMEANS, new NonLocalMeansAlgorithm());
+		algorithms.put(Name.TIKHONOV, new TikhonovAlgorithm());
 		
 		range = new ImageRange();
 		
@@ -78,7 +79,8 @@ public class WizardModel
 							algorithms.get(Name.ANISOTROPIC_DIFFUSION),
 							algorithms.get(Name.BLSGSM),
 							algorithms.get(Name.WAVELET_THRESHOLDING),
-							algorithms.get(Name.NONLOCALMEANS) };
+							algorithms.get(Name.NONLOCALMEANS),
+							algorithms.get(Name.TIKHONOV) };
 		return arr;
 	}
 

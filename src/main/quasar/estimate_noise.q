@@ -86,6 +86,7 @@ end
 function sigma:scalar = estimate_noise_mad(img:mat,r:int=2)
     img_med:mat = immedfilt(img,r)
     sigma = median(transpose(reshape(abs(img-img_med),[size(img,0)*size(img,1)])))[0] / 0.6745
+    % printf("noise MAD sigma= %f (%d x %d) %f %f\n", sigma, size(img,0), size(img,1), min(img), max(img)) % TEST TEST
 end
 
 % Function: estimate_noise_liu
