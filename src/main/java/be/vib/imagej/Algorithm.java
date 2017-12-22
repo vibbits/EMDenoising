@@ -15,7 +15,8 @@ public abstract class Algorithm
 		WAVELET_THRESHOLDING,
 		ANISOTROPIC_DIFFUSION,
 		NONLOCALMEANS,
-		TIKHONOV
+		TIKHONOV,
+		TOTAL_VARIATION
 	};
 	
 	private Name name;

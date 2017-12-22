@@ -40,6 +40,7 @@ public class WizardModel
 		algorithms.put(Name.WAVELET_THRESHOLDING, new WaveletThresholdingAlgorithm());
 		algorithms.put(Name.NONLOCALMEANS, new NonLocalMeansAlgorithm());
 		algorithms.put(Name.TIKHONOV, new TikhonovAlgorithm());
+		algorithms.put(Name.TOTAL_VARIATION, new TotalVariationAlgorithm());
 		
 		range = new ImageRange();
 		
@@ -71,7 +72,7 @@ public class WizardModel
 	}
 	
 	// Returns an array of the available algorithms,
-	// in the order we would like them to appear in the user interface.
+	// in_the_order_we_would_like_them_to_appear_in_the_user_interface.
 	public Algorithm[] getAlgorithms()
 	{
 		Algorithm[] arr = { algorithms.get(Name.GAUSSIAN),
@@ -80,7 +81,8 @@ public class WizardModel
 							algorithms.get(Name.BLSGSM),
 							algorithms.get(Name.WAVELET_THRESHOLDING),
 							algorithms.get(Name.NONLOCALMEANS),
-							algorithms.get(Name.TIKHONOV) };
+							algorithms.get(Name.TIKHONOV),
+							algorithms.get(Name.TOTAL_VARIATION) };
 		return arr;
 	}
 
