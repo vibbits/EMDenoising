@@ -63,9 +63,7 @@ public class TikhonovDenoiser extends Denoiser
 		
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
 		
-		QValue blurKernel = fgaussian.apply(new QValue(noisyImageCube.size(0)), new QValue(params.sigma)); 
-		
-		// FIXME: the deconvolution requires a square image...?
+		QValue blurKernel = fgaussian.apply(new QValue(TikhonovParams.blurKernelSize), new QValue(params.sigma)); 
 		
 		QValue denoisedImageCube = tikhonov_denoise_deconvolution.apply(noisyImageCube,
 												                        blurKernel,

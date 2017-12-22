@@ -13,6 +13,8 @@ public class TikhonovParams extends DenoiseParams
 	public static final int iterationsMin = 1;
 	public static final int iterationsMax = 100;
 	
+	public static final int blurKernelSize = 15;
+	
 	public boolean deconvolution;
 	public float lambda1; // only used if deconvolution == false
 	public float lambda2; // only used if deconvolution == true
@@ -23,7 +25,7 @@ public class TikhonovParams extends DenoiseParams
 	{
 		deconvolution = false;
 		lambda1 = 0.5f;		
-		lambda2 = 1.0f;
+		lambda2 = 1.5f;
 		sigma = 1.5f;
 		numIterations = 50;
 	}
@@ -84,7 +86,7 @@ public class TikhonovParams extends DenoiseParams
 		deconvolution = false;
 		numIterations = 50;
 		lambda1 = 0.5f;
-		lambda2 = 1.0f;
+		lambda2 = 1.5f;
 		sigma = 1.5f;
 		System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda=" + (deconvolution ? lambda2 : lambda1) + " sigma=" + sigma);
 	}

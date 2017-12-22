@@ -17,8 +17,9 @@ function [] = main()
     
     % add blur
     f_sigma = 1.5
-    blur_kernel = fgaussian(size(img,0), f_sigma)
-    img_blurred = real(fftshift2(ifft2(fft2(img).*fft2(blur_kernel))))
+    blur_kernel = fgaussian(15, f_sigma)
+    img_blurred = imfilter(img,blur_kernel,[floor(size(blur_kernel,0)/2),floor(size(blur_kernel,1)/2)],"mirror")
+
     
     % add noise
     sigma = 0.05
@@ -30,7 +31,7 @@ function [] = main()
     
     % params
     lambda1 = 0.5
-    lambda2 = 1
+    lambda2 = 1.5
     
     % denoising
     tic()
@@ -46,12 +47,14 @@ function [] = main()
     
     % visualization
     hold("off")
-    imshow(img_noisy,[0,1])
+    f=imshow(img_noisy,[0,1])
     title(sprintf("Input image - psnr=%f dB", psnr(img_noisy,img)))
-    imshow(img_den,[0,1])
+    g=imshow(img_den,[0,1])
     title(sprintf("Tikhonov - psnr=%f dB", psnr(img_den,img)))
-    imshow(img_dec,[0,1])
+    h=imshow(img_dec,[0,1])
     title(sprintf("Tikhonov deconvolution - psnr=%f dB", psnr(img_dec,img)))
+    f.connect(g)
+    g.connect(h)
 
 end
 
@@ -81,7 +84,7 @@ function Ax = compute_A(x, lambda)
     Ax = x + lambda*imfilter(imfilter(x,L,[1,1],"mirror"),L,[1,1],"mirror")
 end
 
-function x_est = tikhonov_denoise_dec(y, H, lambda, num_iter=50)
+function x_est = tikhonov_denoise_dec(y, H, lambda, num_iter=10)
     b = y
     x_est = y
     x_prev = y
@@ -104,7 +107,7 @@ end
 
 function Ax = compute_A_dec(x, H, lambda)
     L = [[0,-1,0],[-1,4,-1],[0,-1,0]]
-    Ax = real(fftshift2(ifft2(fft2(x).*fft2(H)))) + 
+    Ax = imfilter(x,H,[floor(size(H,0)/2),floor(size(H,1)/2)],"mirror") +
          lambda*imfilter(imfilter(x,L,[1,1],"mirror"),L,[1,1],"mirror")
 end
 
