@@ -16,6 +16,9 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 	private SliderFieldPair lambdaPair;
 	private SliderSpinnerPair iterationsPair;
 	private JCheckBox deconvolutionCheckBox;
+	private JLabel sigmaLabel;
+	private JFormattedTextField sigmaField;
+	private JSlider sigmaSlider;
 	
 	public TikhonovParamsPanel(TikhonovParams params)
 	{
@@ -43,7 +46,7 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		JFormattedTextField lambdaField = lambdaPair.getFloatField();
 		lambdaField.setColumns(5);
 
-		//
+		// ----
 		
 		iterationsPair = new SliderSpinnerPair(TikhonovParams.iterationsMin, TikhonovParams.iterationsMax);
 		iterationsPair.setValue(params.numIterations);
@@ -55,6 +58,20 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		
 		JLabel iterationsLabel = new JLabel("Iterations:");
 
+		// ----
+		
+		SliderFieldPair sigmaPair = new SliderFieldPair(0, 100, floatFormat, TikhonovParams.sigmaMin, TikhonovParams.sigmaMax);
+		sigmaPair.setValue(params.sigma);
+		sigmaPair.addPropertyChangeListener(e -> { params.sigma = sigmaPair.getValue(); fireParamsChangeEvent(); });
+		
+		sigmaSlider = sigmaPair.getSlider();
+		
+		sigmaField = sigmaPair.getFloatField();
+		sigmaField.setColumns(5);
+		
+		sigmaLabel = new JLabel("Sigma:");
+		sigmaLabel.setToolTipText("Standard deviation of the blur kernel whose effect we are trying to undo.");
+		
 		//
 		
 		deconvolutionCheckBox = new JCheckBox("Apply deconvolution");
@@ -62,6 +79,9 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); EnableDeconvolutionControls(params.deconvolution); fireParamsChangeEvent(); });
 		deconvolutionCheckBox.setToolTipText("Sharpen the image.");
 
+		// Update controls that are dependent on whether we want deconvolution or not.
+		EnableDeconvolutionControls(params.deconvolution);
+		
 		//
 		
 		GroupLayout layout = new GroupLayout(this);
@@ -72,14 +92,17 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 			           .addComponent(lambdaLabel)
-			           .addComponent(iterationsLabel))
+			           .addComponent(iterationsLabel)
+			           .addComponent(sigmaLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 			           .addComponent(lambdaField)
 			           .addComponent(iterationsSpinner)
-					   .addComponent(deconvolutionCheckBox))
+					   .addComponent(deconvolutionCheckBox)
+					   .addComponent(sigmaField))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 			           .addComponent(lambdaSlider)
-			           .addComponent(iterationsSlider))
+			           .addComponent(iterationsSlider)
+			           .addComponent(sigmaSlider))
 		      );
 		
 		layout.setVerticalGroup(
@@ -95,6 +118,11 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		    				  .addComponent(iterationsSpinner))
 			           .addComponent(iterationsSlider))
 		      .addComponent(deconvolutionCheckBox)
+		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		    				  .addComponent(sigmaLabel)
+		    				  .addComponent(sigmaField))
+			           .addComponent(sigmaSlider))	
 		      );  
 		
 		setLayout(layout);
@@ -102,10 +130,9 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 	
 	private void EnableDeconvolutionControls(boolean enable)
 	{
-// FIXME: probably not needed
-//		lambdaLabel.setEnabled(enable);
-//		lambdaField.setEnabled(enable);
-//		lambdaSlider.setEnabled(enable);
+		sigmaLabel.setEnabled(enable);
+		sigmaField.setEnabled(enable);
+		sigmaSlider.setEnabled(enable);
 	}
 	
 	@Override

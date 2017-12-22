@@ -7,14 +7,16 @@ public class TikhonovParams extends DenoiseParams
 	public static final float lambdaMin = 0.02f; // CHECKME: the lowest value give a useless result when doing deconvolution
 	public static final float lambdaMax = 8.0f; // CHECKME: 5 is better?
 	
+	public static final float sigmaMin = 0.01f; // CHECKME
+	public static final float sigmaMax = 5.0f; // CHECKME
+	
 	public static final int iterationsMin = 1;
 	public static final int iterationsMax = 100;
 	
-	public static final float blurKernelSigma = 1.5f; // CHECKME: should this be a user parameter?
-
 	public boolean deconvolution;
 	public float lambda1; // only used if deconvolution == false
 	public float lambda2; // only used if deconvolution == true
+	public float sigma; // only used if deconvolution == true
 	public int numIterations;
 	
 	public TikhonovParams()
@@ -22,6 +24,7 @@ public class TikhonovParams extends DenoiseParams
 		deconvolution = false;
 		lambda1 = 0.5f;		
 		lambda2 = 1.0f;
+		sigma = 1.5f;
 		numIterations = 50;
 	}
 	
@@ -30,6 +33,7 @@ public class TikhonovParams extends DenoiseParams
 		this.deconvolution = other.deconvolution;
 		this.lambda1 = other.lambda1;
 		this.lambda2 = other.lambda2;
+		this.sigma = other.sigma;
 		this.numIterations = other.numIterations;
 	}
 	
@@ -41,6 +45,10 @@ public class TikhonovParams extends DenoiseParams
     	props.setProperty(PREFIX + "tikhonov.deconvolution", Boolean.toString(deconvolution));
     	props.setProperty(PREFIX + "tikhonov.lambda", Float.toString(!deconvolution ? lambda1 : lambda2));
     	props.setProperty(PREFIX + "tikhonov.numiterations", Integer.toString(numIterations));
+    	if (deconvolution)
+    	{
+        	props.setProperty(PREFIX + "tikhonov.sigma", Float.toString(sigma));
+    	}
     	return props;
     }
 
@@ -48,9 +56,9 @@ public class TikhonovParams extends DenoiseParams
 	public String toString()
 	{
 		if (!deconvolution)
-			return "no deconvolution; lambda1 " + lambda1 + "; " + numIterations + " iterations";
+			return "no deconvolution; lambda " + lambda1 + "; " + numIterations + " iterations";
 		else
-			return "deconvolution; lambda2 " + lambda2 + "; " + numIterations + " iterations";
+			return "deconvolution; lambda " + lambda2 + "; sigma " + sigma + "; " + numIterations + " iterations";
 	}
 	
 	@Override
@@ -58,13 +66,13 @@ public class TikhonovParams extends DenoiseParams
 	{
 		TikhonovParams other = (TikhonovParams)obj;
 		
-		return (obj instanceof TikhonovParams) && (deconvolution == other.deconvolution) && (lambda1 == other.lambda1) && (lambda2 == other.lambda2) && (numIterations == other.numIterations);
+		return (obj instanceof TikhonovParams) && (deconvolution == other.deconvolution) && (lambda1 == other.lambda1) && (lambda2 == other.lambda2) && (sigma == other.sigma) && (numIterations == other.numIterations);
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return Boolean.valueOf(deconvolution).hashCode() ^ Float.valueOf(lambda1).hashCode() ^ Float.valueOf(lambda2).hashCode() ^ Integer.valueOf(numIterations).hashCode() ;
+		return Boolean.valueOf(deconvolution).hashCode() ^ Float.valueOf(lambda1).hashCode() ^ Float.valueOf(lambda2).hashCode() ^ Float.valueOf(sigma).hashCode() ^ Integer.valueOf(numIterations).hashCode() ;
 	}
 
 	@Override
@@ -77,6 +85,7 @@ public class TikhonovParams extends DenoiseParams
 		numIterations = 50;
 		lambda1 = 0.5f;
 		lambda2 = 1.0f;
-		System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda1=" + lambda1);
+		sigma = 1.5f;
+		System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda=" + (deconvolution ? lambda2 : lambda1) + " sigma=" + sigma);
 	}
 }
