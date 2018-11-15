@@ -100,6 +100,10 @@ end
 function img_den:mat = wav_denoise(img:mat,J:int,w1,w2,thr_type,T:scalar)
 	% print "wav_denoise J=", J, " w1=", w1, " w2=", w2, " T=", T
 
+	% Required for (i)dtcwt3d_untiled
+	w1 = complex_orthogonal_wavelet(w1)
+	w2 = complex_orthogonal_wavelet(w2)
+
     % Do power-of-two extension of the image
     % (wavelet trf code assumes power-of-two image dimensions)
     orig_size = size(img)
