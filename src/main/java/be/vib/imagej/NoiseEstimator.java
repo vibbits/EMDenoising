@@ -26,6 +26,8 @@ public class NoiseEstimator implements Callable<Float>
 		this.image = liuNoiseEstimation ? restrictSize(image, 512) : restrictSize(image, 2048);
 	}
 	
+	// Return a copy of the image, restricted to maxSize x maxSize pixels.
+	// If the image is larger than maxSize, the portion of maxSize pixels centered copy around the middle of the image is returned.
 	private ImageProcessor restrictSize(ImageProcessor image, int maxSize)
 	{
 		int w = Math.min(maxSize, image.getWidth());
@@ -51,7 +53,7 @@ public class NoiseEstimator implements Callable<Float>
 		float r = ImageUtils.bitRange(image);
 		
 		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
-				
+		
 		QValue noise = null;
 				 
 		if (liuNoiseEstimation)
@@ -63,7 +65,7 @@ public class NoiseEstimator implements Callable<Float>
 		else
 		{
 			QFunction estimateNoise = new QFunction("estimate_noise_mad(mat,int)");			
-			noise = estimateNoise.apply(noisyImageCube, new QValue(2));			
+			noise = estimateNoise.apply(noisyImageCube, new QValue(2));
 		}
 		
 		noisyImageCube.dispose();
