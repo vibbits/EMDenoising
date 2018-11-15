@@ -19,7 +19,7 @@ public class DenoisingWizardSingleton
 	
 	private static Wizard createWizard()
 	{
-		Wizard wizard = new Wizard("EM Denoising", new WizardModel());
+		Wizard wizard = new Wizard("DenoisEM", new WizardModel());
 
 		WizardPage[] pages = { new WizardPageInitializeQuasar(wizard, "Initialization"),
 		                       new WizardPageROI(wizard, "Select Image and ROI"),
