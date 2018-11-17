@@ -18,8 +18,15 @@ public class BLSGSMParams extends DenoiseParams
 		sigma = 0.25f;
 		sigmaMin = 0.01f;
 		sigmaMax = 0.5f;
-		
 		scales = 4;
+	}
+	
+	public BLSGSMParams(float sigma, int scales)
+	{
+		this.sigma = sigma;
+		this.sigmaMin = 0.01f;
+		this.sigmaMax = 0.5f;
+		this.scales = scales;
 	}
 	
 	public BLSGSMParams(BLSGSMParams other)
@@ -27,7 +34,6 @@ public class BLSGSMParams extends DenoiseParams
 		this.sigma = other.sigma;
 		this.sigmaMin = other.sigmaMin;
 		this.sigmaMax = other.sigmaMax;
-		
 		this.scales = other.scales;
 	}
 	

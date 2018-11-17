@@ -15,6 +15,13 @@ public class GaussianParams extends DenoiseParams
 		sigmaMax = 5.0f;
 	}
 	
+	public GaussianParams(float sigma)
+	{
+		this.sigma = sigma;
+		this.sigmaMin = 0.5f;
+		this.sigmaMax = 5.0f;
+	}
+	
 	public GaussianParams(GaussianParams other)
 	{
 		this.sigma = other.sigma;

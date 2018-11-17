@@ -57,7 +57,7 @@ public class NonLocalMeansParams extends DenoiseParams
 										            0.006457459824060f,
 										            0.003548810180647f };
 
-	public class DeconvolutionParams
+	static public class DeconvolutionParams
 	{
 		public static final int blurKernelSize = 15;
 		public static final float blurKernelSigma = 1.0f;
@@ -68,13 +68,19 @@ public class NonLocalMeansParams extends DenoiseParams
 		public static final int numIterationsMin = 5;
 		public static final int numIterationsMax = 30;
 		
-		public float lambda;   // trade-off denoising versus deconvolution
+		public float lambda;   // trade-off denoising versus deconvolution (lower lambda gives more aggressive sharpening)
 		public int numIterations;
 		
-		DeconvolutionParams()
+		public DeconvolutionParams()
 		{
 			lambda = 0.3f;
 			numIterations = 20;
+		}
+		
+		public DeconvolutionParams(float lambda, int numIterations)
+		{
+			this.lambda = lambda;
+			this.numIterations = numIterations;
 		}
 
 		public DeconvolutionParams(DeconvolutionParams other)
@@ -108,6 +114,18 @@ public class NonLocalMeansParams extends DenoiseParams
 		decorrelation = false;
 		deconvolution = false;
 		deconvolutionParams = new DeconvolutionParams();
+	}
+	
+	public NonLocalMeansParams(float h, int halfBlockSize, int halfSearchSize, boolean deconvolution, DeconvolutionParams deconvolutionParams)
+	{
+		this.h = h;
+		this.hMin = 0.001f;
+		this.hMax = 3.0f;	
+		this.halfBlockSize = halfBlockSize;
+		this.halfSearchSize = halfSearchSize;
+		this.decorrelation = false;
+		this.deconvolution = deconvolution;
+		this.deconvolutionParams = deconvolutionParams;
 	}
 	
 	public NonLocalMeansParams(NonLocalMeansParams other)
@@ -199,6 +217,9 @@ public class NonLocalMeansParams extends DenoiseParams
 		hMax = h * 2.0f;
 
 //		System.out.println("NonLocalMeansParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
+		
+		// IMPORTANT FIXME: check h parameter range for NLMS without deconvolution on eg. cropped_2013_11_28_arabidopsis_root_0086_8bit.png
+		//                  (the offered h range: hmax=0.276 is too small for denoising to have significant effect)
 	}
 	
 	/*

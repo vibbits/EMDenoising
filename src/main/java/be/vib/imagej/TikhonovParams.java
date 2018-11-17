@@ -30,6 +30,15 @@ public class TikhonovParams extends DenoiseParams
 		numIterations = 50;
 	}
 	
+	public TikhonovParams(boolean deconvolution, float lambda1, float lambda2, float sigma, int numIterations)
+	{
+		this.deconvolution = deconvolution;
+		this.lambda1 = lambda1;	
+		this.lambda2 = lambda2;
+		this.sigma = sigma;
+		this.numIterations = numIterations;
+	}
+	
 	public TikhonovParams(TikhonovParams other)
 	{
 		this.deconvolution = other.deconvolution;
@@ -88,6 +97,6 @@ public class TikhonovParams extends DenoiseParams
 		lambda1 = 0.5f;
 		lambda2 = 1.5f;
 		sigma = 1.5f;
-		System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda=" + (deconvolution ? lambda2 : lambda1) + " sigma=" + sigma);
+		System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda=" + (deconvolution ? lambda2 : lambda1) + " sigma=" + sigma + " (for now independent of noise estimate)");
 	}
 }

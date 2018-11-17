@@ -17,7 +17,14 @@ public class WaveletThresholdingParams extends DenoiseParams
 		thresholdMin = 0.0f;
 		thresholdMax = 2.0f;
 	}
-	
+
+	public WaveletThresholdingParams(float threshold)
+	{
+		this.threshold = threshold;
+		this.thresholdMin = 0.0f;
+		this.thresholdMax = 2.0f;
+	}
+
 	public WaveletThresholdingParams(WaveletThresholdingParams other)
 	{
 		this.threshold = other.threshold;

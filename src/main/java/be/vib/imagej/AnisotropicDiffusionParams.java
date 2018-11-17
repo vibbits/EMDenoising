@@ -25,14 +25,17 @@ public class AnisotropicDiffusionParams extends DenoiseParams
 		diffusionFactor = 0.5f;
 		diffusionFactorMin = 0.01f;
 		diffusionFactorMax = 1.0f;
-		
 		numIterations = 5;
 		stepSize = 0.2f;
-		
-		// CHECKME
-		// - What is the interaction between these parameters?
-		//   stepSize * numIterations probably matters, but stepSize has to be small enough to get a reasonably good solution for the diffusion partial differential equation
-		// - How does changing stepSize * numIterations compare to changing the diffusionFactor instead?
+	}
+	
+	public AnisotropicDiffusionParams(float diffusionFactor, int numIterations, float stepSize)
+	{
+		this.diffusionFactor = diffusionFactor;
+		this.diffusionFactorMin = 0.01f;
+		this.diffusionFactorMax = 1.0f;
+		this.numIterations = numIterations;
+		this.stepSize = stepSize;
 	}
 	
 	public AnisotropicDiffusionParams(AnisotropicDiffusionParams other)
@@ -40,7 +43,6 @@ public class AnisotropicDiffusionParams extends DenoiseParams
 		this.diffusionFactor = other.diffusionFactor;
 		this.diffusionFactorMin = other.diffusionFactorMin;
 		this.diffusionFactorMax = other.diffusionFactorMax;
-
 		this.numIterations = other.numIterations;
 		this.stepSize = other.stepSize;
 	}
