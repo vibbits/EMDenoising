@@ -30,7 +30,7 @@ public class TotalVariationDenoiser extends Denoiser
 		QValue denoisedImageCube = total_variation_denoise.apply(noisyImageCube,
                                                                  new QValue(params.lambda),
 				                                                 new QValue(params.numIterations),
-				                                                 new QValue(params.alpha));
+				                                                 new QValue(TotalVariationParams.alpha));
 		
 		noisyImageCube.dispose();
 

@@ -10,25 +10,27 @@ public class TotalVariationParams extends DenoiseParams
 	public static final int iterationsMin = 1;
 	public static final int iterationsMax = 200;
 
-	public static final float alphaMin = 0.01f;
-	public static final float alphaMax = 1.0f;
+	public static final float alpha = 0.01f; // (fixed) step size
 
 	public float lambda;
 	public int numIterations;
-	public float alpha;
 	
 	public TotalVariationParams()
 	{
 		lambda = 0.05f;
 		numIterations = 100;
-		alpha = 0.01f;
+	}
+	
+	public TotalVariationParams(float lambda, int numIterations)
+	{
+		this.lambda = lambda;
+		this.numIterations = numIterations;
 	}
 	
 	public TotalVariationParams(TotalVariationParams other)
 	{
 		this.lambda = other.lambda;
 		this.numIterations = other.numIterations;
-		this.alpha = other.alpha;
 	}
 	
 	@Override
@@ -38,14 +40,13 @@ public class TotalVariationParams extends DenoiseParams
     	props.setProperty(PREFIX + "algorithm", "totalvariation");
     	props.setProperty(PREFIX + "totalvariation.lambda", Float.toString(lambda));
     	props.setProperty(PREFIX + "totalvariation.numiterations", Integer.toString(numIterations));
-    	props.setProperty(PREFIX + "totalvariation.alpha", Float.toString(alpha));
     	return props;
     }
 
 	@Override
 	public String toString()
 	{
-		return "lambda " + lambda + "; " + numIterations + " iterations ; alpha " + alpha;
+		return "lambda " + lambda + "; " + numIterations + " iterations";
 	}
 	
 	@Override
@@ -53,13 +54,13 @@ public class TotalVariationParams extends DenoiseParams
 	{
 		TotalVariationParams other = (TotalVariationParams)obj;
 		
-		return (obj instanceof TotalVariationParams) && (lambda == other.lambda) && (numIterations == other.numIterations) && (alpha == other.alpha) ;
+		return (obj instanceof TotalVariationParams) && (lambda == other.lambda) && (numIterations == other.numIterations);
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return Float.valueOf(lambda).hashCode() ^ Integer.valueOf(numIterations).hashCode() ^ Float.valueOf(alpha).hashCode();
+		return Float.valueOf(lambda).hashCode() ^ Integer.valueOf(numIterations).hashCode();
 	}
 
 	@Override
@@ -73,8 +74,7 @@ public class TotalVariationParams extends DenoiseParams
 		
 		lambda = 0.05f;
 		numIterations = 100;
-		alpha = 0.01f;
 		
-		System.out.println("TODO TotalVariationParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> lambda=" + lambda + " alpha=" + alpha);
+		System.out.println("TotalVariationParams.setDefaultParams noiseEstimate=" + noiseEstimate + " lambda=" + lambda + " (for now independent of noise estimate)");
 	}
 }

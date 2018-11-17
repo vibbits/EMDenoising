@@ -14,7 +14,6 @@ class TotalVariationParamsPanel extends DenoiseParamsPanelBase
 	private TotalVariationParams params;
 	private SliderFieldPair lambdaPair;
 	private SliderSpinnerPair iterationsPair;
-	private SliderFieldPair alphaPair;
 	
 	public TotalVariationParamsPanel(TotalVariationParams params)
 	{
@@ -44,19 +43,6 @@ class TotalVariationParamsPanel extends DenoiseParamsPanelBase
 
 		//
 		
-		JLabel alphaLabel = new JLabel("Alpha:");
-		
-		alphaPair = new SliderFieldPair(0, 100, floatFormat, TotalVariationParams.alphaMin, TotalVariationParams.alphaMax);
-		alphaPair.setValue(params.alpha);
-		alphaPair.addPropertyChangeListener(e -> { params.alpha = alphaPair.getValue(); fireParamsChangeEvent(); });
-		
-		JSlider alphaSlider = alphaPair.getSlider();
-		
-		JFormattedTextField alphaField = alphaPair.getFloatField();
-		alphaField.setColumns(5);
-
-		//
-		
 		iterationsPair = new SliderSpinnerPair(TotalVariationParams.iterationsMin, TotalVariationParams.iterationsMax);
 		iterationsPair.setValue(params.numIterations);
 		iterationsPair.addPropertyChangeListener(e -> { params.numIterations = iterationsPair.getValue(); fireParamsChangeEvent(); });
@@ -77,15 +63,12 @@ class TotalVariationParamsPanel extends DenoiseParamsPanelBase
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 			           .addComponent(lambdaLabel)
-			           .addComponent(alphaLabel)
 			           .addComponent(iterationsLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 			           .addComponent(lambdaField)
-			           .addComponent(alphaField)
 			           .addComponent(iterationsSpinner))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 			           .addComponent(lambdaSlider)
-			           .addComponent(alphaSlider)
 			           .addComponent(iterationsSlider))
 		      );
 		
@@ -96,11 +79,6 @@ class TotalVariationParamsPanel extends DenoiseParamsPanelBase
 		    				  .addComponent(lambdaLabel)
 		    				  .addComponent(lambdaField))
 			           .addComponent(lambdaSlider))
-		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(alphaLabel)
-		    				  .addComponent(alphaField))
-			           .addComponent(alphaSlider))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		    				  .addComponent(iterationsLabel)
@@ -115,7 +93,6 @@ class TotalVariationParamsPanel extends DenoiseParamsPanelBase
 	public void updatePanelFromParams()
 	{
 		lambdaPair.updateRange(TotalVariationParams.lambdaMin, TotalVariationParams.lambdaMax, params.lambda);		
-		alphaPair.updateRange(TotalVariationParams.alphaMin, TotalVariationParams.alphaMax, params.alpha);		
 		iterationsPair.updateRange(TotalVariationParams.iterationsMin, TotalVariationParams.iterationsMax, params.numIterations);
 	}
 }
