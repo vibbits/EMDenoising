@@ -16,8 +16,8 @@ public class BLSGSMDenoiser extends Denoiser
 	
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
-	{
-		QFunction blsgsm = new QFunction("denoise_blsgsm(mat,int,int,scalar)");
+	{		
+		QFunction blsgsm = new QFunction("denoise_blsgsm(mat,int,scalar)");
 
 		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		

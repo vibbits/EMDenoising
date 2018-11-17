@@ -50,12 +50,11 @@ end
 %
 % Performs BLS-GSM denoising
 %
-% :function img_den:mat = denoise_blsgsm(img_noisy:mat, J:int, K:int, sigma:scalar)
+% :function img_den:mat = denoise_blsgsm(img_noisy:mat, J:int, sigma:scalar)
 %
 % Parameters:
 % img_noisy - noisy image
 % J - number of scales
-% K - number of orientations
 % sigma - noise standard deviation
 % 
 % Returns:
@@ -310,16 +309,11 @@ end
 % :function [S, S_inv] = symsqrt_and_inv(C)
 %
 function [S, S_inv] = symsqrt_and_inv(C)
-%    [U, Lambda:mat, V] = svd(C)
-%    %print "svd err=",sum(sum(abs(U*Lambda*transpose(V)-C)))
-%    lambda:vec = diag(Lambda)
-%    S = U*diag(sqrt(lambda))*transpose(V)
-%    S_inv = U*diag(1./sqrt(lambda))*transpose(V)
-
     [U, Lambda, V] = svd(C)
+    %print "svd err=",sum(sum(abs(U*Lambda*transpose(V)-C)))
     Lambda1 = diag(Lambda)
-    S = U*diag(sqrt(Lambda1))*transpose(V)
-    S_inv = U*diag(1./sqrt(Lambda1))*transpose(V)
+    S = U*mydiagm(sqrt(Lambda1))*transpose(V)
+    S_inv = U*mydiagm(1./sqrt(Lambda1))*transpose(V)
 end
 
 % Function: compute_covmtx_spat_stationary
@@ -358,7 +352,21 @@ end
 function C = correct_eigenvalues(X : mat, epsilon = 1e-4)
     [U, Lambda, V] = svd(X)
     n = size(X,0)
-    C = U*diag(max(epsilon*ones(n), diag(Lambda)))*transpose(V)
+    C = U * mydiagm(max(epsilon * ones(n), diag(Lambda))) * transpose(V)
+end
+
+% This is a slightly modified version of the diagm() function in system.q
+% It is a workaround for an exception that is otherwise raised when executing a .qlib version of this module.
+% (An exception concerning multiplication of generic type matrices, one of which is the result of the generic diagm.)
+function y = mydiagm(x)
+    N = numel(x)
+    y = uninit(N,N)
+    {!parallel for}
+    for m=0..N-1
+        for n=0..N-1
+            y[m,n] = (m == n) ? x[m] : 0.0
+        end
+    end
 end
 
 % Function: jeffreys_prior
