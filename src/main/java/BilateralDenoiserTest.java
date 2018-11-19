@@ -11,6 +11,7 @@ public class BilateralDenoiserTest
 	{		
 		System.out.println("About to load JavaQuasarBridge dynamic library");
 		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
+		// FIXME this needs updating, I think
 	}
 	
 	public static void main(String[] args) throws Exception
