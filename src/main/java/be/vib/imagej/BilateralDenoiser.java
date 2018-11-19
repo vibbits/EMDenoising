@@ -22,10 +22,6 @@ public class BilateralDenoiser extends Denoiser
 		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		
 		final int dynamicRange = (int)ImageUtils.bitRange(image);
-		System.out.print("Bilat filter, dynamic range: ");
-		System.out.println(dynamicRange);
-		System.out.println(params);
-		
 		
 		final float r = dynamicRange / 255.0f;
 
