@@ -17,37 +17,38 @@ public class BilateralDenoiser extends Denoiser
 	@Override
 	public ImageProcessor call() throws NoSuchFileException
 	{
-		QFunction bilateralFilter = new QFunction("bilateral_filter_denoise(cube,cube,int,scalar)");  // Fast histogram based bilateral filter
-		
-		QFunction zeros = new QFunction("zeros(...)");
-		
+		QFunction bilateralFilter = new QFunction("bilateral_filter_denoise(cube,scalar,scalar,int)"); 
+				
 		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
 		
-		float r = ImageUtils.bitRange(image);
+		final int dynamicRange = (int)ImageUtils.bitRange(image);
+		System.out.print("Bilat filter, dynamic range: ");
+		System.out.println(dynamicRange);
+		System.out.println(params);
 		
-		// The histogram based bilateral filter code in Quasar expects pixel values in the [0, 255] range.
-		// If we have a 16-bit image, we scale the values down to 8-bit for now - this probably loses precision.
-		// TODO: natively support 16 bit images the Quasar bilateral filter implementation
-		if (r != 255)
+		
+		final float r = dynamicRange / 255.0f;
+
+		// IMPROVEME: avoid the scaling, the Quasar bilateral filter can probably handle 16-bit image data
+		if (dynamicRange != 255)
 		{
-			QUtils.inplaceMultiply(noisyImageCube, 255.0f / r);
+			// Scale pixels values to [0, 255]
+			QUtils.inplaceDivide(noisyImageCube, r);  
 		}
 
-		// Construct an empty result image. It will be filled in by bilateralFilter().
-		QValue denoisedImageCube = zeros.apply(noisyImageCube.size());
-		
 		BilateralParams params = (BilateralParams)this.params;
 		
-		bilateralFilter.apply(noisyImageCube,
-				              denoisedImageCube,
-				              new QValue(params.r),
-				              new QValue(-params.h));  // params.h is actually the negative of h (to avoid negative values in the user interface)
+		QValue denoisedImageCube = bilateralFilter.apply(noisyImageCube,
+				                                         new QValue(params.rangeSigma),
+				                                         new QValue(params.spatialSigma),
+				                                         new QValue(255));
 		
 		noisyImageCube.dispose();
-		
-		if (r != 255)
+
+		if (dynamicRange != 255)
 		{
-			QUtils.inplaceMultiply(denoisedImageCube, r / 255.0f);
+			// Scale pixels values back to original range
+			QUtils.inplaceMultiply(denoisedImageCube, r); 
 		}
 
 		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);

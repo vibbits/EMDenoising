@@ -7,13 +7,12 @@ import javax.swing.GroupLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
-import javax.swing.JSpinner;
 
 class BilateralParamsPanel extends DenoiseParamsPanelBase 
 {	
 	private BilateralParams params;
-	private SliderFieldPair hPair;
-	private SliderSpinnerPair rPair;
+	private SliderFieldPair spatialSigmaPair;
+	private SliderFieldPair rangeSigmaPair;
 	
 	public BilateralParamsPanel(BilateralParams params)
 	{
@@ -26,30 +25,33 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 		setBorder(BorderFactory.createTitledBorder("Bilateral Denoising Parameters"));
 		
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
-		floatFormat.setMinimumFractionDigits(2);
+		floatFormat.setMinimumFractionDigits(1);
 		
-		hPair = new SliderFieldPair(0, 100, floatFormat, params.hMin, params.hMax);
-		hPair.setValue(params.h);
-		hPair.addPropertyChangeListener(e -> { params.h = hPair.getValue(); fireParamsChangeEvent(); });
+		//
 		
-		JSlider hSlider = hPair.getSlider();
+		spatialSigmaPair = new SliderFieldPair(0, 100, floatFormat, params.spatialSigmaMin, params.spatialSigmaMax);
+		spatialSigmaPair.setValue(params.spatialSigma);
+		spatialSigmaPair.addPropertyChangeListener(e -> { params.spatialSigma = spatialSigmaPair.getValue(); fireParamsChangeEvent(); });
 		
-		JFormattedTextField hField = hPair.getFloatField();
-		hField.setColumns(5);
+		JSlider spatialSigmaSlider = spatialSigmaPair.getSlider();
 		
-		JLabel hLabel = new JLabel("h:");
+		JFormattedTextField spatialSigmaField = spatialSigmaPair.getFloatField();
+		spatialSigmaField.setColumns(5);
+		
+		JLabel spatialSigmaLabel = new JLabel("Spatial sigma:");
 
 		//
 		
-		rPair = new SliderSpinnerPair(BilateralParams.rMin, BilateralParams.rMax);
-		rPair.setValue(params.r);
-		rPair.addPropertyChangeListener(e -> { params.r = rPair.getValue(); fireParamsChangeEvent(); });
+		rangeSigmaPair = new SliderFieldPair(0, 100, floatFormat, params.rangeSigmaMin, params.rangeSigmaMax);
+		rangeSigmaPair.setValue(params.rangeSigma);
+		rangeSigmaPair.addPropertyChangeListener(e -> { params.rangeSigma = rangeSigmaPair.getValue(); fireParamsChangeEvent(); });
 		
-		JSlider rSlider = rPair.getSlider();
+		JSlider rangeSigmaSlider = rangeSigmaPair.getSlider();
 		
-		JSpinner rSpinner = rPair.getSpinner();
+		JFormattedTextField rangeSigmaField = rangeSigmaPair.getFloatField();
+		rangeSigmaField.setColumns(5);
 		
-		JLabel rLabel = new JLabel("Radius:");
+		JLabel rangeSigmaLabel = new JLabel("Range sigma:");
 
 		//
 		
@@ -60,28 +62,28 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 		layout.setHorizontalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-		    		   .addComponent(hLabel)
-			           .addComponent(rLabel))
+		    		   .addComponent(spatialSigmaLabel)
+			           .addComponent(rangeSigmaLabel))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-		    		   .addComponent(hField)
-			           .addComponent(rSpinner))
+		    		   .addComponent(spatialSigmaField)
+			           .addComponent(rangeSigmaField))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-		    		   .addComponent(hSlider)
-			           .addComponent(rSlider))
+		    		   .addComponent(spatialSigmaSlider)
+			           .addComponent(rangeSigmaSlider))
 		);
 		
 		layout.setVerticalGroup(
 		   layout.createSequentialGroup()
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(hLabel)
-		    				  .addComponent(hField))
-			           .addComponent(hSlider))
+		    				  .addComponent(spatialSigmaLabel)
+		    				  .addComponent(spatialSigmaField))
+			           .addComponent(spatialSigmaSlider))
 		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		    		   .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		    				  .addComponent(rLabel)
-		    				  .addComponent(rSpinner))
-			           .addComponent(rSlider))
+		    				  .addComponent(rangeSigmaLabel)
+		    				  .addComponent(rangeSigmaField))
+			           .addComponent(rangeSigmaSlider))
 		      );    	
 		
 		setLayout(layout);
@@ -90,7 +92,7 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 	@Override
 	public void updatePanelFromParams()
 	{
-		hPair.updateRange(params.hMin, params.hMax, params.h);	
-		rPair.updateRange(BilateralParams.rMin, BilateralParams.rMax, params.r);
+		spatialSigmaPair.updateRange(params.spatialSigmaMin, params.spatialSigmaMax, params.spatialSigma);	
+		rangeSigmaPair.updateRange(params.rangeSigmaMin, params.rangeSigmaMax, params.rangeSigma);	
 	}
 }

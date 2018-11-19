@@ -4,32 +4,47 @@ import java.util.Properties;
 
 public class BilateralParams extends DenoiseParams
 {
-	public int r; // window size
+	// sigma for pixel intensity range
+	public float rangeSigma;
+	public float rangeSigmaMin;
+	public float rangeSigmaMax;
 	
-	public float h;  // damping parameter; it's actually -h (because we want to avoid a negative range in the UI, and where less negative values (so a slider to the right) would mean less denoising)
-
-	public float hMin;
-	public float hMax;
-		
-	public static final int rMin = 1;
-	public static final int rMax = 10;   // TODO: check useful range
+	// sigma for spatial extent
+	public float spatialSigma;
+	public float spatialSigmaMin;
+	public float spatialSigmaMax;
 		
 	public BilateralParams()
 	{
-		r = 6;
+		rangeSigma = 50.0f;
+		rangeSigmaMin = 1.0f;
+		rangeSigmaMax = 75.0f;
+		
+		spatialSigma = 2.0f;
+		spatialSigmaMin = 1.0f;
+		spatialSigmaMax = 25.0f;	
+	}
+	
+	public BilateralParams(float rangeSigma, float spatialSigma)
+	{
+		this.rangeSigma = rangeSigma;
+		this.rangeSigmaMin = 1.0f;
+		this.rangeSigmaMax = 75.0f;
 
-		h = 1.9f;
-		hMin = 0.0f;
-		hMax = 5.0f;				
+		this.spatialSigma = spatialSigma;
+		this.spatialSigmaMin = 1.0f;
+		this.spatialSigmaMax = 25.0f;;
 	}
 	
 	public BilateralParams(BilateralParams other)
 	{
-		this.r = other.r;
-
-		this.h = other.h;
-		this.hMin = other.hMin;
-		this.hMax = other.hMax;
+		this.rangeSigma = other.rangeSigma;
+		this.rangeSigmaMin = other.rangeSigmaMin;
+		this.rangeSigmaMax = other.rangeSigmaMax;
+		
+		this.spatialSigma = other.spatialSigma;
+		this.spatialSigmaMin = other.spatialSigmaMin;
+		this.spatialSigmaMax = other.spatialSigmaMax;
 	}
 	
 	@Override
@@ -37,15 +52,15 @@ public class BilateralParams extends DenoiseParams
     {
     	Properties props = new Properties();
     	props.setProperty(PREFIX + "algorithm", "bilateral");
-    	props.setProperty(PREFIX + "bilateral.h", Float.toString(h));
-    	props.setProperty(PREFIX + "bilateral.radius", Integer.toString(r));
+    	props.setProperty(PREFIX + "bilateral.rangeSigma", Float.toString(rangeSigma));
+    	props.setProperty(PREFIX + "bilateral.spatialSigma", Float.toString(spatialSigma));
     	return props;
     }
 
 	@Override
 	public String toString()
 	{
-		return "h " + h + "; r " + r;
+		return "rangeSigma " + rangeSigma + "; spatialSigma " + spatialSigma;
 	}
 	
 	@Override
@@ -53,30 +68,25 @@ public class BilateralParams extends DenoiseParams
 	{
 		BilateralParams other = (BilateralParams)obj;
 		
-		return (obj instanceof BilateralParams) && (h == other.h) && (hMin == other.hMin) && (hMax == other.hMax) && (r == other.r);
+		return (obj instanceof BilateralParams) &&
+			   (rangeSigma == other.rangeSigma) && (rangeSigmaMin == other.rangeSigmaMin) && (rangeSigmaMax == other.rangeSigmaMax) && 
+			   (spatialSigma == other.spatialSigma) && (spatialSigmaMin == other.spatialSigmaMin) && (spatialSigmaMax == other.spatialSigmaMax);
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return Float.valueOf(h).hashCode() ^ Float.valueOf(hMin).hashCode() ^ Float.valueOf(hMax).hashCode() ^ Integer.valueOf(r).hashCode();
+		return Float.valueOf(rangeSigma).hashCode() ^ Float.valueOf(rangeSigmaMin).hashCode() ^ Float.valueOf(rangeSigmaMax).hashCode() ^
+			   Float.valueOf(spatialSigma).hashCode() ^ Float.valueOf(spatialSigmaMin).hashCode() ^ Float.valueOf(spatialSigmaMax).hashCode();
 	}
 
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
-		// Suggested "ideal" denoising parameter
-	    r = 6;
-  	    h = 33.7677001953125f * noiseEstimate * noiseEstimate - 20.3271179199219f * noiseEstimate - 0.0491275787353516f;
-  	    
-  	    // FIXME - manual optimization
-  	    h /= 2.0f;
+		// TODO
 		
-		// Heuristic for useful range
-		hMin = 0.001f;
-		hMax = h * 2.0f;
-		
-//		System.out.println("BilateralParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
+		System.out.println("BilateralParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> rangeSigma=" + rangeSigma + " ["+ rangeSigmaMin + ", " + rangeSigmaMax + "]" +
+				                                                                                  " spatialSigma=" + spatialSigma + " ["+ spatialSigmaMin + ", " + spatialSigmaMax + "]");
 
 	}
 }
