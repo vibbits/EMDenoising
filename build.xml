@@ -9,9 +9,13 @@
 	<property name="qlib.file" value="${qlib.dir}/vib_denoising_algorithms.qlib"/>
 	<property name="quasarbridge" value="JavaQuasarBridge-0.0.1.jar"/>
 	<property name="plugin.name" value="EM_Denoising-0.0.1.jar"/>
-	<property name="fiji.plugins.dir" value="e:/Fiji.app/plugins"/>
-	<property name="quasar.exe" value="e:/Program Files/Quasar/Quasar.exe"/>
-	
+	<property name="fiji.plugins.dir" value="E:/Fiji.app/plugins"/>
+	<!-- <property name="minimalquasarzip.file" value="E:/git/bits/bioimaging/QuasarPortableInstaller_XXXXX_Windows_x64_runtime/Quasar.zip"/> -->
+	<property name="quasar.exe" value="E:/Program Files/Quasar/Quasar.exe"/>
+
+	<!-- Note: quasar.exe is part of the full Quasar installation (requiring a license key) and is needed to build the .qlib with denoising algorithms from their .q source counterparts. -->
+	<!-- Note: minimalquasarzip.file contains a zipped folder with a minimal Quasar runtime environment. -->
+
 	<path id="classpath">
 		<fileset dir="e:/git/bits/bioimaging/JavaQuasarBridge/dist" includes="${quasarbridge}"/>
 		<fileset dir="e:/git/ImageJRepository" includes="ij-1.51n.jar"/>
@@ -24,7 +28,7 @@
 	</target>
 
 	<target name="check.qlib">
-		<!-- IMPROVEME? should we also check if the .q files in the Quasar installation folder have changed (Quasar got upgraded) -->
+		<!-- IMPROVEME? should we also check if the .q files in the Quasar installation folder have changed (in case Quasar got upgraded) -->
 		<echo message="Checking if qlib needs to be rebuilt"/>
 		<uptodate targetfile="${qlib.file}" property="qlib.uptodate">
 			<srcfiles dir="src/main/quasar/" includes="**/*.q"/>
