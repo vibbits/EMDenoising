@@ -9,7 +9,7 @@ import org.scijava.plugin.Plugin;
 // ----------
 // Installation:
 //    copy JavaQuasarBridge.jar to e:\Fiji.app\plugins
-//    copy EM_Denoising-0.0.1.jar to e:\Fiji.app\plugins
+//    copy DenoisEM-0.0.1.jar to e:\Fiji.app\plugins
 //
 // Prerequisites:
 //    Fiji
@@ -21,9 +21,11 @@ import org.scijava.plugin.Plugin;
 //
 // Aside: to compile a .q to .qlib
 //    "e:\Program Files\Quasar\Quasar.exe" --make_lib (--optimize) --gpu nlmeans_denoising_stillimages.q
+//
+// TODO: update comment
 
 
-@Plugin(type = Command.class, menuPath = "Plugins>EM Denoising>Denoise")
+@Plugin(type = Command.class, menuPath = "Plugins>DenoisEM>Denoise")
 public class DenoisingIJ2 implements Command
 {
 	@Parameter
@@ -32,7 +34,9 @@ public class DenoisingIJ2 implements Command
 	@Override
 	public void run() 
 	{
-		log.info("VIB EM Denoising plugin");
+		log.info("VIB DenoisEM plugin");
+		
+		// TODO
 
 		// A little experiment with the macro recorder 
 		// See e.g. http://imagej.net/PlugIn_Design_Guidelines

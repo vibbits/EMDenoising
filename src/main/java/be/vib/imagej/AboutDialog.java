@@ -24,7 +24,7 @@ import org.scijava.plugin.Plugin;
 
 import ij.IJ;
 
-@Plugin(type = Command.class, menuPath = "Plugins>EM Denoising>About")
+@Plugin(type = Command.class, menuPath = "Plugins>DenoisEM>About")
 public class AboutDialog implements Command
 {
 	@Override
@@ -32,7 +32,7 @@ public class AboutDialog implements Command
 	{		
 		boolean modal = true;  // do not return from the run() method before the user closes the modal dialog
 		Frame parent = IJ.getInstance();		
-		JDialog dialog = new JDialog(parent, "About EM Denoising", modal);
+		JDialog dialog = new JDialog(parent, "About DenoisEM", modal);
 		dialog.add(new AboutPanel());
 		dialog.pack();
 		dialog.setLocationRelativeTo(null); // center the dialog on the screen
@@ -54,7 +54,7 @@ public class AboutDialog implements Command
 			// For example https://stackoverflow.com/questions/30655246/html-text-in-jlabel-ignores-alignment-with-text-align-center
 			
 			JLabel title = new JLabel("<html><div align='center'>" + 
-			                          "<font size=+1>EM Denoising v0.0.1</font><br>" + 
+			                          "<font size=+1>DenoisEM v0.0.1</font><br>" +   // TODO: centralize the version number, or extract it from the jar filename or so
 			                          "</html>", JLabel.CENTER);
 						
 			JLabel subTitle = new JLabel("<html><div align='center'>" + 
@@ -62,7 +62,7 @@ public class AboutDialog implements Command
                                          "</html>", JLabel.CENTER);
 			
 			JLabel copyright = new JLabel("<html><div align='center'>" + 
-                                          "&copy; VIB 2017. All rights reserved." + 
+                                          "&copy; VIB 2017-2018. All rights reserved." + 
                                           "</html>", JLabel.CENTER);
 			
 			JPanel logos = new LogosPanel();
