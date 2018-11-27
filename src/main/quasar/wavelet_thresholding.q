@@ -44,7 +44,7 @@ function [] = main()
     fig0=imshow(img_noisy,[0,1])
     title(sprintf("Input image - psnr=%f dB", psnr(img_noisy,img)))
     fig1=imshow(img_den,[0,1])
-    title(sprintf("BLS-GSM - psnr=%f dB", psnr(img_den,img)))
+    title(sprintf("Wavelet thresholding - psnr=%f dB", psnr(img_den,img)))
     fig0.connect(fig1)
 
 end
