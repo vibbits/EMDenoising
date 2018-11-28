@@ -51,5 +51,11 @@ public class WizardPage extends JPanel
 	{
 		return true;
 	}
+
+	// override me
+	public boolean isDone()
+	{
+		return false;
+	}
 }
 

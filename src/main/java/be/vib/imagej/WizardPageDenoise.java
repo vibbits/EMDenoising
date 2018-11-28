@@ -17,6 +17,7 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 	private JProgressBar progressBar;
 	private RangeSelectionPanel rangeSelectionPanel;
 	private boolean busyDenoising = false;
+	private boolean done = false;  // Have we finished a denoising task? If so, the Done button in the wizard will get enabled.
 	private DenoiseSwingWorker worker;
 	
 	public WizardPageDenoise(Wizard wizard, String name)
@@ -95,6 +96,7 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		
 		Runnable whenDone = () -> {
 			busyDenoising = false;
+			done = true;
 			cancelButton.setVisible(false);
 			rangeSelectionPanel.setEnabled(true);
 			statusLabel.setText(worker.isCancelled() ? "Denoising cancelled": "Denoising done");
@@ -143,6 +145,7 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		// and returned to the denoising panel. So some status messages or buttons may need to be updated.
 		
 		busyDenoising = false;
+		done = false;
 		
 		rangeSelectionPanel.aboutToShow();
 		
@@ -159,6 +162,12 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 		return !busyDenoising;
 	}
 
+	@Override
+	public boolean isDone()
+	{
+		return done;
+	}
+	
 	@Override
 	public void handleImageRangeChangeEvent(ImageRangeChangeEvent e)
 	{

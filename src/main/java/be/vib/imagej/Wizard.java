@@ -36,8 +36,7 @@ public class Wizard extends JDialog
 	private JLabel crumbs;  // "bread crumbs" at the top, showing where the user is in the linear wizard
 	
 	private JButton backButton;
-	private JButton nextButton;
-	// No cancel or finish buttons for now
+	private JButton nextButton;  // the nextButton serves either as a Next or as a Done button.
 	
 	private WizardModel model;
 
@@ -85,14 +84,19 @@ public class Wizard extends JDialog
 			@Override
 		    public void windowClosing(WindowEvent e)
 			{ 
-				setVisible(false);
-				
-				// Start with a clean slate next time we display the wizard.
-				model.reset();
-				
-				goToFirstPage();
+				close();
 			}
 		});		
+	}
+	
+	private void close()
+	{
+		setVisible(false);
+		
+		// Start with a clean slate next time we display the wizard.
+		model.reset();
+		
+		goToFirstPage();
 	}
 	
 	private void buildUI(String title)
@@ -139,6 +143,14 @@ public class Wizard extends JDialog
 		
 		if (source != backButton && source != nextButton)
 			return;
+		
+		if (source == nextButton && getPage(currentPageIdx).isDone())
+		{
+			// The next/done button is in the Done state.
+			// It was clicked, so close the window.
+			close();
+			return;
+		}
 								
 		int newPageIdx = (source == backButton) ? currentPageIdx - 1 : currentPageIdx + 1;
 
@@ -148,7 +160,7 @@ public class Wizard extends JDialog
 			getPage(newPageIdx).arriveFromNextPage();
 			cardLayout.previous(pagesPanel);
 		}
-		else
+		else // nextButton
 		{
 			getPage(currentPageIdx).goingToNextPage();
 			getPage(newPageIdx).arriveFromPreviousPage();
@@ -174,11 +186,14 @@ public class Wizard extends JDialog
 		int numPages = pagesPanel.getComponentCount();
 		if (numPages == 0)
 			return;
-		
+
 		WizardPage currentPage = getPage(currentPageIdx);
 		
 		backButton.setEnabled((currentPageIdx > 0) && currentPage.canGoToPreviousPage());
-		nextButton.setEnabled((currentPageIdx < numPages - 1) && currentPage.canGoToNextPage());		
+		nextButton.setEnabled((currentPageIdx < numPages - 1) && currentPage.canGoToNextPage() || currentPage.isDone());		
+
+		boolean isLastPage = (currentPageIdx == numPages - 1);
+		nextButton.setText(isLastPage ? "Done" : "Next");		
 	}
 	
 	/**
