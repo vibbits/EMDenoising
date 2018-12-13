@@ -27,7 +27,7 @@ class DenoiseSummaryPanel extends JPanel
 	{
 		setBorder(BorderFactory.createTitledBorder("Summary"));
 		
-		JLabel inputImageLabel = new JLabel("Original image:"); // TODO: add number of slices and current slice? If so, we need to listen to current slice changes. Also to image changes if the user were to delete slices from the image while our window is open...
+		JLabel inputImageLabel = new JLabel("Original image:");
 		JLabel denoisedImageLabel = new JLabel("Denoised image:");
 		JLabel denoisingAlgorithmLabel = new JLabel("Denoising algorithm:");
 		
