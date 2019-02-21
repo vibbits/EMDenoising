@@ -179,48 +179,4 @@ public class ImageUtils
 			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
 		}
 	}
-	
-//	/**
-//	 * Returns the maximum pixel value present in the image
-//	 * (or zero for a 0x0 image). It is not necessarily the same
-//	 * as the maximum display value ImageProcessor.getMax().
-//	 * 
-//	 * @param image the image
-//	 * @throws RuntimeException if the image is not 8 or 16 bit / pixel
-//	 */
-//	public static float maxValue(ImageProcessor image)
-//	{
-//		final int n = image.getPixelCount();
-//		
-//		if (image instanceof ByteProcessor)
-//		{
-//			byte[] pixels = (byte[])image.getPixels();
-//			byte max = 0;
-//			for (int i = 0; i < n; i++)
-//			{
-//				byte v = pixels[i];
-//				if (v > max)
-//					max = v;
-//			}
-//			return max;
-//		}
-//		else if (image instanceof ShortProcessor)
-//		{
-//			short[] pixels = (short[])image.getPixels();
-//			short max = 0;
-//			for (int i = 0; i < n; i++)
-//			{
-//				short v = pixels[i];
-//				if (v > max)
-//					max = v;
-//			}
-//			return max;		
-//		}
-//		else
-//		{
-//			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
-//		}
-//	}
-
-	
 }
