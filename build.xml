@@ -7,14 +7,12 @@
 	<property name="q.file" value="src/main/quasar/vib_denoising_algorithms.q"/>
 	<property name="qlib.dir" value="${build.dir}/qlib"/>
 	<property name="qlib.file" value="${qlib.dir}/vib_denoising_algorithms.qlib"/>
-	<property name="quasarbridge" value="JavaQuasarBridge-0.0.1.jar"/>
-	<property name="plugin.name" value="DenoisEM-0.0.1.jar"/>
+	<property name="quasarbridge" value="JavaQuasarBridge-1.0.1.jar"/>
+	<property name="plugin.name" value="DenoisEM-1.0.1.jar"/>
 	<property name="fiji.plugins.dir" value="E:/Fiji.app/plugins"/>
-	<!-- <property name="minimalquasarzip.file" value="E:/git/bits/bioimaging/QuasarPortableInstaller_XXXXX_Windows_x64_runtime/Quasar.zip"/> -->
 	<property name="quasar.exe" value="E:/Program Files/Quasar/Quasar.exe"/>
 
 	<!-- Note: quasar.exe is part of the full Quasar installation (requiring a license key) and is needed to build the .qlib with denoising algorithms from their .q source counterparts. -->
-	<!-- Note: minimalquasarzip.file contains a zipped folder with a minimal Quasar runtime environment. -->
 
 	<path id="classpath">
 		<fileset dir="e:/git/bits/bioimaging/JavaQuasarBridge/dist" includes="${quasarbridge}"/>
