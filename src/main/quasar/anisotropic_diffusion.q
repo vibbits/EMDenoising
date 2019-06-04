@@ -65,14 +65,6 @@ end
 % Returns:
 % img_den - denoised image
 function img_den:mat = denoise_anisotropic_diffusion(img:mat,niter:int=5,dt:scalar=0.2,k:scalar=40,diff_type:string="exp")
-	%%%%%%
-	% test test test test
-    % sigma_est = estimate_noise_liu(img)
-    % k_est = 2.90186309814453*sigma_est^2 + 1.53053665161133*sigma_est + 0.00475215911865234
-	% print(sigma_est);
-	% print(k_est);
-	%%%%%%
-
     % initialization
     img_den = copy(img)
     dx = 1
