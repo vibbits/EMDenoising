@@ -36,6 +36,7 @@
 	<target name="make.qlib" depends="check.qlib" unless="qlib.uptodate">
 		<mkdir dir="${qlib.dir}"/>
 		<exec executable="${quasar.exe}">
+			<arg value="--rebuild"/>
 			<arg value="--make_lib"/>
 			<arg value="--gpu"/>
 			<arg value="${q.file}"/>
