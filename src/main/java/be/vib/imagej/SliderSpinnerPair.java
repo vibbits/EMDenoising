@@ -10,7 +10,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-// TODO: explain class
+// This class pairs a spinner with a numeric edit field such that changes to one automatically updates the other.
 
 class SliderSpinnerPair implements ChangeListener
 {

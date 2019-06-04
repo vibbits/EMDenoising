@@ -59,7 +59,8 @@ public class NoiseEstimator implements Callable<Float>
 		if (liuNoiseEstimation)
 		{
 			QFunction estimateNoise = new QFunction("V_estimate_noise(mat)"); 
-			// Note: the V_ is a workaround for a problem in the current version of Quasar when the function name (estimate_noise) is identical to the source file name (estimate_noise.q)
+			// Note: the V_ prefix was a workaround for a problem in a previous version of Quasar when the function name (estimate_noise)
+			// is identical to the source file name (estimate_noise.q). It can probably be removed again.
 			noise = estimateNoise.apply(noisyImageCube);
 		}
 		else

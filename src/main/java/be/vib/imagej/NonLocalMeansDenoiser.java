@@ -74,7 +74,7 @@ public class NonLocalMeansDenoiser extends Denoiser
 
 		QValue denoisedImageCube = nlmeansD.apply(noisyImageCube,
   						                          blurKernel,
-							                      new QValue(params.deconvolutionParams.lambda),  // FIXME: see nlmeans.q (lambda depends on decorrelate or not)
+							                      new QValue(params.deconvolutionParams.lambda),
 							                      new QValue(params.deconvolutionParams.numIterations),
 							                      new QValue(params.halfSearchSize),
 							                      new QValue(params.halfBlockSize),
@@ -113,7 +113,7 @@ public class NonLocalMeansDenoiser extends Denoiser
 
 		QValue denoisedImageCube = nlmeansCD.apply(noisyImageCube,
 							                       blurKernel,
-							                       new QValue(params.deconvolutionParams.lambda),   // FIXME: see nlmeans.q (lambda depends on decorrelate or not)
+							                       new QValue(params.deconvolutionParams.lambda),
 							                       new QValue(params.deconvolutionParams.numIterations),
 							                       new QValue(params.halfSearchSize),
 							                       new QValue(params.halfBlockSize),

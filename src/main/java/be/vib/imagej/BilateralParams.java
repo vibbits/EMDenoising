@@ -83,7 +83,7 @@ public class BilateralParams extends DenoiseParams
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
-		// TODO
+		// IMPROVEME: adapt parameter defaults based on noise estimate
 		
 		System.out.println("BilateralParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> rangeSigma=" + rangeSigma + " ["+ rangeSigmaMin + ", " + rangeSigmaMax + "]" +
 				                                                                                  " spatialSigma=" + spatialSigma + " ["+ spatialSigmaMin + ", " + spatialSigmaMax + "]");

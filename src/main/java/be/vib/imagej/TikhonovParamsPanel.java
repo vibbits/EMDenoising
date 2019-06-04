@@ -35,7 +35,6 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 
 		// --		
 		JLabel lambdaLabel = new JLabel("Lambda:");
-		// FIXME: lambdaLabel.setToolTipText("xxxx");
 		
 		lambdaPair = new SliderFieldPair(0, 100, floatFormat, TikhonovParams.lambdaMin, TikhonovParams.lambdaMax);
 		lambdaPair.setValue(params.deconvolution ? params.lambda2 : params.lambda1);

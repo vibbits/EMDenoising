@@ -47,8 +47,11 @@ public abstract class Denoiser implements Callable<ImageProcessor>
 	
 	public int imageMargin()
 	{
-		 // FIXME: Must be dependent on algorithm parameters to avoid artifacts along tile boundaries.
-		//         For example, in case of the GaussianDenoiser with sigma=30 tile boundaries are visible.
+		// IMPROVEME: The margin must be dependent on algorithm parameters to avoid artifacts along tile boundaries.
+		// For normal parameter values however, test shows that a 16 pixel margin amply suffices, but it is in principle 
+		// possible to manually enter large parameter values in the user interface that might trigger tiling artifacts.
+		// (In practice this is not likely to happen because these large values would imply blurring
+		// so large as to make the denoised image useless.)
 		return 16;
 	}
 }

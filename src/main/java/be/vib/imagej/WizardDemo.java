@@ -9,7 +9,7 @@ public class WizardDemo
 	public static void main(String[] args) throws IOException
 	{
 		WizardModel model = new WizardModel();		
-		model.setImage(new ImagePlus("E:\\git\\DenoisingIJ2Repository\\DenoisingIJ2\\2013_11_28_arabidopsis_root_0086_crop.png"));
+		model.setImage(new ImagePlus("E:\\arabidopsis.png"));
 //		model.imagePlus.show();
 		
 		Wizard wizard = new Wizard("EM Denoising wizard", model);

@@ -88,12 +88,11 @@ public class AnisotropicDiffusionParams extends DenoiseParams
 		numIterations = 5;
 		stepSize = 0.2f;
 		
-	    // FIXME - manual optimization
+	    // Manually tweaked defaults
 		stepSize = 0.1f;
 		numIterations = 10;
 	    diffusionFactor /= 10.0f;
 	    
-		
 		// Heuristic for useful range
 		diffusionFactorMin = 0.0001f;
 		diffusionFactorMax = diffusionFactor * 2.0f;

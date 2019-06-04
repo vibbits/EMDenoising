@@ -30,7 +30,6 @@ class TotalVariationParamsPanel extends DenoiseParamsPanelBase
 
 		// --		
 		JLabel lambdaLabel = new JLabel("Lambda:");
-		//lambdaLabel.setToolTipText("XXX");
 		
 		lambdaPair = new SliderFieldPair(0, 100, floatFormat, TotalVariationParams.lambdaMin, TotalVariationParams.lambdaMax);
 		lambdaPair.setValue(params.lambda);

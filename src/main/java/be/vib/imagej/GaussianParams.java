@@ -64,7 +64,7 @@ public class GaussianParams extends DenoiseParams
 		// Suggested "ideal" denoising parameter
 		sigma = 8.06167602539063f * noiseEstimate + 0.534878730773926f;
 		
-		// FIXME - manual optimization
+		// Manual tweaking
 		sigma *= 0.75f;
 		
 		// Heuristic for useful sigma parameter range.

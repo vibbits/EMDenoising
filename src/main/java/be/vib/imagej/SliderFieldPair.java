@@ -11,7 +11,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-// TODO: explain class
+// This class pairs a slider and a numeric edit field such that changes to one automatically updates the other.
 // 			
 // An alternative design for different widgets that need to stay synchronized modifying the same data (one float, one int, which complicates the issue a bit):
 // http://docs.oracle.com/javase/tutorial/uiswing/components/model.html

@@ -69,7 +69,7 @@ public class WaveletThresholdingParams extends DenoiseParams
 		// Suggested "ideal" denoising parameter
 		threshold = 6.83660888671875f * noiseEstimate * noiseEstimate + 2.34318542480469f * noiseEstimate - 0.00547122955322266f;
 		
-		// FIXME? Manually optimized, why does above formula not yield a better result?
+		// Manual tweaking of the defaults
 		threshold /= 8.0f;
 		
 		// Heuristic for useful range

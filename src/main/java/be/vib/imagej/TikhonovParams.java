@@ -4,11 +4,11 @@ import java.util.Properties;
 
 public class TikhonovParams extends DenoiseParams
 {
-	public static final float lambdaMin = 0.02f; // CHECKME: the lowest value give a useless result when doing deconvolution
-	public static final float lambdaMax = 8.0f; // CHECKME: 5 is better?
+	public static final float lambdaMin = 0.02f; // IMPROVEME: the lowest value give a useless result when doing deconvolution
+	public static final float lambdaMax = 8.0f;
 	
-	public static final float sigmaMin = 0.01f; // CHECKME
-	public static final float sigmaMax = 5.0f; // CHECKME
+	public static final float sigmaMin = 0.01f;
+	public static final float sigmaMax = 5.0f;
 	
 	public static final int iterationsMin = 1;
 	public static final int iterationsMax = 100;
@@ -91,12 +91,12 @@ public class TikhonovParams extends DenoiseParams
 	{
 		assert(noiseEstimate >= 0);
 
-		// FIXME - can we come up with good initial values based on the noise estimate?
+		// IMPROVEME: can we come up with good initial values based on the noise estimate, for now we hard-code default parameters
 		deconvolution = false;
 		numIterations = 50;
 		lambda1 = 0.5f;
 		lambda2 = 1.5f;
 		sigma = 1.5f;
-		System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda=" + (deconvolution ? lambda2 : lambda1) + " sigma=" + sigma + " (for now independent of noise estimate)");
+		// System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda=" + (deconvolution ? lambda2 : lambda1) + " sigma=" + sigma + " (for now independent of noise estimate)");
 	}
 }

@@ -68,7 +68,7 @@ public class NonLocalMeansParams extends DenoiseParams
 		public static final int numIterationsMin = 5;
 		public static final int numIterationsMax = 30;
 		
-		public float lambda;   // trade-off denoising versus deconvolution (lower lambda gives more aggressive sharpening)
+		public float lambda;   // trade-off denoising versus deconvolution (lower lambda gives more aggressive sharpening); depends on decorrelation too, but for now we never perform decorrelation
 		public int numIterations;
 		
 		public DeconvolutionParams()

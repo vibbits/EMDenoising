@@ -68,13 +68,11 @@ public class TotalVariationParams extends DenoiseParams
 	{
 		assert(noiseEstimate >= 0);
 		
-		// Suggested "ideal" denoising parameters
-		
-		// FIXME: base the defaults (and their range?) on the noise estimate
-		
+		// Suggested default denoising parameters
+		// IMPROVEME: can we set better default parameters based on the estimated noise level in the image?
 		lambda = 0.05f;
 		numIterations = 100;
 		
-		System.out.println("TotalVariationParams.setDefaultParams noiseEstimate=" + noiseEstimate + " lambda=" + lambda + " (for now independent of noise estimate)");
+		// System.out.println("TotalVariationParams.setDefaultParams noiseEstimate=" + noiseEstimate + " lambda=" + lambda + " (for now independent of noise estimate)");
 	}
 }
