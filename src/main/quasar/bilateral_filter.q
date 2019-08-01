@@ -7,7 +7,7 @@
 {!author name="Joris Roels"}
 {!doc category="Image Processing/Filters"}
 
-import "imfilter.q"
+import "gaussian_filter.q"
 
 % Function: main
 % 
@@ -46,7 +46,117 @@ function [] = main()
     
 end
 
-% Function: bilateral_filter
+% Function: bilateral_filter2d
+% 
+% 2D Fast bilateral filter implementation of
+%   K. N. Chaudhury, D. Sage, and M. Unser, 
+%   "Fast O(1) bilateral filtering using trigonometric range kernels," 
+%   IEEE Transactions on Image Processing
+% 
+% Usage:
+%   : function [y : cube] = bilateral_filter2d(x : cube'const, s_r : scalar, s_s : scalar, T : int = 255)
+% 
+% Parameters:
+% x - input image
+% s_r - range damping parameter
+% s_s - spatial damping parameter
+% T - dynamic range
+%
+% Notes:
+% "Small" values of s_r would lead to a large number of iterations N and to numeric accuracy issues
+% in the implementation. To avoid this the number of iterations N will be limited to 100. This
+% corresponds to a minimum s_r value of (2*T)/pi/sqrt(Nmax) with Nmax=100.
+% 
+% Returns:
+% y - filtered image
+function [y:cube] = bilateral_filter2d(x:cube, s_r:scalar=16, s_s:scalar=0.5, T:int=255)
+
+    Nmax = 100
+
+    gamma = pi/(2*T)
+    rho = gamma*s_r
+    if s_r > 1/(gamma.^2)
+        N = Nmax
+    else
+        N = floor(1/(rho.^2))
+    endif
+    
+    % Avoid values of N larger than Nmax (about 100) because of numeric overflow issues
+    % (caused by the 1/2^N and the combinatorial function in the code below).
+    N = min(N, Nmax)
+        
+    v = gamma * x / (rho * sqrt(N))
+    num = zeros(size(x))
+    den = zeros(size(x))
+    for n = 0..N
+        h = cos((2*n-N)*v)
+        g = x .* h
+        d = (1 / 2^N) * comb(N, n) * h
+        hh = gaussian_filter2d(h, s_s)
+        gg = gaussian_filter2d(g, s_s)
+        num = num + d .* gg
+        den = den + d .* hh
+    end
+    y = num./den  
+      
+end
+
+% Function: bilateral_filter3d
+% 
+% 3D Fast bilateral filter implementation of
+%   K. N. Chaudhury, D. Sage, and M. Unser, 
+%   "Fast O(1) bilateral filtering using trigonometric range kernels," 
+%   IEEE Transactions on Image Processing
+% 
+% Usage:
+%   : function [y : cube] = bilateral_filter3d(x : cube'const, s_r : scalar, s_s : scalar, T : int = 255)
+% 
+% Parameters:
+% x - input image
+% s_r - range damping parameter
+% s_s - spatial damping parameter
+% T - dynamic range
+%
+% Notes:
+% "Small" values of s_r would lead to a large number of iterations N and to numeric accuracy issues
+% in the implementation. To avoid this the number of iterations N will be limited to 100. This
+% corresponds to a minimum s_r value of (2*T)/pi/sqrt(Nmax) with Nmax=100.
+% 
+% Returns:
+% y - filtered image
+function [y:cube] = bilateral_filter3d(x:cube, s_r:scalar=16, s_s:scalar=0.5, T:int=255)
+
+    Nmax = 100
+
+    gamma = pi/(2*T)
+    rho = gamma*s_r
+    if s_r > 1/(gamma.^2)
+        N = Nmax
+    else
+        N = floor(1/(rho.^2))
+    endif
+    
+    % Avoid values of N larger than Nmax (about 100) because of numeric overflow issues
+    % (caused by the 1/2^N and the combinatorial function in the code below).
+    N = min(N, Nmax)
+        
+    v = gamma * x / (rho * sqrt(N))
+    num = zeros(size(x))
+    den = zeros(size(x))
+    for n = 0..N
+        h = cos((2*n-N)*v)
+        g = x .* h
+        d = (1 / 2^N) * comb(N, n) * h
+        hh = gaussian_filter3d(h, s_s)
+        gg = gaussian_filter3d(g, s_s)
+        num = num + d .* gg
+        den = den + d .* hh
+    end
+    y = num./den    
+    
+end
+
+% Function: bilateral_filter_denoise
 % 
 % Fast bilateral filter implementation of
 %   K. N. Chaudhury, D. Sage, and M. Unser, 
@@ -71,33 +181,8 @@ end
 % y - filtered image
 function [y:cube] = bilateral_filter_denoise(x:cube, s_r:scalar, s_s:scalar, T:int=255)
 
-    Nmax = 100
-
-    gamma = pi/(2*T)
-    rho = gamma*s_r
-    if s_r > 1/(gamma.^2)
-        N = Nmax
-    else
-        N = floor(1/(rho.^2))
-    endif
-    
-    % Avoid values of N larger than Nmax (about 100) because of numeric overflow issues
-    % (caused by the 1/2^N and the combinatorial function in the code below).
-    N = min(N, Nmax)
+    y = bilateral_filter2d(x, s_r, s_s, T)
         
-    v = gamma * x / (rho * sqrt(N))
-    num = zeros(size(x))
-    den = zeros(size(x))
-    for n = 0..N
-        h = cos((2*n-N)*v)
-        g = x .* h
-        d = (1 / 2^N) * comb(N, n) * h
-        hh = gaussian_filter(h, s_s, 0, "mirror")
-        gg = gaussian_filter(g, s_s, 0, "mirror")
-        num = num + d .* gg
-        den = den + d .* hh
-    end
-    y = num./den    
 end
 
 % Function: comb
