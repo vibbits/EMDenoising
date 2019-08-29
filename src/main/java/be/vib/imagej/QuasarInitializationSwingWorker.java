@@ -21,7 +21,7 @@ public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 	@Override
 	public Void doInBackground() throws InterruptedException, ExecutionException
 	{	
-		// Use the QUASAR_HOST environment variable to specify where to find the Quasar runtime.
+		// Use the QUASAR_PATH environment variable to specify where to find the Quasar runtime.
 		// If this variable is set, then Quasar will be started from there.
 		// If this variable is not set, then set it to point to the Fiji.app\Quasar folder. A minimal Quasar should have been installed there.
 		String quasarPath = JavaQuasarBridge.getQuasarPath();
