@@ -71,7 +71,7 @@ public class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 			}
 		}
 		
-		String title = noisyImagePlus.getTitle() + rangeString + " ["+ algorithm.getReadableName() + "]";
+		String title = noisyImagePlus.getTitle() + rangeString + " ["+ algorithm.getReadableName() + "]";  // IMPROVEME: the title will not be unique when denoising with the same algorithm (and different params) more than once
 		return title;
 	}
 	
