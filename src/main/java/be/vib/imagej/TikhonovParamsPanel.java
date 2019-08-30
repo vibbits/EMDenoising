@@ -75,7 +75,7 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		
 		deconvolutionCheckBox = new JCheckBox("Apply deconvolution");
 		deconvolutionCheckBox.setSelected(params.deconvolution);
-		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); EnableDeconvolutionControls(params.deconvolution); fireParamsChangeEvent(); });
+		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); lambdaPair.setValue(params.deconvolution ? params.lambda2 : params.lambda1); EnableDeconvolutionControls(params.deconvolution); fireParamsChangeEvent(); });
 		deconvolutionCheckBox.setToolTipText("Sharpen the image.");
 
 		// Update controls that are dependent on whether we want deconvolution or not.

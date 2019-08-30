@@ -4,7 +4,7 @@ import java.util.Properties;
 
 public class TikhonovParams extends DenoiseParams
 {
-	public static final float lambdaMin = 0.02f; // IMPROVEME: the lowest value give a useless result when doing deconvolution
+	public static final float lambdaMin = 0.02f; // IMPROVEME: the lowest value gives a useless result when doing deconvolution
 	public static final float lambdaMax = 8.0f;
 	
 	public static final float sigmaMin = 0.01f;
@@ -16,7 +16,7 @@ public class TikhonovParams extends DenoiseParams
 	public static final int blurKernelSize = 15;
 	
 	public boolean deconvolution;
-	public float lambda1; // only used if deconvolution == false
+	public float lambda1; // only used if deconvolution == false (note: having two lambdas is a bit confusing, but serves to handle the situation where deconvolution gives best results with a different lambda than the best lambda when not doing deconvolution)
 	public float lambda2; // only used if deconvolution == true
 	public float sigma; // only used if deconvolution == true
 	public int numIterations;
