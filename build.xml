@@ -8,7 +8,7 @@
 	<property name="qlib.dir" value="${build.dir}/qlib"/>
 	<property name="qlib.file" value="${qlib.dir}/vib_denoising_algorithms.qlib"/>
 	<property name="quasarbridge" value="JavaQuasarBridge-1.0.1.jar"/>
-	<property name="plugin.name" value="DenoisEM-1.0.1.jar"/>
+	<property name="plugin.name" value="DenoisEM-1.0.2.jar"/>
 	<property name="fiji.plugins.dir" value="E:/Fiji.app/plugins"/>
 	<property name="quasar.exe" value="E:/Program Files/Quasar/Quasar.exe"/>
 

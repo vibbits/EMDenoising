@@ -54,7 +54,7 @@ public class AboutDialog implements Command
 			// For example https://stackoverflow.com/questions/30655246/html-text-in-jlabel-ignores-alignment-with-text-align-center
 			
 			JLabel title = new JLabel("<html><div align='center'>" + 
-			                          "<font size=+1>DenoisEM v1.0.1</font><br>" +   // TODO: centralize the version number, or extract it from the jar filename or so
+			                          "<font size=+1>DenoisEM v1.0.2</font><br>" +   // TODO: centralize the version number, or extract it from the jar filename or so
 			                          "</html>", JLabel.CENTER);
 						
 			JLabel subTitle = new JLabel("<html><div align='center'>" + 
