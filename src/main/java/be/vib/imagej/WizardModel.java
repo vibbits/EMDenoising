@@ -24,7 +24,7 @@ public class WizardModel
 
 	private ImageProcessor noisyPreview; // a small region of interest cropped from the original noisy image
 	
-	private float noiseEstimate;  // estimated standard deviation of the noise in the ([0, 1] normalized) noisy input image (< 0 means noise not estimated yet); normalization
+	private float noiseEstimate;  // estimated standard deviation of the noise in the ([0, 1] normalized) noisy input image (< 0 means noise not estimated yet)
 	
 	public static final int maxPreviewSize = 512; // max size of the denoising preview windows, and thus of the ROI selected on the image
 	

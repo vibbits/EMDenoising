@@ -1,5 +1,7 @@
 package be.vib.imagej;
 
+// Class representing a "key" for looking up values in our cache with denoising previews:
+// a key is the combination of a specific denoising algorithm and its parameters.
 public class DenoisePreviewCacheKey
 {
 	private Algorithm.Name name;

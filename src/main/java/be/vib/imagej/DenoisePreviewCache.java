@@ -1,10 +1,9 @@
 package be.vib.imagej;
 
-import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class DenoisePreviewCache extends LinkedHashMap<DenoisePreviewCacheKey, BufferedImage>
+public class DenoisePreviewCache extends LinkedHashMap<DenoisePreviewCacheKey, DenoisePreviewCacheValue>
 {
     private int capacity;
  
@@ -15,7 +14,7 @@ public class DenoisePreviewCache extends LinkedHashMap<DenoisePreviewCacheKey, B
     }
  
     @Override
-    protected boolean removeEldestEntry(final Map.Entry<DenoisePreviewCacheKey, BufferedImage> eldest)
+    protected boolean removeEldestEntry(final Map.Entry<DenoisePreviewCacheKey, DenoisePreviewCacheValue> eldest)
     {
         return size() >= capacity;
     }

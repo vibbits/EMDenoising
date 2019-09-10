@@ -2,6 +2,7 @@ package be.vib.imagej;
 
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,8 @@ import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
 
 import be.vib.bits.QExecutor;
+import ij.ImagePlus;
+import ij.ImageStack;
 import ij.process.ImageProcessor;
 
 public class WizardPageDenoisingAlgorithm extends WizardPage 
@@ -33,6 +36,8 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	private ImagePanel denoisedImagePanel;
 	
 	private PreviewPanel previewPanel;
+	
+	private JLabel blurEstimateLabel;
 	
 	private Map<Algorithm.Name, JRadioButton> buttonsMap;
 	
@@ -51,15 +56,29 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{
 		Algorithm[] algorithms = wizard.getModel().getAlgorithms();
 		
-		JPanel algoChoicePanel = createAlgorithmChoicePanel(algorithms);
+		JPanel leftPanel = createAlgorithmChoicePanel(algorithms);
 
 		algoParamsPanel = createAlgorithmParametersPanel(algorithms);
 		
+		blurEstimateLabel = new JLabel("Estimated blur in denoised image: 0.0");
+		blurEstimateLabel.setToolTipText("Estimated amount of blur in the denoised result (between 0 and 1)");
+
+		JPanel blurEstimationPanel = new JPanel();
+		blurEstimationPanel.setBorder(BorderFactory.createTitledBorder("Image Statistics"));
+		blurEstimationPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		blurEstimationPanel.add(blurEstimateLabel);
+		
+		JPanel rightPanel = new JPanel();
+		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+		rightPanel.add(algoParamsPanel);
+		rightPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+		rightPanel.add(blurEstimationPanel);
+		
 		JPanel algorithmPanel = new JPanel();
 		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
-		algorithmPanel.add(algoChoicePanel);
+		algorithmPanel.add(leftPanel);
 		algorithmPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-		algorithmPanel.add(algoParamsPanel);
+		algorithmPanel.add(rightPanel);
 		
 		previewPanel = new PreviewPanel();
 		
@@ -181,25 +200,39 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				// Note: we have to copy the cache key and value (the denoising parameters object and preview image object)
 				// to ensure they are not modified after we stored them in the cache.
 				DenoisePreviewCacheKey cacheKey = new DenoisePreviewCacheKey(algorithm);
-				BufferedImage cachedImage = previewCache.get(cacheKey);
+				DenoisePreviewCacheValue cached = previewCache.get(cacheKey);
 				
-				if (cachedImage != null)
+				if (cached != null)
 				{
+					BufferedImage cachedImage = cached.denoisedPreview;
+					float blurEstimate = cached.blurEstimate;
+
 					BufferedImage imageCopy = ImageUtils.deepCopy(cachedImage); // copy image, to avoid it losing it if it gets ejected from the cache before it was set on the denoisedImagePanel (CHECKME: copy really needed?)
-					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setImage(imageCopy); }); 
+					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setImage(imageCopy);
+					                                   setBlurEstimateLabel(blurEstimate); }); 
 				}
 				else
 				{
 					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setBusy(true); });
 					
+					// Denoise the preview
 					ImageProcessor denoisedImageProcessor = QExecutor.getInstance().submit(denoiser).get();
 					ImageUtils.CopyDisplayRange(image, denoisedImageProcessor);
+					BufferedImage denoisedImage = denoisedImageProcessor.getBufferedImage();
 					
-					BufferedImage denoisedImage = denoisedImageProcessor.getBufferedImage();   // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
+					// Estimate blur in the denoised preview.
+					// (Right now we always estimate the blur because it is relatively fast, but perhaps we could let the user disable it?
+					// This would make the caching machinery a bit more complicated.)
+					float blurEstimate = QExecutor.getInstance().submit(new BlurEstimator(denoisedImageProcessor)).get();
 					
-					SwingUtilities.invokeLater(() -> { previewCache.put(cacheKey, denoisedImage);
-                                                       denoisedImagePanel.setImage(denoisedImage);
-                                                       denoisedImagePanel.setBusy(false); });
+					// Cache image and blur estimate.
+					DenoisePreviewCacheValue cacheValue = new DenoisePreviewCacheValue(denoisedImage, blurEstimate);
+					previewCache.put(cacheKey, cacheValue);
+                    
+					// Update UI
+					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setImage(cacheValue.denoisedPreview);
+                                                       denoisedImagePanel.setBusy(false); 
+                                                       setBlurEstimateLabel(cacheValue.blurEstimate); });
 				}
 			}
 			catch (InterruptedException | ExecutionException e)
@@ -207,6 +240,11 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
+		}
+		
+		private void setBlurEstimateLabel(float blur)
+		{
+			blurEstimateLabel.setText(String.format("Estimated blur in denoised image: %.3f", blur));
 		}
 	}
 	
