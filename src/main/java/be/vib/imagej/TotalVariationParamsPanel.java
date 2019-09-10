@@ -30,6 +30,7 @@ class TotalVariationParamsPanel extends DenoiseParamsPanelBase
 
 		// --		
 		JLabel lambdaLabel = new JLabel("Lambda:");
+		lambdaLabel.setToolTipText("Larger values yield more noise suppression.");
 		
 		lambdaPair = new SliderFieldPair(0, 100, floatFormat, TotalVariationParams.lambdaMin, TotalVariationParams.lambdaMax);
 		lambdaPair.setValue(params.lambda);
@@ -51,6 +52,7 @@ class TotalVariationParamsPanel extends DenoiseParamsPanelBase
 		JSpinner iterationsSpinner = iterationsPair.getSpinner();
 		
 		JLabel iterationsLabel = new JLabel("Iterations:");
+		iterationsLabel.setToolTipText("A larger value yields a better optimization, but is slower.");
 
 		//
 		

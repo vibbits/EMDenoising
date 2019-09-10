@@ -31,7 +31,7 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 
 		//	
 		JLabel diffusionFactorLabel = new JLabel("Diffusion factor:");
-		diffusionFactorLabel.setToolTipText("Use a larger diffusion factor for more denoising.");
+		diffusionFactorLabel.setToolTipText("A larger factor yields more noise suppression but also more edge blurring.");
 		
 		diffusionFactorPair = new SliderFieldPair(0, 100, floatFormat, params.diffusionFactorMin, params.diffusionFactorMax);
 		diffusionFactorPair.setValue(params.diffusionFactor);
@@ -45,6 +45,7 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		//
 		
 		JLabel stepSizeLabel = new JLabel("Step size:");
+		stepSizeLabel.setToolTipText("A smaller step size approximates the diffusion process better, but requires more iterations.");
 		
 		stepSizePair = new SliderFieldPair(0, 100, floatFormat, AnisotropicDiffusionParams.stepSizeMin, AnisotropicDiffusionParams.stepSizeMax);
 		stepSizePair.setValue(params.stepSize);
@@ -66,6 +67,8 @@ class AnisotropicDiffusionParamsPanel extends DenoiseParamsPanelBase
 		JSpinner iterationsSpinner = iterationsPair.getSpinner();
 		
 		JLabel iterationsLabel = new JLabel("Iterations:");
+		iterationsLabel.setToolTipText("More iterations approximate the diffusion process better.");
+
 
 		//
 		

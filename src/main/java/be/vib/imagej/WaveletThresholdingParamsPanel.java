@@ -36,6 +36,7 @@ class WaveletThresholdingParamsPanel extends DenoiseParamsPanelBase
 		thresholdField.setColumns(5);
 		
 		JLabel thresholdLabel = new JLabel("Threshold:");
+		thresholdLabel.setToolTipText("A larger value yields more noise suppression.");
 		
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);

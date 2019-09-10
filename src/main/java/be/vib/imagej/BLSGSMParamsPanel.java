@@ -38,7 +38,7 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 		sigmaField.setColumns(5);
 		
 		JLabel sigmaLabel = new JLabel("Sigma:");
-		sigmaLabel.setToolTipText("Larger values of sigma yield stronger denoising.");
+		sigmaLabel.setToolTipText("Should be set to the noise standard deviation for best results.");
 
 		//
 		
@@ -51,6 +51,7 @@ class BLSGSMParamsPanel extends DenoiseParamsPanelBase
 		JSpinner scalesSpinner = scalesPair.getSpinner();
 		
 		JLabel scalesLabel = new JLabel("Analysis scales:");
+		scalesLabel.setToolTipText("A larger value models the wavelet frequency scales better.");
 
 		//
 		

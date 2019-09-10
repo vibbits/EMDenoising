@@ -47,6 +47,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		hField.setColumns(5);
 		
 		JLabel hLabel = new JLabel("h:");
+		hLabel.setToolTipText("A larger value yields more noise suppression.");
 		
 		// ----
 		
@@ -60,7 +61,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		lambdaField.setColumns(5);
 		
 		lambdaLabel = new JLabel("lambda:");
-		lambdaLabel.setToolTipText("Denoising versus sharpening trade-off.");
+		lambdaLabel.setToolTipText("Noise suppression versus sharpening trade-off.");
 		
 		// ----
 		
@@ -89,6 +90,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		JSpinner blockSizeSpinner = blockSizePair.getSpinner();
 		
 		JLabel blockSizeLabel = new JLabel("Block Size:");
+		blockSizeLabel.setToolTipText("A larger block size allows bigger similar structures to be averaged.");
 
 		// ----
 		
@@ -101,6 +103,7 @@ class NonLocalMeansParamsPanel extends DenoiseParamsPanelBase
 		JSpinner searchSizeSpinner = searchSizePair.getSpinner();
 		
 		JLabel searchSizeLabel = new JLabel("Search Window:");
+		searchSizeLabel.setToolTipText("A larger search window allows more blocks to be found for averaging, improving denoising.");
 
 		// ----
 		

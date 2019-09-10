@@ -39,6 +39,7 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 		spatialSigmaField.setColumns(5);
 		
 		JLabel spatialSigmaLabel = new JLabel("Spatial sigma:");
+		spatialSigmaLabel.setToolTipText("A larger value removes more noise, and details.");
 
 		//
 		
@@ -52,6 +53,8 @@ class BilateralParamsPanel extends DenoiseParamsPanelBase
 		rangeSigmaField.setColumns(5);
 		
 		JLabel rangeSigmaLabel = new JLabel("Range sigma:");
+		rangeSigmaLabel.setToolTipText("A smaller value preserves edges better.");
+
 
 		//
 		

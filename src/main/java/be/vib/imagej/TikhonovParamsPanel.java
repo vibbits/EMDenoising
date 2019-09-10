@@ -35,6 +35,7 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 
 		// --		
 		JLabel lambdaLabel = new JLabel("Lambda:");
+		lambdaLabel.setToolTipText("Larger values yield more noise suppression.");
 		
 		lambdaPair = new SliderFieldPair(0, 100, floatFormat, TikhonovParams.lambdaMin, TikhonovParams.lambdaMax);
 		lambdaPair.setValue(params.deconvolution ? params.lambda2 : params.lambda1);
@@ -56,6 +57,7 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		JSpinner iterationsSpinner = iterationsPair.getSpinner();
 		
 		JLabel iterationsLabel = new JLabel("Iterations:");
+		iterationsLabel.setToolTipText("Larger values yield better optimization.");
 
 		// ----
 		
@@ -69,7 +71,7 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		sigmaField.setColumns(5);
 		
 		sigmaLabel = new JLabel("Sigma:");
-		sigmaLabel.setToolTipText("Standard deviation of the blur kernel whose effect we are trying to undo.");
+		sigmaLabel.setToolTipText("Standard deviation of the Gaussian blur kernel whose effect we are trying to undo.");
 		
 		//
 		
