@@ -25,12 +25,12 @@ function [] = main()
     img_noisy = img + sigma .* randn(size(img))
     
     % set parameters
-    s_r = 16 % 50
+    s_r = 50
     s_s = 1.5
     
     % denoising
     tic()
-    img_den = bilateral_filter_denoise(img_noisy*255, s_r, s_s, 255)/255
+    img_den = bilateral_filter_denoise(img_noisy * 255, s_r, s_s, 255) / 255
     toc()
     
     % computation of the PSNR
@@ -78,7 +78,7 @@ function [y:cube] = bilateral_filter_denoise(x:cube, s_r:scalar, s_s:scalar, T:i
     if s_r > 1/(gamma.^2)
         N = Nmax
     else
-        N = floor(1/(rho.^2))
+        N = ceil(1/(rho.^2))
     endif
     
     % Avoid values of N larger than Nmax (about 100) because of numeric overflow issues
