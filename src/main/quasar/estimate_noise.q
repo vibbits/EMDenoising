@@ -7,6 +7,7 @@
 %       "Noise level estimation using weak textured patches of a single noisy image," 
 %       2012 19th IEEE International Conference on Image Processing, Orlando, FL, 2012, pp. 665-668
 % March 2017 - Joris Roels
+% Note: the Liu noise estimator is work in progress and currently not used in the denoising plugin.
 %==================================================
 
 {!author name="Joris Roels"}
@@ -86,7 +87,6 @@ end
 function sigma:scalar = estimate_noise_mad(img:mat,r:int=2)
     img_med:mat = immedfilt(img,r)
     sigma = median(transpose(reshape(abs(img-img_med),[size(img,0)*size(img,1)])))[0] / 0.6745
-    % printf("noise MAD sigma= %f (%d x %d) %f %f\n", sigma, size(img,0), size(img,1), min(img), max(img)) % TEST TEST
 end
 
 % Function: estimate_noise_liu
@@ -122,7 +122,7 @@ function sigma:scalar = estimate_noise_liu(img:mat,patch_size:int=7,itr:int=2,co
 %    r = rank(DD)
 %    tr = trace(DD)
 %    
-%    tau0 = gaminv([conf],r/2,2.0*tr/r)[0] % TODO: numerically instable near 0 and 1, should be fixed (using fixed value now)
+%    tau0 = gaminv([conf],r/2,2.0*tr/r)[0] % TODO: numerically instable near 0 and 1, should be fixed (using a fixed tau0 value for now)
     tau0 = 81.8
     
     X = im2col(img,[patch_size,patch_size])
