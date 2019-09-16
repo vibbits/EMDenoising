@@ -4,7 +4,7 @@ import java.util.Properties;
 
 public class TotalVariationParams extends DenoiseParams
 {
-	public static final float lambdaMin = 0.01f;
+	public static final float lambdaMin = 0.0f;
 	public static final float lambdaMax = 1.0f;
 
 	public static final int iterationsMin = 1;
@@ -17,7 +17,7 @@ public class TotalVariationParams extends DenoiseParams
 	
 	public TotalVariationParams()
 	{
-		lambda = 0.05f;
+		lambda = 0.5f;
 		numIterations = 100;
 	}
 	
@@ -68,11 +68,9 @@ public class TotalVariationParams extends DenoiseParams
 	{
 		assert(noiseEstimate >= 0);
 		
-		// Suggested default denoising parameters
-		// IMPROVEME: can we set better default parameters based on the estimated noise level in the image?
-		lambda = 0.05f;
+		lambda = 1.66879832744598f * noiseEstimate * noiseEstimate + 1.1742901802063f * noiseEstimate;
 		numIterations = 100;
 		
-		// System.out.println("TotalVariationParams.setDefaultParams noiseEstimate=" + noiseEstimate + " lambda=" + lambda + " (for now independent of noise estimate)");
+		 System.out.println("TotalVariationParams.setDefaultParams noiseEstimate=" + noiseEstimate + " lambda=" + lambda);
 	}
 }

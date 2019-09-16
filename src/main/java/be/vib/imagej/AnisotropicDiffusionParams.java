@@ -13,18 +13,18 @@ public class AnisotropicDiffusionParams extends DenoiseParams
 	public final String diffusionFunction = "exp";   // "exp" = exponential, "quad" = quadratic
 
 	public float diffusionFactorMin;
-	public float diffusionFactorMax; // CHECKME: does this depend on the range of image pixels e.g. [0, 255] or [0, 65535] or [0, 1]? Does it depend on the actual range of pixel values, not the range implied by the bit depth?
+	public float diffusionFactorMax;
 
-	public float diffusionFactor; // sometimes called k
-	public int numIterations;     // number of diffusion iterations; each iteration takes a time step of size stepSize
-	public float stepSize;        // sometimes called dt
+	public float diffusionFactor;  // sometimes called k
+	public int numIterations;  // number of diffusion iterations; each iteration takes a time step of size stepSize
+	public float stepSize;  // sometimes called dt
 
 	
 	public AnisotropicDiffusionParams()
 	{
 		diffusionFactor = 0.5f;
-		diffusionFactorMin = 0.01f;
-		diffusionFactorMax = 1.0f;
+		diffusionFactorMin = 0.001f;
+		diffusionFactorMax = 1.5f;
 		numIterations = 5;
 		stepSize = 0.2f;
 	}
@@ -32,8 +32,8 @@ public class AnisotropicDiffusionParams extends DenoiseParams
 	public AnisotropicDiffusionParams(float diffusionFactor, int numIterations, float stepSize)
 	{
 		this.diffusionFactor = diffusionFactor;
-		this.diffusionFactorMin = 0.01f;
-		this.diffusionFactorMax = 1.0f;
+		this.diffusionFactorMin = 0.001f;
+		this.diffusionFactorMax = 1.5f;
 		this.numIterations = numIterations;
 		this.stepSize = stepSize;
 	}
@@ -83,20 +83,10 @@ public class AnisotropicDiffusionParams extends DenoiseParams
 	{
 		assert(noiseEstimate >= 0);
 		
-		// Suggested "ideal" denoising parameters
-		diffusionFactor = 2.90186309814453f * noiseEstimate * noiseEstimate + 1.53053665161133f * noiseEstimate + 0.00475215911865234f;
+		diffusionFactor = Math.max(diffusionFactorMin, 2.77789974212646f * noiseEstimate * noiseEstimate + 1.54128849506378f * noiseEstimate);  // note: avoids division by zero for diffusion factor = 0
 		numIterations = 5;
 		stepSize = 0.2f;
-		
-	    // Manually tweaked defaults
-		stepSize = 0.1f;
-		numIterations = 10;
-	    diffusionFactor /= 10.0f;
-	    
-		// Heuristic for useful range
-		diffusionFactorMin = 0.0001f;
-		diffusionFactorMax = diffusionFactor * 2.0f;
 
-//		System.out.println("AnisotropicDiffusionParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> diffusionFactor=" + diffusionFactor + " ["+ diffusionFactorMin + ", " + diffusionFactorMax + "]");
+		System.out.println("AnisotropicDiffusionParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> diffusionFactor=" + diffusionFactor + " ["+ diffusionFactorMin + ", " + diffusionFactorMax + "]");
 	}
 }

@@ -16,9 +16,9 @@ public class BilateralParams extends DenoiseParams
 		
 	public BilateralParams()
 	{
-		rangeSigma = 50.0f;
+		rangeSigma = 5.0f;
 		rangeSigmaMin = 1.0f;
-		rangeSigmaMax = 75.0f;
+		rangeSigmaMax = 200.0f;
 		
 		spatialSigma = 2.0f;
 		spatialSigmaMin = 1.0f;
@@ -29,7 +29,7 @@ public class BilateralParams extends DenoiseParams
 	{
 		this.rangeSigma = rangeSigma;
 		this.rangeSigmaMin = 1.0f;
-		this.rangeSigmaMax = 75.0f;
+		this.rangeSigmaMax = 200.0f;
 
 		this.spatialSigma = spatialSigma;
 		this.spatialSigmaMin = 1.0f;
@@ -83,10 +83,11 @@ public class BilateralParams extends DenoiseParams
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
-		// IMPROVEME: adapt parameter defaults based on noise estimate
+		assert(noiseEstimate >= 0);
+		rangeSigma = 1.0f;
+		spatialSigma = -11.8883485794067f * noiseEstimate * noiseEstimate + 20.3530082702637f * noiseEstimate + 0.154977381229401f;
 		
 		System.out.println("BilateralParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> rangeSigma=" + rangeSigma + " ["+ rangeSigmaMin + ", " + rangeSigmaMax + "]" +
 				                                                                                  " spatialSigma=" + spatialSigma + " ["+ spatialSigmaMin + ", " + spatialSigmaMax + "]");
-
 	}
 }

@@ -11,15 +11,15 @@ public class GaussianParams extends DenoiseParams
 	public GaussianParams()
 	{
 		sigma = 1.5f;
-		sigmaMin = 0.5f;
-		sigmaMax = 5.0f;
+		sigmaMin = 0.001f;
+		sigmaMax = 4.5f;
 	}
 	
 	public GaussianParams(float sigma)
 	{
 		this.sigma = sigma;
-		this.sigmaMin = 0.5f;
-		this.sigmaMax = 5.0f;
+		this.sigmaMin = 0.001f;
+		this.sigmaMax = 4.5f;
 	}
 	
 	public GaussianParams(GaussianParams other)
@@ -61,16 +61,8 @@ public class GaussianParams extends DenoiseParams
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
-		// Suggested "ideal" denoising parameter
-		sigma = 8.06167602539063f * noiseEstimate + 0.534878730773926f;
+		sigma = 8.00950813293457f * noiseEstimate + 0.366672605276108f;
 		
-		// Manual tweaking
-		sigma *= 0.75f;
-		
-		// Heuristic for useful sigma parameter range.
-		sigmaMin = 0.001f;
-		sigmaMax = sigma * 1.2f;
-		
-//		System.out.println("GaussianParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma + " ["+ sigmaMin + ", " + sigmaMax + "]");
+		System.out.println("GaussianParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma + " ["+ sigmaMin + ", " + sigmaMax + "]");
 	}
 }

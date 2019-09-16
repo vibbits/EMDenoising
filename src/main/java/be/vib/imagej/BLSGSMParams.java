@@ -16,7 +16,7 @@ public class BLSGSMParams extends DenoiseParams
 	public BLSGSMParams()
 	{
 		sigma = 0.25f;
-		sigmaMin = 0.01f;
+		sigmaMin = 0.001f;
 		sigmaMax = 0.5f;
 		scales = 4;
 	}
@@ -24,7 +24,7 @@ public class BLSGSMParams extends DenoiseParams
 	public BLSGSMParams(float sigma, int scales)
 	{
 		this.sigma = sigma;
-		this.sigmaMin = 0.01f;
+		this.sigmaMin = 0.001f;
 		this.sigmaMax = 0.5f;
 		this.scales = scales;
 	}
@@ -70,14 +70,9 @@ public class BLSGSMParams extends DenoiseParams
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
-		// Suggested "ideal" denoising parameter
 		scales = 4;
 		sigma = noiseEstimate;
 		
-		// Heuristic for useful range
-		sigmaMin = 0.0f;
-		sigmaMax = sigma * 2f;
-		
-//		System.out.println("BLSGSMParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma +" ["+ sigmaMin + ", " + sigmaMax + "]");
+		System.out.println("BLSGSMParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma +" ["+ sigmaMin + ", " + sigmaMax + "]");
 	}
 }

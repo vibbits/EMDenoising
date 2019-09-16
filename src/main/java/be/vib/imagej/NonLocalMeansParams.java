@@ -106,9 +106,9 @@ public class NonLocalMeansParams extends DenoiseParams
 
 	public NonLocalMeansParams()
 	{
-		h = 2.0f;
+		h = 0.75f;
 		hMin = 0.001f;
-		hMax = 3.0f;
+		hMax = 1.5f;
 		halfBlockSize = 4;
 		halfSearchSize = 5;
 		decorrelation = false;
@@ -120,7 +120,7 @@ public class NonLocalMeansParams extends DenoiseParams
 	{
 		this.h = h;
 		this.hMin = 0.001f;
-		this.hMax = 3.0f;	
+		this.hMax = 1.5f;	
 		this.halfBlockSize = halfBlockSize;
 		this.halfSearchSize = halfSearchSize;
 		this.decorrelation = false;
@@ -195,54 +195,13 @@ public class NonLocalMeansParams extends DenoiseParams
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
-		// ? IMPROVEME ?
-		//
-		// Suggest "ideal" denoising parameters.
-		//
-		// The problem here is that the "ideal" parameters depend on whether or not to do decorrelation and deconvolution.
-		// But we get here before the user specified that in the user interface...
-		// For now we assume no decorrelation and no deconvolution, but that will probably not yield the best denoised result. :-/
-		
 		decorrelation = false;
 		deconvolution = false;
 		halfSearchSize = 5; 
 		halfBlockSize = 4;
-	    h = 3.14044952392578f * noiseEstimate * noiseEstimate + 1.86890029907227f * noiseEstimate + 0.0483760833740234f;
-	    
-	    // FIXME - manual optimization
-	    h /= 10.0f;
-		
-		// Heuristic for useful range
-		hMin = 0.0001f;
-		hMax = h * 2.0f;
+	    h = 2.90171194076538f * noiseEstimate;
 
-//		System.out.println("NonLocalMeansParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
-		
-		// IMPORTANT FIXME: check h parameter range for NLMS without deconvolution on eg. cropped_2013_11_28_arabidopsis_root_0086_8bit.png
-		//                  (the offered h range: hmax=0.276 is too small for denoising to have significant effect)
+		System.out.println("NonLocalMeansParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
 	}
-	
-	/*
-    half_search_size = 5
-    half_block_size = 4
-    
-    h = 3.14044952392578*sigma_est^2 + 1.86890029907227*sigma_est + 0.0483760833740234
-    lambda = 0.6 % automatic lambda estimation suboptimal, manual choice
-    h_c = 1.79779577255249*sigma_est + 0.0488053560256958
-    lambda_c = 0.01 % automatic lambda estimation suboptimal, manual choice
-    num_iter = 20
-    
-    % non-local denoising
-    img_den = denoise_nlmeans(img_noisy, half_search_size, half_block_size, h)
-
-    % non-local denoising (correlated)
-    img_den_c = denoise_nlmeans_c(img_noisy, half_search_size, half_block_size, h_c, em_corr_filter_inv)
-
-    % non-local deconvolution
-    img_dec = deconv_nlmeans(img_noisy,blur_kernel,lambda,num_iter,half_search_size,half_block_size,h)
-
-    % non-local deconvolution (correlated)
-    img_dec_c = deconv_nlmeans_c(img_noisy,blur_kernel,lambda_c,num_iter,half_search_size,half_block_size,h_c,em_corr_filter_inv)
-    */
 
 }

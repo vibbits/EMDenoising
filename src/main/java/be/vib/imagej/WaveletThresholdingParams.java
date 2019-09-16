@@ -13,16 +13,16 @@ public class WaveletThresholdingParams extends DenoiseParams
 	
 	public WaveletThresholdingParams()
 	{
-		threshold = 0.5f;
+		threshold = 1.0f;
 		thresholdMin = 0.0f;
-		thresholdMax = 2.0f;
+		thresholdMax = 2.75f;
 	}
 
 	public WaveletThresholdingParams(float threshold)
 	{
 		this.threshold = threshold;
 		this.thresholdMin = 0.0f;
-		this.thresholdMax = 2.0f;
+		this.thresholdMax = 2.75f;
 	}
 
 	public WaveletThresholdingParams(WaveletThresholdingParams other)
@@ -66,16 +66,8 @@ public class WaveletThresholdingParams extends DenoiseParams
 	{
 		assert(noiseEstimate >= 0);
 		
-		// Suggested "ideal" denoising parameter
-		threshold = 6.83660888671875f * noiseEstimate * noiseEstimate + 2.34318542480469f * noiseEstimate - 0.00547122955322266f;
-		
-		// Manual tweaking of the defaults
-		threshold /= 8.0f;
-		
-		// Heuristic for useful range
-		thresholdMin = 0.001f;
-		thresholdMax = threshold * 1.2f;
-		
-//		System.out.println("WaveletThresholdingParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> threshold=" + threshold + " ["+ thresholdMin + ", " + thresholdMax + "]");
+		threshold = 6.69702291488647f * noiseEstimate * noiseEstimate + 2.10050129890442f * noiseEstimate;
+
+		System.out.println("WaveletThresholdingParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> threshold=" + threshold + " ["+ thresholdMin + ", " + thresholdMax + "]");
 	}
 }
