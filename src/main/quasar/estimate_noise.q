@@ -7,7 +7,10 @@
 %       "Noise level estimation using weak textured patches of a single noisy image," 
 %       2012 19th IEEE International Conference on Image Processing, Orlando, FL, 2012, pp. 665-668
 % March 2017 - Joris Roels
-% Note: the Liu noise estimator is work in progress and currently not used in the denoising plugin.
+%
+% Note: The Liu noise estimator implementation is work in progress. It still has some issues: tau0 hard-coded,
+%       negative eigenvalues for covariance matrix, excessive memory usage even for images of reasonable size - 1500 x 1500 pixels.
+%       For this reason the denoising plugin relies on the MAD noise estimator for now. The Liu estimator is not currently used.
 %==================================================
 
 {!author name="Joris Roels"}
