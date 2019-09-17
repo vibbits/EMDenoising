@@ -71,7 +71,6 @@ public class QuasarInitializationSwingWorker extends SwingWorker<Void, Void>
 	
 	private static String getFijiQuasarPath()
 	{
-		// TODO: check platform (windows, linux, mac) and architecture (32/64 bit) - for now only 64bit Windows is supported
 		return IJ.getDir("imagej") + java.io.File.separator + "Quasar";
 	}
 }
