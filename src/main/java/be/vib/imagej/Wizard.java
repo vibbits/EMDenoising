@@ -1,6 +1,7 @@
 package be.vib.imagej;
 
 import java.awt.BorderLayout;
+
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -9,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
+import java.util.prefs.Preferences;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -36,13 +39,18 @@ public class Wizard extends JDialog
 	private JLabel crumbs;  // "bread crumbs" at the top, showing where the user is in the linear wizard
 	
 	private JButton backButton;
-	private JButton nextButton;  // the nextButton serves either as a Next or as a Done button.
+	private JButton nextButton;  // The nextButton serves either as a Next or as a Done button.
+	
+	private JButton prefsButton; // The button for displaying the Preferences dialog.
 	
 	private WizardModel model;
+	
+	private Preferences prefs;  // Persistent preferences store.
 
 	public Wizard(String title, WizardModel model)
 	{						
 		this.model = model;
+		this.prefs = Preferences.userRoot().node("be/vib/denoisem");
 
 		buildUI(title);
 		setWindowCloseHandler();
@@ -51,6 +59,11 @@ public class Wizard extends JDialog
 	public WizardModel getModel()
 	{
 		return model;
+	}
+	
+	public Preferences getPreferences()
+	{
+		return prefs;
 	}
 	
 	public void build(WizardPage[] pages)
@@ -110,19 +123,22 @@ public class Wizard extends JDialog
 		
 		backButton = new JButton("Back");
 		nextButton = new JButton("Next");
+		prefsButton = new JButton("Preferences");
 		
 		backButton.addActionListener(this);
 		nextButton.addActionListener(this);
-		
+		prefsButton.addActionListener(this);
+
 		buttonsPanel.setLayout(new BorderLayout());
 		
 		Box buttonsBox = new Box(BoxLayout.X_AXIS);
 		buttonsBox.setBorder(new EmptyBorder(new Insets(10, 10, 10, 10)));
+		buttonsBox.add(prefsButton);
+		buttonsBox.add(Box.createHorizontalGlue());  // Push Prefs button left, Back and Next buttons to the right
 		buttonsBox.add(backButton);
 		buttonsBox.add(nextButton);
-		buttonsBox.add(Box.createHorizontalStrut(10));
 		
-		buttonsPanel.add(buttonsBox, BorderLayout.EAST);
+		buttonsPanel.add(buttonsBox);
 		
 		crumbs = new JLabel();
 		crumbs.setBorder(new EmptyBorder(new Insets(10, 10, 10, 10)));
@@ -141,8 +157,15 @@ public class Wizard extends JDialog
 	{
 		Object source = event.getSource();
 		
-		if (source != backButton && source != nextButton)
+		if (source != backButton && source != nextButton && source != prefsButton)
 			return;
+		
+		if (source == prefsButton)
+		{
+			JDialog d = new PreferencesDialog(this, prefs);
+			d.setVisible(true);
+			return;
+		}
 		
 		if (source == nextButton && getPage(currentPageIdx).isDone())
 		{
