@@ -8,15 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
-import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
@@ -30,7 +26,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	// When the queue already holds a task, a new task will replace the old one in the queue. This executor is useful to avoid buildup of unfinished Quasar work.
 	private SaturatingExecutor saturatingExecutor = new SaturatingExecutor(1, 1);
 	
-	private JPanel algoParamsPanel;
+	private JPanel algorithmParamsPanel;
 		
 	private PreviewPanel origPreviewPanel;
 	private PreviewPanel denoisedPreviewPanel;
@@ -54,13 +50,13 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		JPanel algoChoicePanel = createAlgorithmChoicePanel(algorithms);
 
-		algoParamsPanel = createAlgorithmParametersPanel(algorithms);
+		algorithmParamsPanel = createAlgorithmParametersPanel(algorithms);
 		
 		JPanel algorithmPanel = new JPanel();
 		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
 		algorithmPanel.add(algoChoicePanel);
 		algorithmPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-		algorithmPanel.add(algoParamsPanel);
+		algorithmPanel.add(algorithmParamsPanel);
 		
 		origPreviewPanel = new PreviewPanel("Original ROI", wizard.getPreferences());
 		denoisedPreviewPanel = new PreviewPanel("Denoised ROI", wizard.getPreferences());
@@ -127,93 +123,12 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	    button.addActionListener(e -> {
 	    	WizardModel model = wizard.getModel();
 	    	if (model.getAlgorithm().getName() == algorithm.getName()) return;
-    		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.getName().toString());
+    		((CardLayout)algorithmParamsPanel.getLayout()).show(algorithmParamsPanel, algorithm.getName().toString());
 			model.setAlgorithm(algorithm.getName());
 			updateDenoisedPreview();
 	    });
 	    
 	    return button;
-	}
-	
-	public class PreviewPanel extends JPanel
-	{
-		private Preferences preferences;
-		private JLabel titleLabel;
-		private JLabel blurEstimateLabel;
-		private JLabel noiseEstimateLabel;
-		private ImagePanel imagePanel;
-		
-		public PreviewPanel(String title, Preferences preferences)
-		{
-			this.preferences = preferences;
-			
-			titleLabel = new JLabel(title);
-			titleLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-			
-			imagePanel = new ImagePanel(this);
-
-			noiseEstimateLabel = new JLabel("Noise: 0.000");
-			noiseEstimateLabel.setToolTipText("Estimated standard deviation of the noise in the image, with pixel intensities rescaled to the range 0-1.");
-			noiseEstimateLabel.setVisible(wizard.getPreferences().getBoolean("imagestats.shownoise", false));
-			
-			blurEstimateLabel = new JLabel("Blur: 0.000");
-			blurEstimateLabel.setToolTipText("Estimated amount of blur in the image (between 0 and 1)");
-			blurEstimateLabel.setVisible(wizard.getPreferences().getBoolean("imagestats.showblur", false));
-
-			buildUI();
-			
-			addPreferencesListener();
-		}
-		
-		private void buildUI()
-		{
-			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			
-			titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-			noiseEstimateLabel.setAlignmentX(CENTER_ALIGNMENT);
-			blurEstimateLabel.setAlignmentX(CENTER_ALIGNMENT);
-			
-			add(titleLabel);
-			add(imagePanel);
-			add(Box.createVerticalStrut(5));
-			add(noiseEstimateLabel);
-			add(blurEstimateLabel);
-			add(Box.createVerticalStrut(5)); // title label introduces some space at the top, also leave some space at the bottom for visual symmetry			
-		}
-	 	
-	 	private void addPreferencesListener()
-	 	{
-			preferences.addPreferenceChangeListener(new PreferenceChangeListener()
-			{
-		        public void preferenceChange(PreferenceChangeEvent e)
-		        {
-		            boolean show = Boolean.valueOf(e.getNewValue());
-		            if (e.getKey().equals("imagestats.shownoise"))  // TODO: define "imagestats.xxxx" as constants somewhere
-		        	{
-		            	noiseEstimateLabel.setVisible(show);
-		        	}
-		        	else if (e.getKey().equals("imagestats.showblur"))
-		        	{
-		        		blurEstimateLabel.setVisible(show);
-		            }
-		        }
-		    }); 	
-		}
-		
-		public void setImage(BufferedImage image)
-		{
-			imagePanel.setImage(image);
-		}
-		
-		public void setNoiseEstimate(float noise)
-		{
-			noiseEstimateLabel.setText(String.format("Noise: %.3f", noise));
-		}
-		
-		public void setBlurEstimate(float blur)
-		{
-			blurEstimateLabel.setText(String.format("Blur: %.3f", blur));
-		}
 	}
 	
 	private class PreviewsPanel extends JPanel
@@ -378,7 +293,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		JRadioButton button = buttonsMap.get(model.getAlgorithm().getName());
 		button.setSelected(true);
-		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, model.getAlgorithm().getName().toString());
+		((CardLayout)algorithmParamsPanel.getLayout()).show(algorithmParamsPanel, model.getAlgorithm().getName().toString());
 
 		BufferedImage noisyPreview = model.getNoisyPreview().getBufferedImage();		
 		origPreviewPanel.setImage(noisyPreview);
