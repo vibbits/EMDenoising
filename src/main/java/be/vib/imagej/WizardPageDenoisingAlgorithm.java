@@ -2,13 +2,15 @@ package be.vib.imagej;
 
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
+import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -20,8 +22,6 @@ import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
 
 import be.vib.bits.QExecutor;
-import ij.ImagePlus;
-import ij.ImageStack;
 import ij.process.ImageProcessor;
 
 public class WizardPageDenoisingAlgorithm extends WizardPage 
@@ -32,58 +32,42 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	
 	private JPanel algoParamsPanel;
 		
-	private ImagePanel origImagePanel;
-	private ImagePanel denoisedImagePanel;
-	
-	private PreviewPanel previewPanel;
-	
-	private JLabel blurEstimateLabel;
-	
+	private PreviewPanel origPreviewPanel;
+	private PreviewPanel denoisedPreviewPanel;
+			
 	private Map<Algorithm.Name, JRadioButton> buttonsMap;
 	
 	// We maintain a cache of 100 denoised results for different parameter settings.
 	// Assuming a 512x512 ROI and 8 bit/pixel grayscale previews, a full cache requires
 	// about 100 * (1 MB / 4) = 25 MB storage. This seems acceptable.
 	private DenoisePreviewCache previewCache = new DenoisePreviewCache(100);
-	
+		
  	public WizardPageDenoisingAlgorithm(Wizard wizard, String name)
 	{
 		super(wizard, name);
-		buildUI();		
+		buildUI();
 	}
 	
 	private void buildUI()
 	{
 		Algorithm[] algorithms = wizard.getModel().getAlgorithms();
 		
-		JPanel leftPanel = createAlgorithmChoicePanel(algorithms);
+		JPanel algoChoicePanel = createAlgorithmChoicePanel(algorithms);
 
 		algoParamsPanel = createAlgorithmParametersPanel(algorithms);
 		
-		blurEstimateLabel = new JLabel("Estimated blur in denoised image: 0.0");
-		blurEstimateLabel.setToolTipText("Estimated amount of blur in the denoised result (between 0 and 1)");
-
-		JPanel blurEstimationPanel = new JPanel();
-		blurEstimationPanel.setBorder(BorderFactory.createTitledBorder("Image Statistics"));
-		blurEstimationPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		blurEstimationPanel.add(blurEstimateLabel);
-		
-		JPanel rightPanel = new JPanel();
-		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-		rightPanel.add(algoParamsPanel);
-		rightPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-		rightPanel.add(blurEstimationPanel);
-		
 		JPanel algorithmPanel = new JPanel();
 		algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
-		algorithmPanel.add(leftPanel);
+		algorithmPanel.add(algoChoicePanel);
 		algorithmPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-		algorithmPanel.add(rightPanel);
+		algorithmPanel.add(algoParamsPanel);
 		
-		previewPanel = new PreviewPanel();
+		origPreviewPanel = new PreviewPanel("Original ROI", wizard.getPreferences());
+		denoisedPreviewPanel = new PreviewPanel("Denoised ROI", wizard.getPreferences());
+		PreviewsPanel previewsPanel = new PreviewsPanel(origPreviewPanel, denoisedPreviewPanel);
 		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));		
-		add(previewPanel);
+		add(previewsPanel);
 		add(Box.createRigidArea(new Dimension(0, 5)));
 		add(algorithmPanel);
 	}
@@ -122,7 +106,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{		
 		for (Algorithm algorithm : algorithms)
 		{
-			algorithm.getPanel().addEventListener((DenoiseParamsChangeEvent) -> { recalculateDenoisedPreview(); });	
+			algorithm.getPanel().addEventListener((DenoiseParamsChangeEvent) -> { updateDenoisedPreview(); });	
 		}
 		
 		CardLayout cardLayout = new CardLayout();
@@ -145,29 +129,106 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	    	if (model.getAlgorithm().getName() == algorithm.getName()) return;
     		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, algorithm.getName().toString());
 			model.setAlgorithm(algorithm.getName());
-			recalculateDenoisedPreview();
+			updateDenoisedPreview();
 	    });
 	    
 	    return button;
 	}
 	
-	private class PreviewPanel extends JPanel
+	public class PreviewPanel extends JPanel
 	{
-		public PreviewPanel()
+		private Preferences preferences;
+		private JLabel titleLabel;
+		private JLabel blurEstimateLabel;
+		private JLabel noiseEstimateLabel;
+		private ImagePanel imagePanel;
+		
+		public PreviewPanel(String title, Preferences preferences)
+		{
+			this.preferences = preferences;
+			
+			titleLabel = new JLabel(title);
+			titleLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+			
+			imagePanel = new ImagePanel(this);
+
+			noiseEstimateLabel = new JLabel("Noise: 0.000");
+			noiseEstimateLabel.setToolTipText("Estimated standard deviation of the noise in the image, with pixel intensities rescaled to the range 0-1.");
+			noiseEstimateLabel.setVisible(wizard.getPreferences().getBoolean("imagestats.shownoise", false));
+			
+			blurEstimateLabel = new JLabel("Blur: 0.000");
+			blurEstimateLabel.setToolTipText("Estimated amount of blur in the image (between 0 and 1)");
+			blurEstimateLabel.setVisible(wizard.getPreferences().getBoolean("imagestats.showblur", false));
+
+			buildUI();
+			
+			addPreferencesListener();
+		}
+		
+		private void buildUI()
+		{
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			
+			titleLabel.setAlignmentX(CENTER_ALIGNMENT);
+			noiseEstimateLabel.setAlignmentX(CENTER_ALIGNMENT);
+			blurEstimateLabel.setAlignmentX(CENTER_ALIGNMENT);
+			
+			add(titleLabel);
+			add(imagePanel);
+			add(Box.createVerticalStrut(5));
+			add(noiseEstimateLabel);
+			add(blurEstimateLabel);
+			add(Box.createVerticalStrut(5)); // title label introduces some space at the top, also leave some space at the bottom for visual symmetry			
+		}
+	 	
+	 	private void addPreferencesListener()
+	 	{
+			preferences.addPreferenceChangeListener(new PreferenceChangeListener()
+			{
+		        public void preferenceChange(PreferenceChangeEvent e)
+		        {
+		            boolean show = Boolean.valueOf(e.getNewValue());
+		            if (e.getKey().equals("imagestats.shownoise"))  // TODO: define "imagestats.xxxx" as constants somewhere
+		        	{
+		            	noiseEstimateLabel.setVisible(show);
+		        	}
+		        	else if (e.getKey().equals("imagestats.showblur"))
+		        	{
+		        		blurEstimateLabel.setVisible(show);
+		            }
+		        }
+		    }); 	
+		}
+		
+		public void setImage(BufferedImage image)
+		{
+			imagePanel.setImage(image);
+		}
+		
+		public void setNoiseEstimate(float noise)
+		{
+			noiseEstimateLabel.setText(String.format("Noise: %.3f", noise));
+		}
+		
+		public void setBlurEstimate(float blur)
+		{
+			blurEstimateLabel.setText(String.format("Blur: %.3f", blur));
+		}
+	}
+	
+	private class PreviewsPanel extends JPanel
+	{	
+		public PreviewsPanel(PreviewPanel origImagePanel, PreviewPanel denoisedImagePanel)
 		{
 			setBorder(BorderFactory.createTitledBorder("Denoising Preview"));
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-			
-			origImagePanel = new ImagePanel(WizardPageDenoisingAlgorithm.this);
-			denoisedImagePanel = new ImagePanel(WizardPageDenoisingAlgorithm.this);
-			
-			JPanel origImagePane = addTitle(origImagePanel, "Original ROI");
-			JPanel denoisedImagePane = addTitle(denoisedImagePanel, "Denoised ROI");
-			
+
 			add(Box.createHorizontalGlue());
-			add(origImagePane);
-			add(Box.createRigidArea(new Dimension(20,0)));
-			add(denoisedImagePane);
+			add(Box.createHorizontalStrut(5));
+			add(origImagePanel);
+			add(Box.createHorizontalStrut(20));
+			add(denoisedImagePanel);
+			add(Box.createHorizontalStrut(5));
 			add(Box.createHorizontalGlue());
 		}
 	}
@@ -206,50 +267,74 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 				{
 					BufferedImage cachedImage = cached.denoisedPreview;
 					float blurEstimate = cached.blurEstimate;
+					float noiseEstimate = cached.noiseEstimate;
 
 					BufferedImage imageCopy = ImageUtils.deepCopy(cachedImage); // copy image, to avoid it losing it if it gets ejected from the cache before it was set on the denoisedImagePanel (CHECKME: copy really needed?)
-					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setImage(imageCopy);
-					                                   setBlurEstimateLabel(blurEstimate); }); 
+					SwingUtilities.invokeLater(() -> { denoisedPreviewPanel.setImage(imageCopy);
+					                                   denoisedPreviewPanel.setBlurEstimate(blurEstimate);
+                                                       denoisedPreviewPanel.setNoiseEstimate(noiseEstimate); }); 
 				}
 				else
 				{
-					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setBusy(true); });
+					SwingUtilities.invokeLater(() -> { denoisedPreviewPanel.imagePanel.setBusy(true); });
 					
 					// Denoise the preview
 					ImageProcessor denoisedImageProcessor = QExecutor.getInstance().submit(denoiser).get();
 					ImageUtils.CopyDisplayRange(image, denoisedImageProcessor);
 					BufferedImage denoisedImage = denoisedImageProcessor.getBufferedImage();
 					
+					// Estimate noise in the denoised preview.
+					float noiseEstimate = QExecutor.getInstance().submit(new NoiseEstimator(denoisedImageProcessor)).get();
+					
 					// Estimate blur in the denoised preview.
-					// (Right now we always estimate the blur because it is relatively fast, but perhaps we could let the user disable it?
-					// This would make the caching machinery a bit more complicated.)
 					float blurEstimate = QExecutor.getInstance().submit(new BlurEstimator(denoisedImageProcessor)).get();
 					
-					// Cache image and blur estimate.
-					DenoisePreviewCacheValue cacheValue = new DenoisePreviewCacheValue(denoisedImage, blurEstimate);
+					// Note: right now we always estimate noise and blur, even if the user decided not to show it in the user interface.
+					// So perhaps we should not calculate it in that case? It would make the caching mechanism a bit more complex though.
+					
+					// Cache image and noise and blur estimates.
+					DenoisePreviewCacheValue cacheValue = new DenoisePreviewCacheValue(denoisedImage, noiseEstimate, blurEstimate);
 					previewCache.put(cacheKey, cacheValue);
                     
 					// Update UI
-					SwingUtilities.invokeLater(() -> { denoisedImagePanel.setImage(cacheValue.denoisedPreview);
-                                                       denoisedImagePanel.setBusy(false); 
-                                                       setBlurEstimateLabel(cacheValue.blurEstimate); });
+					SwingUtilities.invokeLater(() -> { denoisedPreviewPanel.imagePanel.setBusy(false); 
+					                                   denoisedPreviewPanel.setImage(cacheValue.denoisedPreview);
+                                                       denoisedPreviewPanel.setBlurEstimate(blurEstimate);
+                                                       denoisedPreviewPanel.setNoiseEstimate(noiseEstimate); });
 				}
 			}
 			catch (InterruptedException | ExecutionException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
 		}
-		
-		private void setBlurEstimateLabel(float blur)
-		{
-			blurEstimateLabel.setText(String.format("Estimated blur in denoised image: %.3f", blur));
-		}
 	}
 	
-	private void recalculateDenoisedPreview()
+	private void updateNoisyPreview()
 	{
+		// Calculate an estimate for the amount of noise and blur in the user-selected region-of-interest
+		// on the original (=noisy) image.
+		
+		try
+		{	
+			ImageProcessor noisyImageProcessor = wizard.getModel().getNoisyPreview();
+			float noiseEstimate = QExecutor.getInstance().submit(new NoiseEstimator(noisyImageProcessor)).get();
+			float blurEstimate = QExecutor.getInstance().submit(new BlurEstimator(noisyImageProcessor)).get();
+			origPreviewPanel.setNoiseEstimate(noiseEstimate);
+			origPreviewPanel.setBlurEstimate(blurEstimate);
+		}
+		catch (InterruptedException | ExecutionException e)
+		{
+			e.printStackTrace();
+		}			
+	}
+	
+	private void updateDenoisedPreview()
+	{
+		// Denoise the user-selected region-of-interest.
+		
+		assert(SwingUtilities.isEventDispatchThread()); // so we can't do any time consuming work here
+
 		// Run the denoising preview on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the denoising
 		// preview image in the Java Event Dispatch Thread (EDT).
@@ -258,29 +343,9 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		// and newer tasks will replace older queued tasks. This avoids building up a Quasar work backlog
 		// but still guarantees that the denoised preview will correspond to the latest parameters chosen by the user.
 		
-		assert(SwingUtilities.isEventDispatchThread()); // so we can't do any time consuming work here
-		
 		WizardModel model = wizard.getModel();
 		DenoisingTask task = new DenoisingTask(model.getAlgorithm(), model.getNoisyPreview());
 		saturatingExecutor.Submit(task);                                                                    	
-	}
-
-	private static JPanel addTitle(JPanel panel, String title)
-	{
-		JPanel box = new JPanel();
-		box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
-		
-		JLabel titleLabel = new JLabel(title);
-		titleLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-		
-		titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-		panel.setAlignmentX(CENTER_ALIGNMENT);
-		
-		box.add(titleLabel);
-		box.add(panel);
-		box.add(Box.createVerticalStrut(10)); // title label introduces some space at the top, also leave some space at the bottom for visual symmetry
-		
-		return box;
 	}
 	
 	@Override
@@ -306,23 +371,21 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	public void arriveFromPreviousPage()
 	{
 		WizardModel model = wizard.getModel();
-		
 		assert(model.getImage() != null);
 				
 		// Always clear the cache, just in case the user switched to a different image or ROI.
-		// IMPROVEME: We could be more precise. We now occasionally clear the cache when it's not needed.
 		previewCache.clear();
 		
 		JRadioButton button = buttonsMap.get(model.getAlgorithm().getName());
 		button.setSelected(true);
 		((CardLayout)algoParamsPanel.getLayout()).show(algoParamsPanel, model.getAlgorithm().getName().toString());
 
-		BufferedImage noisyPreview = model.getNoisyPreview().getBufferedImage();
-				
-		origImagePanel.setImage(noisyPreview);
-		denoisedImagePanel.setImage(noisyPreview);  // To avoid an ugly empty image, temporarily show the noisy preview until we've calculated the denoised one
+		BufferedImage noisyPreview = model.getNoisyPreview().getBufferedImage();		
+		origPreviewPanel.setImage(noisyPreview);
+		denoisedPreviewPanel.setImage(noisyPreview);  // To avoid an ugly empty image, temporarily show the noisy preview until we've calculated the denoised one
 		
-		recalculateDenoisedPreview();
+		updateNoisyPreview();
+		updateDenoisedPreview();
 		
 		// Ask layout manager to resize the dialog so it looks nice
 		wizard.pack();
