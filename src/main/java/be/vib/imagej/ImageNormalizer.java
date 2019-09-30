@@ -24,17 +24,14 @@ public class ImageNormalizer
 		imageIs8Bit = (dynamicRange == 255);
 		if (!imageIs8Bit)
 		{
-			System.out.println("16-bit image - determining percentiles");
 			assert(ip instanceof ShortProcessor);
 			final int[] hist = build_histogram((ShortProcessor)ip);
 			loPercentile = ith_percentile(hist, ip.getPixelCount(), LO_PERCENTILE);
 			hiPercentile = ith_percentile(hist, ip.getPixelCount(), HI_PERCENTILE);
-			System.out.println("Percentiles: " + loPercentile + " " + hiPercentile);
 			if (loPercentile == hiPercentile)
 			{
 				loPercentile = 0;
 				hiPercentile = dynamicRange;
-				System.out.println("  Percentiles ADAPTED to " + loPercentile + " " + hiPercentile);
 			}
 		}
 		else
@@ -45,8 +42,6 @@ public class ImageNormalizer
 	
 	private static int[] build_histogram(ShortProcessor image)  // for 16-bit images only
 	{
-		System.out.println("16-bit image - building histogram");
-
 		// Create array to hold histogram of our 16-bit pixel intensities
 		final int histogram_size = 65536;
 		int hist[] = new int[histogram_size];
@@ -91,19 +86,18 @@ public class ImageNormalizer
 	public QValue normalize(ImageProcessor ip, boolean toByteRange)  // if toByteRange==true then normalize to [0,255] otherwise to [0,1]
 	{
 		QValue cube = ImageUtils.newCubeFromImage(ip);
+		
 		if (imageIs8Bit)  // original image is 8-bit/pixel
 		{
 			if (toByteRange)
 			{
 				// normalize from [0,255] to [0,255]
 				// nothing to be done here 
-				System.out.println("ImageNormalizer normalize byte->byte");
 			}
 			else
 			{
 				// normalize from [0,255] to [0,1]
 				QUtils.inplaceDivide(cube, 255.0f);		
-				System.out.println("ImageNormalizer normalize  byte->01");
 			}
 		}
 		else // original image is 16-bit/pixel
@@ -112,20 +106,25 @@ public class ImageNormalizer
 			{
 				// normalize from 16-bit [lo,hi] to [0,255]
 				QUtils.inplaceSubtract(cube, (float)loPercentile);
-				// FIXME?: should clip to 0 to avoid negative intensities
 				QUtils.inplaceDivide(cube, ((float)(hiPercentile - loPercentile)) / 255.0f);
-				System.out.println("ImageNormalizer normalize  lohi->byte " + "-"+loPercentile + " /" + (((float)(hiPercentile - loPercentile)) / 255.0f));
-	
+				QValue lo = new QValue(0.0f);
+				QValue hi = new QValue(255.0f);
+				QUtils.inplaceClamp(cube, lo, hi);	
 			}
 			else
 			{
 				// normalize from 16-bit [lo,hi] to [0,1]
 				QUtils.inplaceSubtract(cube, (float)loPercentile);
-				// FIXME?: should clip to 0 to avoid negative intensities
 				QUtils.inplaceDivide(cube, (float)(hiPercentile - loPercentile));
-				System.out.println("ImageNormalizer normalize  lohi->01 " + "-"+loPercentile + " /" + (((float)(hiPercentile - loPercentile))));
+				QValue lo = new QValue(0.0f);
+				QValue hi = new QValue(1.0f);
+				QUtils.inplaceClamp(cube, lo, hi);
 			}
 		}
+
+		// Test
+		// float f = cube.at(0, 0).getFloat();
+		
 		return cube;
 	}
 	
@@ -137,13 +136,11 @@ public class ImageNormalizer
 			{
 				// denormalize from [0,255] to [0,255]
 				// nothing to be done here 
-				System.out.println("ImageNormalizer normalize  byte->byte");
 			}
 			else
 			{
 				// denormalize from [0,1] to [0,255]
 				QUtils.inplaceMultiply(cube, 255.0f);		
-				System.out.println("ImageNormalizer normalize  01->byte");
 			}
 		}
 		else // original image is 16-bit/pixel
@@ -152,19 +149,16 @@ public class ImageNormalizer
 			{
 				// denormalize from [0,255] to 16-bit [lo,hi]
 				QUtils.inplaceMultiply(cube, ((float)(hiPercentile - loPercentile)) / 255.0f);
-				QUtils.inplaceAdd(cube, (float)loPercentile);
-				System.out.println("ImageNormalizer denormalize  01->lohi " + "+"+loPercentile + " *" + (((float)(hiPercentile - loPercentile))/255.0f));
-	
+				QUtils.inplaceAdd(cube, (float)loPercentile);	
 			}
 			else
 			{
 				// denormalize from [0,1] to 16-bit [lo,hi]
 				QUtils.inplaceMultiply(cube, (float)(hiPercentile - loPercentile));
-				QUtils.inplaceAdd(cube, (float)loPercentile);
-				System.out.println("ImageNormalizer denormalize  01->lohi " + "+"+loPercentile + " *" + (((float)(hiPercentile - loPercentile))));
-	
+				QUtils.inplaceAdd(cube, (float)loPercentile);	
 			}
 		}
+		
 		ImageProcessor denormalizedIp = ImageUtils.newImageFromCube(ip, cube);  // note: newImageFromCube() also clips cube values to the allowed 8-bit or 16-bit pixel values
 		return denormalizedIp;
 	}

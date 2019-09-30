@@ -199,7 +199,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 					
 					// Denoise the preview
 					ImageProcessor denoisedImageProcessor = QExecutor.getInstance().submit(denoiser).get();
-					ImageUtils.CopyDisplayRange(image, denoisedImageProcessor);
+					ImageUtils.CopyDisplayRange(image, denoisedImageProcessor);					
 					BufferedImage denoisedImage = denoisedImageProcessor.getBufferedImage();
 					
 					// Estimate noise in the denoised preview.
@@ -217,7 +217,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
                     
 					// Update UI
 					SwingUtilities.invokeLater(() -> { denoisedPreviewPanel.imagePanel.setBusy(false); 
-					                                   denoisedPreviewPanel.setImage(cacheValue.denoisedPreview);
+					                                   denoisedPreviewPanel.setImage(denoisedImage);
                                                        denoisedPreviewPanel.setBlurEstimate(blurEstimate);
                                                        denoisedPreviewPanel.setNoiseEstimate(noiseEstimate); });
 				}
