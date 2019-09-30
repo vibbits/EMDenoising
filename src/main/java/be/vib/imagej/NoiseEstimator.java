@@ -4,7 +4,6 @@ import java.awt.Rectangle;
 import java.util.concurrent.Callable;
 
 import be.vib.bits.QFunction;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
@@ -12,12 +11,14 @@ import ij.process.ImageProcessor;
 public class NoiseEstimator implements Callable<Float>
 {
 	private ImageProcessor image;
+	private ImageNormalizer normalizer;
 	
-	NoiseEstimator(ImageProcessor image)
+	NoiseEstimator(ImageProcessor image, ImageNormalizer normalizer)
 	{		
 		// Restrict the noise estimation to the central region of the image
 		// (for the sake of performance and to limit GPU memory usage in case of huge images).
 		this.image = restrictSize(image, 2048);
+		this.normalizer = normalizer;
 	}
 	
 	// Return a copy of the image, restricted to maxSize x maxSize pixels.
@@ -37,21 +38,10 @@ public class NoiseEstimator implements Callable<Float>
 
 	@Override
 	public Float call() throws Exception
-	{
-		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
+	{		
+		final boolean toByteRange = true;  // the Quasar MAD noise estimator prefers a byte range as pixel data
+		QValue noisyImageCube = normalizer.normalize(image, toByteRange);
 		
-		// For testing
-		// QFunction imwrite = new QFunction("imwrite(string,cube)");
-		// imwrite.apply(new QValue("c:\\noisy.tif"), noisyImageCube);	
-		
-		final int dynamicRange = (int)ImageUtils.bitRange(image);
-		if (dynamicRange != 255)
-		{
-			// Scale pixels values to [0, 255] - the Quasar MAD noise estimator expects this.
-			final float r = dynamicRange / 255.0f;
-			QUtils.inplaceDivide(noisyImageCube, r);  
-		}	 
-
 		QFunction estimateNoise = new QFunction("estimate_noise_mad(mat,int)");			
 		QValue noise = estimateNoise.apply(noisyImageCube, new QValue(2));
 		

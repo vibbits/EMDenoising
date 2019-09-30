@@ -1,9 +1,6 @@
 package be.vib.imagej;
 
-import java.nio.file.NoSuchFileException;
-
 import be.vib.bits.QFunction;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
@@ -15,22 +12,12 @@ public class BilateralDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ImageProcessor call() throws NoSuchFileException
+	public ImageProcessor call()
 	{
 		QFunction bilateralFilter = new QFunction("bilateral_filter_denoise(cube,scalar,scalar,int)"); 
 				
-		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
-		
-		final int dynamicRange = (int)ImageUtils.bitRange(image);
-		
-		final float r = dynamicRange / 255.0f;
-
-		// IMPROVEME: avoid the scaling, the Quasar bilateral filter can probably handle 16-bit image data
-		if (dynamicRange != 255)
-		{
-			// Scale pixels values to [0, 255]
-			QUtils.inplaceDivide(noisyImageCube, r);  
-		}
+		final boolean byteRange = true;  // bilateral filter expects values in [0,255]
+		QValue noisyImageCube = normalizer.normalize(image, byteRange);
 
 		BilateralParams params = (BilateralParams)this.params;
 		
@@ -41,13 +28,7 @@ public class BilateralDenoiser extends Denoiser
 		
 		noisyImageCube.dispose();
 
-		if (dynamicRange != 255)
-		{
-			// Scale pixels values back to original range
-			QUtils.inplaceMultiply(denoisedImageCube, r); 
-		}
-
-		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = normalizer.denormalize(image, denoisedImageCube, byteRange);
 
 		denoisedImageCube.dispose();
 

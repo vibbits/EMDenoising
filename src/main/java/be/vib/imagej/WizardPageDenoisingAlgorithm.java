@@ -152,8 +152,9 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 	{
 		private Algorithm algorithm;
 		private ImageProcessor image;
+		private ImageNormalizer normalizer; // IMPROVEME? This could/should perhaps become part of Algorithm?
 				
-		public DenoisingTask(Algorithm algorithm, ImageProcessor image)
+		public DenoisingTask(Algorithm algorithm, ImageProcessor image, ImageNormalizer normalizer)
 		{
 			this.algorithm = algorithm;
 			this.image = image.duplicate(); // deep copy
@@ -161,15 +162,18 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 			// Note: we deep copy the noisy input image (since the denoising happens asynchronously
 			// and we don't want surprises if the input image gets changed meanwhile...)
 			// CHECKME: is this really needed?
+			
+			this.normalizer = normalizer;
 		}
 		
 		@Override
 		public void run()
 		{
-			// Note: this is not executed on the Java EDT.
+			// Note: this is not executed on the Java EDT (Event Dispatching Thread),
+			// so SwingUtils.invokeLater() is needed to update the UI.
 
 			Denoiser denoiser = algorithm.getDenoiserCopy();
-			denoiser.setImage(image);
+			denoiser.setImage(image, normalizer);
 			
 			try
 			{
@@ -199,7 +203,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 					BufferedImage denoisedImage = denoisedImageProcessor.getBufferedImage();
 					
 					// Estimate noise in the denoised preview.
-					float noiseEstimate = QExecutor.getInstance().submit(new NoiseEstimator(denoisedImageProcessor)).get();
+					float noiseEstimate = QExecutor.getInstance().submit(new NoiseEstimator(denoisedImageProcessor, normalizer)).get();
 					
 					// Estimate blur in the denoised preview.
 					float blurEstimate = QExecutor.getInstance().submit(new BlurEstimator(denoisedImageProcessor)).get();
@@ -218,7 +222,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
                                                        denoisedPreviewPanel.setNoiseEstimate(noiseEstimate); });
 				}
 			}
-			catch (InterruptedException | ExecutionException e)
+			catch (Exception e)
 			{
 				e.printStackTrace();
 			}			
@@ -232,8 +236,10 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		
 		try
 		{	
-			ImageProcessor noisyImageProcessor = wizard.getModel().getNoisyPreview();
-			float noiseEstimate = QExecutor.getInstance().submit(new NoiseEstimator(noisyImageProcessor)).get();
+			WizardModel model = wizard.getModel();
+			ImageProcessor noisyImageProcessor = model.getNoisyPreview();
+			ImageNormalizer normalizer = model.getImageNormalizer();
+			float noiseEstimate = QExecutor.getInstance().submit(new NoiseEstimator(noisyImageProcessor, normalizer)).get();
 			float blurEstimate = QExecutor.getInstance().submit(new BlurEstimator(noisyImageProcessor)).get();
 			origPreviewPanel.setNoiseEstimate(noiseEstimate);
 			origPreviewPanel.setBlurEstimate(blurEstimate);
@@ -259,7 +265,7 @@ public class WizardPageDenoisingAlgorithm extends WizardPage
 		// but still guarantees that the denoised preview will correspond to the latest parameters chosen by the user.
 		
 		WizardModel model = wizard.getModel();
-		DenoisingTask task = new DenoisingTask(model.getAlgorithm(), model.getNoisyPreview());
+		DenoisingTask task = new DenoisingTask(model.getAlgorithm(), model.getNoisyPreview(), model.getImageNormalizer());
 		saturatingExecutor.Submit(task);                                                                    	
 	}
 	

@@ -26,6 +26,8 @@ public class WizardModel
 	
 	private float noiseEstimate;  // estimated standard deviation of the noise in the ([0, 1] normalized) noisy input image (< 0 means noise not estimated yet)
 	
+	private ImageNormalizer imageNormalizer;  // helper to normalize image pixels values from their native 8- or 16-bit range to [0, 1]
+	
 	public static final int maxPreviewSize = 512; // max size of the denoising preview windows, and thus of the ROI selected on the image
 	
 	public WizardModel()
@@ -45,6 +47,7 @@ public class WizardModel
 		range = new ImageRange();
 		
 		image = null;
+		imageNormalizer = null;
 		noiseEstimate = -1.0f;
 		
 		noisyPreview = null;
@@ -101,6 +104,11 @@ public class WizardModel
 		return image;
 	}
 	
+	public ImageNormalizer getImageNormalizer()
+	{
+		return imageNormalizer;
+	}
+	
 	public float getNoiseEstimate()
 	{
 		return noiseEstimate;
@@ -129,10 +137,13 @@ public class WizardModel
 		// Lock the image (stack) so that if the user closes the image window,
 		// the underlying image slices remain in memory. Unfortunately locked
 		// image stacks are not very user friendly in ImageJ: it is not obvious that 
-		// the image is locked, the image window allows moving the current slice slider
-		// in a locked stack but does not actually show the correct slice, etc.
+		// the image is locked, and the image window still allows moving the current slice slider
+		// in a locked stack but then does not actually show the correct slice, etc.
 		lockImage(true);
 		
+		// Do some preparatory work for image normalization lateron.
+		this.imageNormalizer = (image != null) ? new ImageNormalizer(image) : null;
+				
 		// Remember to re-estimate the noise level
 		this.noiseEstimate = -1.0f;
 	}

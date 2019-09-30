@@ -16,6 +16,7 @@ public class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 {
 	private Algorithm algorithm;
 	private ImagePlus noisyImagePlus;
+	private ImageNormalizer normalizer;
 	private ImageRange range;
 	private JProgressBar progressBar;
 	private Runnable whenDone;  // Will be run on the EDT as soon as the DenoiseSwingWorker is done denoising. Can be used to indicate in the UI that we are done.
@@ -75,10 +76,11 @@ public class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		return title;
 	}
 	
-	public DenoiseSwingWorker(Algorithm algorithm, ImagePlus noisyImagePlus, ImageRange range, JProgressBar progressBar, Runnable whenDone)
+	public DenoiseSwingWorker(Algorithm algorithm, ImagePlus noisyImagePlus, ImageNormalizer normalizer, ImageRange range, JProgressBar progressBar, Runnable whenDone)
 	{
 		this.algorithm = algorithm;
 		this.noisyImagePlus = noisyImagePlus;
+		this.normalizer = normalizer;
 		this.range = range;
 		this.progressBar = progressBar;
 		this.whenDone = whenDone;
@@ -91,7 +93,7 @@ public class DenoiseSwingWorker extends SwingWorker<ImagePlus, Integer>
 		// Do not update Java Swing components here.
 		
 		DenoiseEngine engine = new SwingDenoiseEngine(algorithm);
-		return engine.denoise(noisyImagePlus, range, getTitle());
+		return engine.denoise(noisyImagePlus, normalizer, range, getTitle());
 	}
 	
 	@Override

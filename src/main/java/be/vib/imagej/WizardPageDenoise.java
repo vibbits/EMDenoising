@@ -106,7 +106,7 @@ public class WizardPageDenoise extends WizardPage implements ImageRangeChangeEve
 			
 		WizardModel model = wizard.getModel();
 
-		worker = new DenoiseSwingWorker(model.getAlgorithm(), model.getImage(), model.getRange(), progressBar, whenDone);
+		worker = new DenoiseSwingWorker(model.getAlgorithm(), model.getImage(), model.getImageNormalizer(), model.getRange(), progressBar, whenDone);
 		
 		// Run the denoising on a separate worker thread and return here immediately.
 		// Once denoising has completed, the worker will automatically update the user interface

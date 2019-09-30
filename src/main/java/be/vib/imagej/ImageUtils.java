@@ -102,6 +102,17 @@ public class ImageUtils
 	}
 	
 	/**
+	 * Returns the ImageProcessor for the current slice in the given image or image stack.
+	 */
+	public static ImageProcessor currentProcessor(ImagePlus image)
+	{
+		int slice = image.getCurrentSlice();
+		ImageStack stack = image.getStack();
+		ImageProcessor imp = stack.getProcessor(slice);
+		return imp;
+	}
+	
+	/**
 	 * Crops the given image to a given rectangle.
 	 * 
 	 * @param image The original image.
@@ -178,5 +189,5 @@ public class ImageUtils
 		{
 			throw new RuntimeException("Only 8 bit/pixel and 16 bit/pixel grayscale images are supported.");
 		}
-	}
+	}	
 }

@@ -303,7 +303,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		float noise = model.getNoiseEstimate();
 		if (noise < 0)
 		{
-			noise = estimateNoise(model.getImage());
+			noise = estimateNoise(model.getImage(), model.getImageNormalizer());
 			model.setNoiseEstimate(noise);
 			
 			if (noise >= 0)
@@ -369,7 +369,7 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		ij.gui.Roi.addRoiListener(this);
 	}
 	
-	private static float estimateNoise(ImagePlus image)
+	private static float estimateNoise(ImagePlus image, ImageNormalizer normalizer)
 	{
 		float noise = -1.0f; // noise level unknown still
 		
@@ -377,9 +377,9 @@ public class WizardPageROI extends WizardPage implements ImageListener, RoiListe
 		{				
 			int slice = image.getCurrentSlice();
 			ImageStack stack = image.getStack();
-			ImageProcessor imp = stack.getProcessor(slice);
+			ImageProcessor ip = stack.getProcessor(slice);
 			
-			noise = QExecutor.getInstance().submit(new NoiseEstimator(imp)).get();
+			noise = QExecutor.getInstance().submit(new NoiseEstimator(ip, normalizer)).get();
 			System.out.println("Estimated (normalized) std deviation of noise in " + image.getTitle() + " = " + noise);
 		}
 		catch (InterruptedException | ExecutionException e)

@@ -7,11 +7,13 @@ import ij.process.ImageProcessor;
 public abstract class Denoiser implements Callable<ImageProcessor>
 {
 	protected ImageProcessor image; // original, noisy source image
+	protected ImageNormalizer normalizer;
 	protected DenoiseParams params;
 	
 	public Denoiser(DenoiseParams params)
 	{
 		this.image = null;
+		this.normalizer = null;
 		this.params = params;
 	}
 	
@@ -20,9 +22,10 @@ public abstract class Denoiser implements Callable<ImageProcessor>
 		return params;
 	}
 	
-	public void setImage(ImageProcessor image)
+	public void setImage(ImageProcessor image, ImageNormalizer normalizer)
 	{
 		this.image = image;
+		this.normalizer = normalizer;
 	}
 
 	// Important: call() *must* be run on the Quasar thread!
@@ -48,7 +51,7 @@ public abstract class Denoiser implements Callable<ImageProcessor>
 	public int imageMargin()
 	{
 		// IMPROVEME: The margin must be dependent on algorithm parameters to avoid artifacts along tile boundaries.
-		// For normal parameter values however, test shows that a 16 pixel margin amply suffices, but it is in principle 
+		// For normal parameter values however, tests show that a 16 pixel margin amply suffices, but it is in principle 
 		// possible to manually enter large parameter values in the user interface that might trigger tiling artifacts.
 		// (In practice this is not likely to happen because these large values would imply blurring
 		// so large as to make the denoised image useless.)

@@ -32,7 +32,7 @@ public class DenoiseEngine
 		this.denoiser = denoiser;
 	}
 	
-	public ImagePlus denoise(ImagePlus noisyImagePlus, ImageRange range, String title)
+	public ImagePlus denoise(ImagePlus noisyImagePlus, ImageNormalizer normalizer, ImageRange range, String title)
 	{
 		final int width = noisyImagePlus.getWidth();
 		final int height = noisyImagePlus.getHeight();
@@ -65,7 +65,7 @@ public class DenoiseEngine
 				// Denoise the tile
 				try
 				{
-					denoiser.setImage(noisyTileImp);
+					denoiser.setImage(noisyTileImp, normalizer);
 					ImageProcessor denoisedTileImp = QExecutor.getInstance().submit(denoiser).get(); // TODO: check what happens to quasar::exception_t if thrown from C++ during the denoiser task.
 
 					// Remove tile margins

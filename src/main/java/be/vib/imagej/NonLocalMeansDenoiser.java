@@ -1,9 +1,6 @@
 package be.vib.imagej;
 
-import java.nio.file.NoSuchFileException;
-
 import be.vib.bits.QFunction;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
@@ -15,12 +12,13 @@ public class NonLocalMeansDenoiser extends Denoiser
 	}
 	
 	@Override
-	public ImageProcessor call() throws NoSuchFileException
+	public ImageProcessor call()
 	{	
 		NonLocalMeansParams params = (NonLocalMeansParams)this.params;
 
 		if (params.decorrelation)
 		{
+			assert(false);  // decorrelation is not offered to the user yet
 			return params.deconvolution ? nonLocalMeansCD() : nonLocalMeansC();						
 		}
 		else
@@ -29,15 +27,13 @@ public class NonLocalMeansDenoiser extends Denoiser
 		}
 	}
 	
-	public ImageProcessor nonLocalMeans() throws NoSuchFileException
+	public ImageProcessor nonLocalMeans()
 	{				
 		QFunction nlmeans = new QFunction("denoise_nlmeans(mat,int,int,scalar)");
 
-		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
+		final boolean byteRange = false;  // normalize pixel values to/from [0,1] before/after denoising
 		
-		float r = ImageUtils.bitRange(image);
-		
-		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+		QValue noisyImageCube = normalizer.normalize(image, byteRange);
 
 		NonLocalMeansParams params = (NonLocalMeansParams)this.params;
 
@@ -48,24 +44,20 @@ public class NonLocalMeansDenoiser extends Denoiser
 		
 		noisyImageCube.dispose();
 
-		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
-
-		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = normalizer.denormalize(image, denoisedImageCube, byteRange);
 
 		denoisedImageCube.dispose();
 
 		return denoisedImage;
 	}
 	
-	private ImageProcessor nonLocalMeansD() throws NoSuchFileException
+	private ImageProcessor nonLocalMeansD()
 	{		
 		QFunction nlmeansD = new QFunction("deconv_nlmeans(mat,mat,scalar,int,int,int,scalar)");
 		
-		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
-
-		float r = ImageUtils.bitRange(image);
+		final boolean byteRange = false;  // normalize pixel values to/from [0,1] before/after denoising
 		
-		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+		QValue noisyImageCube = normalizer.normalize(image, byteRange);
 
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
 		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSigma)); 
@@ -83,26 +75,22 @@ public class NonLocalMeansDenoiser extends Denoiser
 		noisyImageCube.dispose();
 		blurKernel.dispose();
 
-		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
-
-		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = normalizer.denormalize(image, denoisedImageCube, byteRange);
 
 		denoisedImageCube.dispose();
 
 		return denoisedImage;
 	}
-	
-	private ImageProcessor nonLocalMeansCD() throws NoSuchFileException
+		
+	private ImageProcessor nonLocalMeansCD()
 	{		
 		assert(false); // decorrelation is not currently supported
 		
 		QFunction nlmeansCD = new QFunction("deconv_nlmeans_c(mat,mat,scalar,int,int,int,scalar,mat)");
-				
-		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
-
-		float r = ImageUtils.bitRange(image);
 		
-		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+		final boolean byteRange = false;  // normalize pixel values to/from [0,1] before/after denoising
+		
+		QValue noisyImageCube = normalizer.normalize(image, byteRange);
 
 		QFunction fgaussian = new QFunction("fgaussian(int,scalar)");
 		QValue blurKernel = fgaussian.apply(new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSize), new QValue(NonLocalMeansParams.DeconvolutionParams.blurKernelSigma)); 
@@ -124,26 +112,22 @@ public class NonLocalMeansDenoiser extends Denoiser
 		blurKernel.dispose();
 		corrFilterInv.dispose();
 
-		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
-
-		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = normalizer.denormalize(image, denoisedImageCube, byteRange);
 
 		denoisedImageCube.dispose();
 
 		return denoisedImage;
 	}
 	
-	private ImageProcessor nonLocalMeansC() throws NoSuchFileException
+	private ImageProcessor nonLocalMeansC()
 	{		
 		assert(false); // decorrelation is not currently supported
 		
 		QFunction nlmeansSC = new QFunction("denoise_nlmeans_c(mat,int,int,scalar,mat)");
 		
-		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
+		final boolean byteRange = false;  // normalize pixel values to/from [0,1] before/after denoising
 		
-		float r = ImageUtils.bitRange(image);
-		
-		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+		QValue noisyImageCube = normalizer.normalize(image, byteRange);
 
 		QValue corrFilterInv = new QValue(NonLocalMeansParams.emCorrFilterInv);
 		
@@ -158,9 +142,7 @@ public class NonLocalMeansDenoiser extends Denoiser
 		noisyImageCube.dispose();
 		corrFilterInv.dispose();
 		
-		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
-
-		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = normalizer.denormalize(image, denoisedImageCube, byteRange);
 		
 		denoisedImageCube.dispose();
 		

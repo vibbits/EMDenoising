@@ -1,9 +1,6 @@
 package be.vib.imagej;
 
-import java.nio.file.NoSuchFileException;
-
 import be.vib.bits.QFunction;
-import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 import ij.process.ImageProcessor;
 
@@ -15,15 +12,13 @@ public class TotalVariationDenoiser extends Denoiser
 	}
 
 	@Override
-	public ImageProcessor call() throws NoSuchFileException
+	public ImageProcessor call()
 	{
 		QFunction total_variation_denoise = new QFunction("total_variation_denoise(mat,scalar,int,scalar)");
 		
-		QValue noisyImageCube = ImageUtils.newCubeFromImage(image);
+		final boolean byteRange = false;  // normalize pixel values to/from [0,1] before/after denoising
 		
-		float r = ImageUtils.bitRange(image);
-		
-		QUtils.inplaceDivide(noisyImageCube, r);  // scale pixels values from [0, 255] or [0, 65535] down to [0, 1]
+		QValue noisyImageCube = normalizer.normalize(image, byteRange);
 				
 		TotalVariationParams params = (TotalVariationParams)this.params;
 		
@@ -34,9 +29,7 @@ public class TotalVariationDenoiser extends Denoiser
 		
 		noisyImageCube.dispose();
 
-		QUtils.inplaceMultiply(denoisedImageCube, r); // scale pixels values back to [0, 255] or [0, 65535]
-
-		ImageProcessor denoisedImage = ImageUtils.newImageFromCube(image, denoisedImageCube);
+		ImageProcessor denoisedImage = normalizer.denormalize(image, denoisedImageCube, byteRange);
 
 		denoisedImageCube.dispose();
 
