@@ -1,6 +1,5 @@
 package be.vib.imagej;
 
-import java.awt.Rectangle;
 import java.util.concurrent.Callable;
 
 import be.vib.bits.QFunction;
