@@ -195,13 +195,13 @@ public class NonLocalMeansParams extends DenoiseParams
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
+		assert(noiseEstimate >= 0);
 		decorrelation = false;
 		deconvolution = false;
 		halfSearchSize = 5; 
 		halfBlockSize = 4;
 	    h = 2.90171194076538f * noiseEstimate;
-
-		System.out.println("NonLocalMeansParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
+//		System.out.println("NonLocalMeansParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> h=" + h + " ["+ hMin + ", " + hMax + "]");
 	}
 
 }

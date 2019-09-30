@@ -65,9 +65,7 @@ public class WaveletThresholdingParams extends DenoiseParams
 	public void setDefaultParameters(float noiseEstimate)
 	{
 		assert(noiseEstimate >= 0);
-		
 		threshold = 6.69702291488647f * noiseEstimate * noiseEstimate + 2.10050129890442f * noiseEstimate;
-
-		System.out.println("WaveletThresholdingParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> threshold=" + threshold + " ["+ thresholdMin + ", " + thresholdMax + "]");
+		// System.out.println("WaveletThresholdingParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> threshold=" + threshold + " ["+ thresholdMin + ", " + thresholdMax + "]");
 	}
 }

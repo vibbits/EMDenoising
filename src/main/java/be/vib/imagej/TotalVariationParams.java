@@ -67,10 +67,8 @@ public class TotalVariationParams extends DenoiseParams
 	public void setDefaultParameters(float noiseEstimate)
 	{
 		assert(noiseEstimate >= 0);
-		
 		lambda = 1.66879832744598f * noiseEstimate * noiseEstimate + 1.1742901802063f * noiseEstimate;
 		numIterations = 100;
-		
-		 System.out.println("TotalVariationParams.setDefaultParams noiseEstimate=" + noiseEstimate + " lambda=" + lambda);
+//		System.out.println("TotalVariationParams.setDefaultParams noiseEstimate=" + noiseEstimate + " lambda=" + lambda);
 	}
 }

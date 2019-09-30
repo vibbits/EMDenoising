@@ -70,9 +70,9 @@ public class BLSGSMParams extends DenoiseParams
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
+		assert(noiseEstimate >= 0);
 		scales = 4;
 		sigma = noiseEstimate;
-		
-		System.out.println("BLSGSMParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma +" ["+ sigmaMin + ", " + sigmaMax + "]");
+//		System.out.println("BLSGSMParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma +" ["+ sigmaMin + ", " + sigmaMax + "]");
 	}
 }

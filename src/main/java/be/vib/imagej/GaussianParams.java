@@ -61,8 +61,8 @@ public class GaussianParams extends DenoiseParams
 	@Override
 	public void setDefaultParameters(float noiseEstimate)
 	{
+		assert(noiseEstimate >= 0);
 		sigma = 8.00950813293457f * noiseEstimate + 0.366672605276108f;
-		
-		System.out.println("GaussianParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma + " ["+ sigmaMin + ", " + sigmaMax + "]");
+//		System.out.println("GaussianParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> sigma=" + sigma + " ["+ sigmaMin + ", " + sigmaMax + "]");
 	}
 }

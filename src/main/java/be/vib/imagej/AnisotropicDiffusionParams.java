@@ -82,11 +82,9 @@ public class AnisotropicDiffusionParams extends DenoiseParams
 	public void setDefaultParameters(float noiseEstimate)
 	{
 		assert(noiseEstimate >= 0);
-		
 		diffusionFactor = Math.max(diffusionFactorMin, 2.77789974212646f * noiseEstimate * noiseEstimate + 1.54128849506378f * noiseEstimate);  // note: avoids division by zero for diffusion factor = 0
 		numIterations = 5;
 		stepSize = 0.2f;
-
-		System.out.println("AnisotropicDiffusionParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> diffusionFactor=" + diffusionFactor + " ["+ diffusionFactorMin + ", " + diffusionFactorMax + "]");
+//		System.out.println("AnisotropicDiffusionParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> diffusionFactor=" + diffusionFactor + " ["+ diffusionFactorMin + ", " + diffusionFactorMax + "]");
 	}
 }

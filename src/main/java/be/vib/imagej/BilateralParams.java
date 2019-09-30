@@ -86,8 +86,7 @@ public class BilateralParams extends DenoiseParams
 		assert(noiseEstimate >= 0);
 		rangeSigma = 1.0f;
 		spatialSigma = -11.8883485794067f * noiseEstimate * noiseEstimate + 20.3530082702637f * noiseEstimate + 0.154977381229401f;
-		
-		System.out.println("BilateralParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> rangeSigma=" + rangeSigma + " ["+ rangeSigmaMin + ", " + rangeSigmaMax + "]" +
-				                                                                                  " spatialSigma=" + spatialSigma + " ["+ spatialSigmaMin + ", " + spatialSigmaMax + "]");
+//		System.out.println("BilateralParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> rangeSigma=" + rangeSigma + " ["+ rangeSigmaMin + ", " + rangeSigmaMax + "]" +
+//				                                                                                  " spatialSigma=" + spatialSigma + " ["+ spatialSigmaMin + ", " + spatialSigmaMax + "]");
 	}
 }

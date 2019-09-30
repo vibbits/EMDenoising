@@ -89,6 +89,6 @@ public class TikhonovParams extends DenoiseParams
 		numIterations = 50;
 		lambda = Math.max(lambdaMin, 413.051574707031f * noiseEstimate * noiseEstimate - 59.6000556945801f * noiseEstimate + 1.8710173368454f);
 		sigma = 1.0f;
-		System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda=" + lambda + " sigma=" + sigma);
+//		System.out.println("TikhonovParams.setDefaultParams noiseEstimate=" + noiseEstimate + " -> deconvolution=" + deconvolution + " lambda=" + lambda + " sigma=" + sigma);
 	}
 }
