@@ -33,13 +33,14 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		NumberFormat floatFormat = NumberFormat.getNumberInstance();
 		floatFormat.setMinimumFractionDigits(2);
 
-		// --		
+		// ----
+		
 		JLabel lambdaLabel = new JLabel("Lambda:");
 		lambdaLabel.setToolTipText("Larger values yield more noise suppression.");
 		
 		lambdaPair = new SliderFieldPair(0, 100, floatFormat, TikhonovParams.lambdaMin, TikhonovParams.lambdaMax);
-		lambdaPair.setValue(params.deconvolution ? params.lambda2 : params.lambda1);
-		lambdaPair.addPropertyChangeListener(e -> { if (params.deconvolution) params.lambda2 = lambdaPair.getValue(); else params.lambda1 = lambdaPair.getValue(); fireParamsChangeEvent(); });
+		lambdaPair.setValue(params.lambda);
+		lambdaPair.addPropertyChangeListener(e -> { params.lambda = lambdaPair.getValue(); fireParamsChangeEvent(); });
 		
 		JSlider lambdaSlider = lambdaPair.getSlider();
 		
@@ -77,7 +78,7 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 		
 		deconvolutionCheckBox = new JCheckBox("Apply deconvolution");
 		deconvolutionCheckBox.setSelected(params.deconvolution);
-		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); lambdaPair.setValue(params.deconvolution ? params.lambda2 : params.lambda1); EnableDeconvolutionControls(params.deconvolution); fireParamsChangeEvent(); });
+		deconvolutionCheckBox.addActionListener(e -> { params.deconvolution = deconvolutionCheckBox.isSelected(); lambdaPair.setValue(params.lambda); EnableDeconvolutionControls(params.deconvolution); fireParamsChangeEvent(); });
 		deconvolutionCheckBox.setToolTipText("Sharpen the image.");
 
 		// Update controls that are dependent on whether we want deconvolution or not.
@@ -140,7 +141,7 @@ class TikhonovParamsPanel extends DenoiseParamsPanelBase
 	public void updatePanelFromParams()
 	{
 		deconvolutionCheckBox.setSelected(false);
-		lambdaPair.updateRange(TikhonovParams.lambdaMin, TikhonovParams.lambdaMax, params.lambda1);		
+		lambdaPair.updateRange(TikhonovParams.lambdaMin, TikhonovParams.lambdaMax, params.lambda);		
 		iterationsPair.updateRange(TikhonovParams.iterationsMin, TikhonovParams.iterationsMax, params.numIterations);
 	}
 }

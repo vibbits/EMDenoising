@@ -29,7 +29,7 @@ public class TikhonovDenoiser extends Denoiser
 		TikhonovParams params = (TikhonovParams)this.params;
 		
 		QValue denoisedImageCube = tikhonov_denoise.apply(noisyImageCube,
-										    	          new QValue(params.lambda1),
+										    	          new QValue(params.lambda),
 				                                          new QValue(params.numIterations));
 		
 		noisyImageCube.dispose();
@@ -56,7 +56,7 @@ public class TikhonovDenoiser extends Denoiser
 		
 		QValue denoisedImageCube = tikhonov_denoise_deconvolution.apply(noisyImageCube,
 												                        blurKernel,
-											                            new QValue(params.lambda2),
+											                            new QValue(params.lambda),
 				                                                        new QValue(params.numIterations));
 		
 		noisyImageCube.dispose();
