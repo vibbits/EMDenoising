@@ -3,11 +3,11 @@
 
 [DenoiseEM](https://bioimagingcore.be/DenoisEM/) is an [ImageJ](https://imagej.nih.gov/ij/index.html) plugin for GPU accelerated denoising of electron microscopy images or image stacks. It offers state-of-the-art denoising algorithms that can be optimized through interactive parameter selection. The plugin is fast and scalable due to its GPU accelerated backend based on the [Quasar](https://gepura.io/) programming language. 
 
-<a href="https://gepura.io/" target="_blank"><img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/QUASAR_logo_FINAL_S_crop_h75_transp.png" alt="Quasar logo" height="200"/></a>
+<a href="https://gepura.io/" target="_blank"><img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/QUASAR_logo_FINAL_S_crop_h75_transp.png" alt="Quasar logo" height="100"/></a>
 
 This software was developed by the Image Processing and Interpretation research group of Ghent University and the Bioinformatics Core of the Flanders Institute for Biotechnology (VIB).
 
-<a href="www.ugent.be" target="_blank"><img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/ugent.png" alt="UGent logo" height="100"/></a>
+<a href="www.ugent.be" target="_blank"><img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/ugent.png" alt="UGent logo" height="200"/></a>
 <a href="www.vib.be" target="_blank"><img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/vib.png" alt="VIB logo" height="200"/></a>
 
 # Requirements
