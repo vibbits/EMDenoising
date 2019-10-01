@@ -7,7 +7,7 @@
 
 This software was developed by the Image Processing and Interpretation research group of Ghent University and the Bioinformatics Core of the Flanders Institute for Biotechnology (VIB).
 
-<a href="www.ugent.be" target="_blank"><img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/ugent.png" alt="UGent logo" height="200"/></a>
+<a href="www.ugent.be" target="_blank"><img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/ugent.png" alt="UGent logo" height="100"/></a>
 <a href="www.vib.be" target="_blank"><img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/vib.png" alt="VIB logo" height="200"/></a>
 
 # Requirements
