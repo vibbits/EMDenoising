@@ -17,7 +17,7 @@ This software was developed by the Image Processing and Interpretation research 
 
 # Installation
 1. Save both [JavaQuasarBridge.jar](http://bioimagingcore.be/DenoisEM/bin/JavaQuasarBridge.jar) and [DenoisEM.jar](http://bioimagingcore.be/DenoisEM/bin/DenoisEM.jar) into the plugins folder of ImageJ/Fiji. 
-2. Save Quasar.zip in the root folder of ImageJ or Fiji.
+2. Save and extract Quasar.zip in the root folder of ImageJ or Fiji.
 
 The installation shouldn't take more than a few minutes. For more detailed installation instructions, we refer to the [project page](http://bioimagingcore.be/DenoisEM/installation.html). 
 
