@@ -1,4 +1,6 @@
 # DenoisEM
+<img src="https://github.com/vibbits/EMDenoising/blob/master/src/main/resources/be/vib/imagej/images/logo.png" alt="DenoisEM logo" width="100%"/>
+
 [DenoiseEM](https://bioimagingcore.be/DenoisEM/) is an [ImageJ](https://imagej.nih.gov/ij/index.html) plugin for GPU accelerated denoising of electron microscopy images or image stacks. It offers state-of-the-art denoising algorithms that can be optimized through interactive parameter selection. The plugin is fast and scalable due to its GPU accelerated backend based on the [Quasar](https://gepura.io/) programming language. 
 
 This software was developed by the Image Processing and Interpretation research group of Ghent University and the Bioinformatics Core of the Flanders Institute for Biotechnology.
