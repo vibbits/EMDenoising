@@ -1,3 +1,4 @@
 DenoisEM v0.0.1 requires QuasarPortableInstaller_1.0.6848.16543_Windows_x64_runtime.tar.xz
 DenoisEM v1.0.1 requires QuasarPortableInstaller_1.0.6978.11433_Windows_x64_runtime.tar.xz with a Quasar.Runtime.dll hotfix (Bart Goossens, email 21 Feb 2019)
+DenoisEM v1.1.0 requires QuasarPortableInstaller_1.0.6978.11433_Windows_x64_runtime.tar.xz with a Quasar.Runtime.dll hotfix (Bart Goossens, email 21 Feb 2019)
 
