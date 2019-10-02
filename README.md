@@ -29,5 +29,8 @@ We ask users that employ our plugin to refer to DenoisEM as follows:
 
 J. Roels, F. Vernaillen, A. Kremer, A. Goncalves, J. Aelterman, H. Q. Luong, B. Goossens, W. Philips, S. Lippens, Y. Saeys, "DenoisEM: An Interactive ImageJ Plugin for Semi-automated Image Denoising in Electron Microscopy", bioRxiv 644146; doi: https://doi.org/10.1101/644146
 
+# License
+This project is licensed under the terms of the [GPL3.0](LICENSE.md) license.
+
 # Contact
 Users with questions related to DenoisEM can always contact us through denoisem@irc.vib-ugent.be. Note that we have also provided an FAQ section on the [project page](http://bioimagingcore.be/DenoisEM/faq.html). 
