@@ -27,7 +27,7 @@ A demo example to get started with DenoisEM in a few minutes is provided on the 
 # Reference
 We ask users that employ our plugin to refer to DenoisEM as follows:
 
-Roels, Joris, Frank Vernaillen, Anna Kremer, Amanda Gonçalves, Jan Aelterman, Hiêp Q. Luong, Bart Goossens, Wilfried Philips, Saskia Lippens, and Yvan Saeys. “An Interactive ImageJ Plugin for Semi-Automated Image Denoising in Electron Microscopy.” Nature Communications 11(1):1–13. 2020. 
+Joris Roels, Frank Vernaillen, Anna Kremer, Amanda Goncalves, Jan Aelterman, Hiep Q. Luong, Bart Goossens, Wilfried Philips, Saskia Lippens, Yvan Saeys, "An interactive ImageJ plugin for semi-automated image denoising in electron microscopy", Nature Communications, 11(1):1–13; doi: https://doi.org/10.1038/s41467-020-14529-0
 
 # License
 This project is licensed under the terms of the [GPL3.0](LICENSE.md) license.
