@@ -183,11 +183,11 @@ function [accum_mtx, accum_weight] = denoise_nlmeans_cumsum_c( _
 
     % prewhitened image
     img_prewhit = imfilter(img_orig, corr_filter_inv, [(size(corr_filter_inv,0)-1)/2,(size(corr_filter_inv,1)-1)/2], "mirror")
-    img_prewhit = bound_extension(img_prewhit, half_block_size, half_block_size, "mirror")
+    img_prewhit = bound_extension2d(img_prewhit, half_block_size, half_block_size)
     
     % Extend images to avoid boundary artifacts
-    img_noisy = bound_extension(img_noisy, half_block_size, half_block_size, "mirror")
-    img_orig = bound_extension(img_orig, half_block_size, half_block_size, "mirror")
+    img_noisy = bound_extension2d(img_noisy, half_block_size, half_block_size)
+    img_orig = bound_extension2d(img_orig, half_block_size, half_block_size)
 
     [rows,cols] = size(img_noisy)
     Bs = (2*half_block_size+1)^2
@@ -352,8 +352,8 @@ function [accum_mtx, accum_weight] = denoise_nlmeans_cumsum( _
     h : scalar)
     
     % Extend images to avoid boundary artifacts
-    img_noisy = bound_extension(img_noisy, half_block_size, half_block_size, "mirror")
-    img_orig = bound_extension(img_orig, half_block_size, half_block_size, "mirror")
+    img_noisy = bound_extension2d(img_noisy, half_block_size, half_block_size)
+    img_orig = bound_extension2d(img_orig, half_block_size, half_block_size)
     
     [rows,cols] = size(img_noisy)
     Bs = (2*half_block_size+1)^2
@@ -505,61 +505,4 @@ function img_est = denoise_nlmeans( _
                                                           h : scalar)
     img_est = accum_mtx./accum_weight
     
-end
-
-% Extend image boundaries 
-%   y_ext: extension along the rows
-%   x_ext: extension along the columns
-%   type_ext:   'mirror'     mirror extension
-%               'mirror_nr': mirror without repeating the last pixel
-%               'circular':  fft2-like
-%               'zeros':     add zeros         
-% Function: bound_extension
-% 
-% Extend image boundaries 
-% 
-% Usage:
-%   : function [img_ext : mat] = bound_extension(img : mat, y_ext : int, x_ext : int, type_ext : string'const)
-% 
-% Parameters:
-% img - input image
-% y_ext - extension along the rows
-% x_ext - extension along the columns
-% type_ext - mirror extension: 'mirror', mirror without repeating the last pixel: 'mirror_nr', fft2-like: 'circular', add zeros: 'zeros'
-% 
-% Returns:
-% img_ext - extended image
-function [img_ext:mat] = bound_extension(img:mat, y_ext:int, x_ext:int, type_ext:string)
-    [Ny,Nx] = size(img)
-    img_ext = zeros(Ny+2*y_ext,Nx+2*x_ext)
-    img_ext[y_ext..Ny+y_ext-1,x_ext..Nx+x_ext-1] = img
-    
-    if type_ext == "mirror"
-        img_ext[0..y_ext-1,:] = img_ext[2*y_ext-1..-1..y_ext,:]
-        img_ext[:,0..x_ext-1] = img_ext[:,2*x_ext-1..-1..x_ext]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,:] = img_ext[Ny+y_ext-1..-1..Ny,:]
-        img_ext[:,Nx+x_ext..Nx+2*x_ext-1] = img_ext[:,Nx+x_ext-1..-1..Nx]
-        img_ext[0..y_ext-1,0..x_ext-1] = img_ext[2*y_ext-1..-1..y_ext,2*x_ext-1..-1..x_ext]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,Nx+x_ext..Nx+2*x_ext-1] = img_ext[Ny+y_ext-1..-1..Ny,Nx+x_ext-1..-1..Nx]
-        img_ext[0..y_ext-1,Nx+x_ext..Nx+2*x_ext-1] = img_ext[2*y_ext-1..-1..y_ext,Nx+x_ext-1..-1..Nx]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,0..x_ext-1] = img_ext[Ny+y_ext-1..-1..Ny,2*x_ext-1..-1..x_ext]
-    elseif type_ext == "mirror_nr"
-        img_ext[0..y_ext-1,:] = img_ext[2*y_ext..-1..y_ext+1,:]
-        img_ext[:,0..x_ext-1] = img_ext[:,2*x_ext..-1..x_ext+1]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,:] = img_ext[Ny+y_ext-2..-1..Ny-1,:]
-        img_ext[:,Nx+x_ext..Nx+2*x_ext-1] = img_ext[:,Nx+x_ext-2..-1..Nx-1]
-        img_ext[0..y_ext-1,0..x_ext] = img_ext[2*y_ext..-1..y_ext+1,2*x_ext..-1..x_ext+1]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,Nx+x_ext..Nx+2*x_ext-1] = img_ext[Ny+y_ext..-1..Ny+1,Nx+x_ext..-1..Nx+1]
-        img_ext[0..y_ext-1,Nx+x_ext..Nx+2*x_ext-1] = img_ext[2*y_ext..-1..y_ext+1,Nx+x_ext..-1..Nx+1]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,0..x_ext-1] = img_ext[Ny+y_ext..-1..Ny+1,2*x_ext..-1..x_ext+1]
-    elseif type_ext == "circular"
-        img_ext[0..y_ext-1,:] = img_ext[Ny..Ny+y_ext-1,:]
-        img_ext[:,0..x_ext-1] = img_ext[:,Nx..Nx+x_ext-1]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,:] = img_ext[y_ext..2*y_ext-1,:]
-        img_ext[:,Nx+x_ext..Nx+2*x_ext-1] = img_ext[:,x_ext..2*x_ext-1]
-        img_ext[0..y_ext-1,0..x_ext] = img_ext[Ny..Ny+y_ext-1,Nx..Nx+x_ext-1]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,Nx+x_ext..Nx+2*x_ext-1] = img_ext[y_ext..2*y_ext-1,x_ext..2*x_ext-1]
-        img_ext[0..y_ext-1,Nx+x_ext..Nx+2*x_ext-1] = img_ext[Ny..Ny+y_ext-1,x_ext..2*x_ext-1]
-        img_ext[Ny+y_ext..Ny+2*y_ext-1,0..x_ext-1] = img_ext[y_ext..2*y_ext-1,Nx..Nx+x_ext-1]
-    endif
 end

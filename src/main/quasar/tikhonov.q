@@ -58,7 +58,7 @@ function [] = main()
 
 end
 
-function x_est = tikhonov_denoise(y, lambda, num_iter=50)
+function x_est = tikhonov_denoise(y, lambda, num_iter=20)
     b = y
     x_est = y
     x_prev = y
@@ -84,7 +84,7 @@ function Ax = compute_A(x, lambda)
     Ax = x + lambda*imfilter(imfilter(x,L,[1,1],"mirror"),L,[1,1],"mirror")
 end
 
-function x_est = tikhonov_denoise_dec(y, H, lambda, num_iter=10)
+function x_est = tikhonov_denoise_dec(y, H, lambda, num_iter=20)
     b = y
     x_est = y
     x_prev = y
